@@ -1,0 +1,9 @@
+/run/initialize
+/run/verbose 1
+/random/setSeeds 299792458 662607015
+
+/Analysis/SetFileName data.root
+/gun/particle mu+
+/gun/momentum 0 0 -28 MeV
+/Primary/Rate 1e5 hertz
+/run/beamOn 1000

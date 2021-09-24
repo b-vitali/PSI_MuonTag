@@ -1,0 +1,25 @@
+MuonTag simulation (bvitali sett. 2021)
+
+It is a mix between the corde from the LXe example and Giovanni's code.
+
+-----------------------Work in progress-----------------------
+
+
+---------------------------History----------------------------
+
+----------24.09.2021----------
+- everything is the same but I just changed the default dimensions and added the axis in the 3D view
+
+
+--------------------------Giovanni's--------------------------
+It is possible to change the crystal size via cmd: /Element/det/CrysSize <length>
+
+Datas are automatically saved in the build directory in data.root. It will be recreated at each run so you may want to change its name through:  /Analysis/SetFileName *.root
+
+If you want you can collect the tracks of the e+ (or the parent particle) during each event.
+by using /Analysis/TracksPoints n you can:
+	- 0: collect the whole trajectory
+	- 1: collect only the first and the last point in the crystal
+	- n > 1 and n <= 10: collect n points at each event
+
+If you want you can collect single scintillation photons information by using /Analysis/Photons 0. The default value is 1 (no single optical poton info collection).
