@@ -7,6 +7,28 @@ It is a mix between the corde from the LXe example and Giovanni's code.
 
 ---------------------------History----------------------------
 
+----------02.10.2021----------
+- If i move the SiPM the simulation takes longer?
+
+----------01.10.2021----------
+- candleX4 doesnt work on TTree (yet).
+- i tried using a 50x0.1xthickness to see if I can change the proportion u d l r f b.
+	seems like it doenst work. ASK
+- move away the SiPM or at least find out the exit for the particles.
+- 0.05mm and 0.1mm have some problem. try again with "/process/msc/StepLimit UseSafetyPlus"
+	but i think the right solution is "/process/msc/RangeFactor 0.x"
+	http://www.hep.ph.ic.ac.uk/~yoshiu/COMET/comet_g4HTMLdoc/_process_msc_.html default = 0.02
+	Still nothing. the thetapositron is 90deg always for mu+28
+- in DetectorConstruction the function SetCrystalSize() is a bit strange. 
+	i think it needs to be changed because the particlegun is outside the world. problem?
+
+----------27.09.2021----------
+- (fEvID & (fEvID - 1)) == 0 to have a printout at powers of 2
+- made the geometry as supposed to (you can do it in the run.mac... /run/reinitialise??)
+- currents u d l r f b : should be the number of photons (I think?) at the external faces.
+- made a analysis.cpp to draw some histo and played a bit with 'candle' option
+	not sure on how canlde works and I would love to use candleX4
+
 ----------24.09.2021----------
 - everything is the same but I just changed the default dimensions and added the axis in the 3D view
 

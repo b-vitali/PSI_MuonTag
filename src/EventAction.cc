@@ -136,7 +136,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 		scintHit->Clear();
 		pixelHit->Clear();
 	}
-	if(fEvID % 100 == 0) std::cout << "Event n. " << fEvID << std::endl;
+	if(fEvID % 100 == 0 || (fEvID & (fEvID - 1)) == 0 ) std::cout << "Event n. " << fEvID << std::endl;
 	fRunAction->AdvanceGunTime();
 	fEvID = -1;
 }

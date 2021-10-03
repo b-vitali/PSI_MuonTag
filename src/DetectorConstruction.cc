@@ -516,7 +516,7 @@ void DetectorConstruction :: SetCrystalSize(G4ThreeVector size){
 
 	fCrysVolume->SetTranslation(G4ThreeVector(0, 0, 0.5 * SiPM_sizeZ));
 	fSiPMVolume->SetTranslation(G4ThreeVector(0, 0, -0.5 * (size.getZ())));
-	fElementVolume->SetTranslation(G4ThreeVector(0, 0, -(fSolidWorld->GetZHalfLength() - fSolidElement->GetZHalfLength())));
+	fElementVolume->SetTranslation(G4ThreeVector(0, 0, 0));
 	G4RunManager::GetRunManager()->GeometryHasBeenModified();
 }
 
