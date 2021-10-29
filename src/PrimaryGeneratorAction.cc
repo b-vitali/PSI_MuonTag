@@ -73,7 +73,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
     // Set gun position
     if(!fOCTrun){
 	    fParticleGun->SetParticleDefinition(particle);
-	    fParticleGun->SetParticlePosition(G4ThreeVector(0, 0, world_size));
+	    fParticleGun->SetParticlePosition(G4ThreeVector(0, 0, world_size)); //0.5*scintBox->GetYHalfLength()
 	    fParticleGun->GeneratePrimaryVertex(anEvent);
     }
     else{

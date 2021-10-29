@@ -44,6 +44,8 @@
 
 #include "G4GenericMessenger.hh"
 
+#include <G4UserLimits.hh>
+
 /// Constructor
 DetectorConstruction::DetectorConstruction() : 
 	G4VUserDetectorConstruction(), fmodel("75PE"), fCrysVolume(nullptr), 
@@ -354,8 +356,14 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes(){
     fSolidCrys = new G4Box("Crystal", 0.5*fCrysSizeX, 0.5*fCrysSizeY, 0.5*fCrysSizeZ);
     G4LogicalVolume* logicCrys = new G4LogicalVolume(fSolidCrys, fMaterial, "CrysLV");
     fLogicCrys = logicCrys;    
+	
+	//SetUserMinRange
+G4UserLimits *limits = new G4UserLimits ();
+limits->SetMaxAllowedStep(2*mm);
+fLogicCrys->SetUserLimits(limits);
 
-    // SiPM
+	
+	// SiPM
     G4Box* solidSiPM = new G4Box("SiPM", 0.5*SiPM_sizeXY, 0.5*SiPM_sizeXY, 0.5*(SiPM_sizeZ + fSiPM_windowZ));
     G4LogicalVolume* logicSiPM = new G4LogicalVolume(solidSiPM, fVacuum, "SiPM");
 

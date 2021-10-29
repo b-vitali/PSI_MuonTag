@@ -1,0 +1,16 @@
+{
+   # GUI specific settings
+   Gui.NormalFont:        -adobe-helvetica-medium-r-*-*-20-*-*-*-*-*-iso8859-1
+   Gui.BoldFont:          -adobe-helvetica-bold-r-*-*-20-*-*-*-*-*-iso8859-1
+   Gui.SmallFont:         -adobe-helvetica-medium-r-*-*-20-*-*-*-*-*-iso8859-1
+   Gui.ProportionalFont:  -adobe-courier-medium-r-*-*-20-*-*-*-*-*-iso8859-1
+   
+   Gui.DefaultFont: -*-helvetica-medium-r-*-*-20-*-*-*-*-*-iso8859-1 
+   Gui.MenuFont: -*-helvetica-medium-r-*-*-20-*-*-*-*-*-iso8859-1 
+   Gui.MenuHiFont: -*-helvetica-bold-r-*-*-20-*-*-*-*-*-iso8859-1 
+   Gui.DocFixedFont: -*-courier-medium-r-*-*-20-*-*-*-*-*-iso8859-1 
+   Gui.DocPropFont: -*-helvetica-medium-r-*-*-20-*-*-*-*-*-iso8859-1 
+   Gui.IconFont: -*-helvetica-medium-r-*-*-20-*-*-*-*-*-iso8859-1 
+   Gui.StatusFont: -*-helvetica-medium-r-*-*-20-*-*-*-*-*-iso8859-1
+}
+
