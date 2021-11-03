@@ -1,43 +1,57 @@
-# ******************************************************************************
-# This Geant4 macro file contains the very simply visualisation settings that 
-# we used during the course. Your can execute this macro file (as any other) 
-# from the user interface session (both from "terminal" and form "QT") as 
-# /control/execute vis.mac 
-# Please note, that since we draw the geometry in this macro the geometry needs 
-# to be created i.e. /run/initialize command needs to be invoked before. Also 
-# note, that you need to specify the correct location of the macro file relative 
-# to your executable.
-# ******************************************************************************
-
-# ------------------------------------------------------------------------------
+# Macro file for the visualization setting in the initialization phase
+# of the single BC400 crystal simulation
+#
 # Use this open statement to create an OpenGL view:
-/vis/open OGL
-
-# ------------------------------------------------------------------------------
-# Draw the geometry 
+/vis/open OGL 600x600-0+0
+#
+# Disable auto refresh and quieten vis messages whilst scene and trajectories are established:
+/vis/viewer/set/autoRefresh false
+/vis/verbose errors
+#
+# Draw geometry
 /vis/drawVolume
-
-# ------------------------------------------------------------------------------
-# Set the World volume invisible 
-/vis/geometry/set/visibility logic-World 0  false
-
-# ------------------------------------------------------------------------------
-/vis/geometry/set/colour logic-Target 0 0 0 255 0.3
-/vis/viewer/set/style surface 
 
 # ------------------------------------------------------------------------------
 # Add axes (orientation) and a scale (size)
 /vis/scene/add/axes 
 /vis/scene/add/scale
 
-# ------------------------------------------------------------------------------
-# Add (smooth) trajectories 
+#
+# Specify view angle:
+/vis/viewer/set/viewpointVector -1 0 0
+/vis/viewer/set/lightsVector -1 0 0
+#
+# Specify style
+/vis/viewer/set/style wireframe
+/vis/viewer/set/auxiliaryEdge true
+/vis/viewer/set/lineSegmentsPerCircle 100
+#
+#Draw smooth trajectories at end of event, showing trajectory points as markers 2 pixels wide:
 /vis/scene/add/trajectories smooth
+/vis/modeling/trajectories/create/drawByParticleID
+/vis/modeling/trajectories/drawByParticleID-0/default/setDrawStepPts true
+/vis/modeling/trajectories/drawByParticleID-0/default/setStepPtsSize 2
+#
+# To see only e+
+#/vis/filtering/trajectories/create/particleFilter 
+#/vis/filtering/trajectories/particleFilter-0/add e+
+# To superimpose all of the events from a given run:
+/vis/scene/endOfEventAction accumulate
+#
+# Attach text to one edge of crystal
+#/vis/scene/add/text 0 0 -1 mm  18 0 0 BC400
+#/vis/scene/add/text 0 0 -2 mm  18 0 0 SiPM
 
-# ------------------------------------------------------------------------------
-# Set to accumulate trajectories up to 100 events
-/vis/scene/endOfEventAction accumulate 100
-
-# ------------------------------------------------------------------------------
-# Set the view point in terms angles 
-/vis/viewer/set/viewpointThetaPhi -40 -50
+/vis/viewer/set/style surface
+/vis/viewer/set/hiddenMarker true
+# Filtering optical gamma
+/vis/filtering/trajectories/create/particleFilter p
+/vis/filtering/trajectories/p/add opticalphoton
+/vis/filtering/trajectories/p/invert true 
+#
+# Re-establish auto refreshing and verbosity:
+/vis/viewer/set/autoRefresh true
+/vis/verbose warnings
+#
+# For file-based drivers, use this to create an empty detector view:
+#/vis/viewer/flush

@@ -1,3 +1,0 @@
-/home/bastiano/Documents/Geant4/PSI/Tag_test/CMakeFiles/rebuild_cache.dir
-/home/bastiano/Documents/Geant4/PSI/Tag_test/CMakeFiles/edit_cache.dir
-/home/bastiano/Documents/Geant4/PSI/Tag_test/CMakeFiles/yourMainApplication.dir
