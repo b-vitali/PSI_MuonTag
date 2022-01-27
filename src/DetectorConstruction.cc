@@ -253,7 +253,7 @@ void DetectorConstruction::DefineMaterials(){
 	
 	G4double vRIND = 1.;
 	G4double vacuum_RIND[] = {vRIND, vRIND};
-	assert(sizeof(vacuum_RIN) == sizeof(vacuum_Energy));
+	assert(sizeof(vacuum_RIND) == sizeof(vacuum_Energy));
 	
 	G4MaterialPropertiesTable* vacuum_mt = new G4MaterialPropertiesTable();
 	vacuum_mt->AddProperty("RINDEX", vacuum_Energy, vacuum_RIND, vacnum);

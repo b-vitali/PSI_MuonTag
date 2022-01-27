@@ -61,7 +61,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	ScintHit* scintHit;
 	G4int N = ScintHitCollection->entries();
 	PixelHit* pixelHit;
-	assert(N == PixelHitCollection->entries());
+	assert(N == (int) PixelHitCollection->entries());
 	for(int i = 0; i < N; i++){
 		scintHit = (*ScintHitCollection)[i];
 		pixelHit = (*PixelHitCollection)[i];
