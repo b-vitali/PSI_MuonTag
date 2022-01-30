@@ -6,12 +6,12 @@
 
 // Basic class
 #include "G4VUserActionInitialization.hh"
+#include "PrimaryGeneratorAction.hh"
 
 /*
 // Dependences wit Run Event and PrimaryGenerator
 #include "RunAction.hh"
 #include "EventAction.hh"
-#include "PrimaryGeneratorAction.hh"
 */
 
 class ActionInitialization : public G4VUserActionInitialization{
