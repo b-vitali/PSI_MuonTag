@@ -5,7 +5,11 @@
 
 MyPhysicsList::MyPhysicsList()
 {
-	
+	RegisterPhysics (new G4EmStandardPhysics());
+    RegisterPhysics (new G4OpticalPhysics());
+    RegisterPhysics(new G4DecayPhysics());
+    RegisterPhysics(new G4RadioactiveDecayPhysics());
+	/*
 	G4VModularPhysicsList* physicsList = new FTFP_BERT;
 	
 	physicsList->ReplacePhysics(new G4EmStandardPhysics_option4());
@@ -23,6 +27,7 @@ MyPhysicsList::MyPhysicsList()
 	opticalPhysics->SetTrackSecondariesFirst(kScintillation, true);
 
 	physicsList->RegisterPhysics(opticalPhysics);
+	*/
 	
 }
 

@@ -15,10 +15,13 @@ if(WITH_GEANT4_UIVIS)
 else()
     find_package(Geant4 REQUIRED)
 endif()
+
 #----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
 # Setup inclue directory for this project#
 include(${Geant4_USE_FILE})
+
+#----------------------------------------------------------------------------
 # You need to tell CMake where to find the ROOT installation. This can be done in a number of ways:
 #   - ROOT built with classic configure/make use the provided $ROOTSYS/etc/cmake/FindROOT.cmake
 #   - ROOT built with CMake. Add in CMAKE_PREFIX_PATH the installation prefix for ROOT
@@ -55,11 +58,11 @@ target_link_libraries(scintsim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 # build element. This is so that we can run the executable directly because it 
 # relies on these scripts being the current working sirectory.
 #
-#set(ELEMENT_SCRIPTS
+set(ELEMENT_SCRIPTS
 #    run.mac
-#    init_vis.mac
-#    vis.mac
-#    )
+    init_vis.mac
+    vis.mac
+    )
 
 foreach(_script ${ELEMENT_SCRIPTS})
     configure_file(

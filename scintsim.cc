@@ -1,13 +1,9 @@
 /// \file  scintsim.cc
 /// \brief Main of the scintillator simulation
 
+// Stuff needed to have some handle
 #include <TTree.h>
-
-
 #include <iostream>
-
-#include "DetectorConstruction.hh"
-#include "ActionInitialization.hh"
 
 #ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
@@ -16,32 +12,26 @@
 #endif
 
 #include "G4UImanager.hh"
-#include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
+#include "G4VisManager.hh"
+#include "G4VisExecutive.hh"
 
+// My files to define the detector, the action and the physics list
+#include "DetectorConstruction.hh"
+#include "ActionInitialization.hh"
 #include "Physics.hh"
-//#include "FTFP_BERT.hh"
-//#include "G4OpticalPhysics.hh"
-//#include "G4EmStandardPhysics_option4.hh"
-//#include "Randomize.hh"
-//#include "G4TScoreNtupleWriter.hh"
-
-//#include "G4Types.hh"
 
 
 int main(int argc, char** argv){
     // Detect interactive mode (if no macro) and define UI session
     G4UIExecutive* ui = 0;
-    if(argc == 1){
-        ui = new G4UIExecutive(argc, argv);
-    }
 
 	// Construct the default run manager
-#ifdef G4MULTITHREADED
-	G4MTRunManager* runManager = new G4MTRunManager;
-#else
-	G4RunManager*   runManager = new G4RunManager;
-#endif
+    #ifdef G4MULTITHREADED
+      G4MTRunManager* runManager = new G4MTRunManager;
+    #else
+      G4RunManager* runManager = new G4RunManager;
+    #endif
 
 
     // Set mandatory initialization classes
@@ -49,10 +39,12 @@ int main(int argc, char** argv){
     runManager->SetUserInitialization(new MyPhysicsList());
     runManager->SetUserInitialization(new ActionInitialization());
 
-    runManager->Initialize();
+    if(argc == 1){
+        ui = new G4UIExecutive(argc, argv);
+    }
 
     //Initialize visualization
-    G4VisManager* visManager = new G4VisExecutive;
+    G4VisManager* visManager = new G4VisExecutive();
     visManager->Initialize();
 
     // Get the pointer to the User Interface manager
@@ -67,11 +59,7 @@ int main(int argc, char** argv){
     }
     else{
         // interactive mode
-        
-        //! For the time being the default visualization is writte here. a "vis.mac" will be made
-        //UImanager->ApplyCommand("/control/execute init_vis.mac");
-        UImanager->ApplyCommand("/vis/open OGL");
-        UImanager->ApplyCommand("/vis/drawVolume");
+        UImanager->ApplyCommand("/control/execute vis.mac");
     /*
         if(ui->IsGUI()){
             UImanager->ApplyCommand("/control/execute gui.mac");
