@@ -59,12 +59,16 @@ int main(int argc, char** argv){
     }
     else{
         // interactive mode
-        UImanager->ApplyCommand("/control/execute vis.mac");
-    /*
-        if(ui->IsGUI()){
-            UImanager->ApplyCommand("/control/execute gui.mac");
-        }
-    */
+        //UImanager->ApplyCommand("/control/execute vis.mac");
+        UImanager->ApplyCommand("/run/initialize");
+        UImanager->ApplyCommand("/vis/open OGL 600x600-0+0");
+        UImanager->ApplyCommand("/vis/drawVolume");
+        UImanager->ApplyCommand("/vis/viewer/set/viewpointVector -1 1 1");
+        //UImanager->ApplyCommand("/vis/scene/add/axes");
+        //UImanager->ApplyCommand("/vis/scene/add/scale");
+        UImanager->ApplyCommand("/vis/viewer/set/autorefresh true");
+        UImanager->ApplyCommand("/vis/scene/add/trajectories smooth");
+
         ui->SessionStart();
         delete ui;
     }
