@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include "DetectorConstruction.hh"
-//#include "ActionInitialization.hh"
+#include "ActionInitialization.hh"
 
 #ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
@@ -47,6 +47,7 @@ int main(int argc, char** argv){
     // Set mandatory initialization classes
     runManager->SetUserInitialization(new DetectorConstruction());
     runManager->SetUserInitialization(new MyPhysicsList());
+    runManager->SetUserInitialization(new ActionInitialization());
 
     runManager->Initialize();
 
