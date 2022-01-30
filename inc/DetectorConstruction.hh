@@ -16,6 +16,9 @@
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 
+#include "G4VisAttributes.hh"
+#include "G4Colour.hh"
+
 class G4Box;
 class G4Material;
 class G4Element;
@@ -31,20 +34,32 @@ class DetectorConstruction : public G4VUserDetectorConstruction
         virtual G4VPhysicalVolume* Construct();
 	
 	void DefineMaterials();	
+	void DefineOpticalProperties();	
+
 	G4VPhysicalVolume* DefineVolumes();
 
 	// Geometry	
+	// World
 	G4Box* fSolidWorld;
-	G4double fWorldSizeX, fWorldSizeY, fWorldSizeZ;
 	G4LogicalVolume* fLogicWorld;
 	G4PVPlacement* fPhysWorld;
+
+	// Scint
+	G4Box* fSolidScint;
+	G4LogicalVolume* fLogicScint;
+	G4PVPlacement* fPhysScint;
 
 	G4bool fCheckOverlaps;
 
 	// Materials & Elements
+	G4Material* fAir;
 	G4Material* fVacuum;
 	G4Material* fBC400;
 	G4Material* fLYSO;
+
+	G4MaterialPropertiesTable* fBC400_mt;
+	G4MaterialPropertiesTable* fLYSO_mt;
+  	G4bool fPhotonWorldPropagation;
 
 	G4Element* fH;
 	G4Element* fC;

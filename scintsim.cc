@@ -66,8 +66,11 @@ int main(int argc, char** argv){
         UImanager->ApplyCommand("/vis/viewer/set/viewpointVector -1 1 1");
         //UImanager->ApplyCommand("/vis/scene/add/axes");
         //UImanager->ApplyCommand("/vis/scene/add/scale");
+        UImanager->ApplyCommand("/vis/viewer/set/style s");
         UImanager->ApplyCommand("/vis/viewer/set/autorefresh true");
         UImanager->ApplyCommand("/vis/scene/add/trajectories smooth");
+        UImanager->ApplyCommand("/vis/scene/endOfEventAction accumulate");
+        UImanager->ApplyCommand("/vis/ogl/set/displayListLimit 100000");
 
         ui->SessionStart();
         delete ui;
