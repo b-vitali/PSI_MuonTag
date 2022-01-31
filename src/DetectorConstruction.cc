@@ -207,14 +207,19 @@ void DetectorConstruction::DefineOpticalProperties()
 G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 {
 	// World dimentions
-    G4double world_sizeX = 1*m;
-    G4double world_sizeY = 1*m;
-    G4double world_sizeZ = 2*m;
+    G4double world_sizeX = 30*cm;
+    G4double world_sizeY = 30*cm;
+    G4double world_sizeZ = 50*cm;
 	
 	// Scintillator dimensions
     G4double scint_sizeX = 20*cm;
     G4double scint_sizeY = 20*cm;
     G4double scint_sizeZ = 5*mm;
+
+	// VirtualDetector dimensions
+    G4double vd_sizeX = 20*cm;
+    G4double vd_sizeY = 20*cm;
+    G4double vd_sizeZ = 10*mm;
 
 	// World Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidWorld	= new G4Box("World", 0.5*world_sizeX, 0.5*world_sizeY, 0.5*world_sizeZ);
@@ -224,10 +229,22 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	// Scintillator Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidScint	= new G4Box("Scint", 0.5*scint_sizeX, 0.5*scint_sizeY, 0.5*scint_sizeZ);
     fLogicScint = new G4LogicalVolume(fSolidScint, fBC400, "Scint");
-    fPhysScint	= new G4PVPlacement(0, G4ThreeVector(0., 0., 0.7*m), fLogicScint, "Scint", fLogicWorld, false, 0, fCheckOverlaps);
+    fPhysScint	= new G4PVPlacement(0, G4ThreeVector(0., 0., 20*cm), fLogicScint, "Scint", fLogicWorld, false, 0, fCheckOverlaps);
 
-    fLogicWorld->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
-    fLogicScint->SetVisAttributes(G4Colour(1, 1, 1, 0.3));
+	// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
+	fSolidVD	= new G4Box("VD", 0.5*vd_sizeX, 0.5*vd_sizeY, 0.5*vd_sizeZ);
+    fLogicVD 	= new G4LogicalVolume(fSolidVD, fVacuum, "VD");
+    fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., 22*cm), fLogicVD, "VD", fLogicWorld, false, 0, fCheckOverlaps);
 
+    fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
+    fLogicScint	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.3));
+    fLogicVD	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.2));
+	
     return fPhysWorld;
+}
+
+void DetectorConstruction::ConstructSDandField()
+{
+	VirtualDetectorSD * VD_SD = new VirtualDetectorSD("VirtualDetector");
+	fLogicVD->SetSensitiveDetector(VD_SD);
 }

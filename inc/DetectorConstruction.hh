@@ -19,6 +19,8 @@
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 
+#include "VirtualDetectorSD.hh"
+
 class G4Box;
 class G4Material;
 class G4Element;
@@ -33,42 +35,51 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     public:
         virtual G4VPhysicalVolume* Construct();
 	
-	void DefineMaterials();	
-	void DefineOpticalProperties();	
+		// This is needed for SensitiveDetectors and Fields
+		virtual void ConstructSDandField();
 
-	G4VPhysicalVolume* DefineVolumes();
+	private:
+		void DefineMaterials();	
+		void DefineOpticalProperties();	
 
-	// Geometry	
-	// World
-	G4Box* fSolidWorld;
-	G4LogicalVolume* fLogicWorld;
-	G4PVPlacement* fPhysWorld;
+		G4VPhysicalVolume* DefineVolumes();
 
-	// Scint
-	G4Box* fSolidScint;
-	G4LogicalVolume* fLogicScint;
-	G4PVPlacement* fPhysScint;
+		//? Geometry	
+		// World
+		G4Box* fSolidWorld;
+		G4LogicalVolume* fLogicWorld;
+		G4PVPlacement* fPhysWorld;
 
-	G4bool fCheckOverlaps;
+		// Scint
+		G4Box* fSolidScint;
+		G4LogicalVolume* fLogicScint;
+		G4PVPlacement* fPhysScint;
 
-	// Materials & Elements
-	G4Material* fAir;
-	G4Material* fVacuum;
-	G4Material* fBC400;
-	G4Material* fLYSO;
+		// VD
+		G4Box* fSolidVD;
+		G4LogicalVolume* fLogicVD;
+		G4PVPlacement* fPhysVD;
 
-	G4MaterialPropertiesTable* fBC400_mt;
-	G4MaterialPropertiesTable* fLYSO_mt;
-  	G4bool fPhotonWorldPropagation;
+		G4bool fCheckOverlaps;
 
-	G4Element* fH;
-	G4Element* fC;
-	G4Element* fN;
-	G4Element* fO;
-	G4Element* fSie;
-	G4Element* fY;
-	G4Element* fCe;
-	G4Element* fLu;
+		//? Materials & Elements
+		G4Material* fAir;
+		G4Material* fVacuum;
+		G4Material* fBC400;
+		G4Material* fLYSO;
+
+		G4MaterialPropertiesTable* fBC400_mt;
+		G4MaterialPropertiesTable* fLYSO_mt;
+  		G4bool fPhotonWorldPropagation;
+
+		G4Element* fH;
+		G4Element* fC;
+		G4Element* fN;
+		G4Element* fO;
+		G4Element* fSie;
+		G4Element* fY;
+		G4Element* fCe;
+		G4Element* fLu;
 
 };
 
