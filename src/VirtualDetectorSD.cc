@@ -15,10 +15,14 @@ VirtualDetectorSD::~VirtualDetectorSD()
 
 G4bool VirtualDetectorSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ROHist)
 {
+ 
     G4Track * track = aStep->GetTrack();
-   	if(aStep->GetTrack()->GetTrackID() == 1){
-           
-        track->SetTrackStatus(fStopAndKill);
+
+   	if(aStep->GetTrack()->GetTrackID() == 1)
+        { 
+        //! Not working properly
+        //if(aStep->IsFirstStepInVolume()) {G4cout<<"blabla"<<G4endl; return false;}
+        //track->SetTrackStatus(fStopAndKill);
     
         G4StepPoint *preStepPoint  = aStep->GetPreStepPoint();
         G4StepPoint *postStepPoint = aStep->GetPostStepPoint();
@@ -28,15 +32,19 @@ G4bool VirtualDetectorSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ROHis
     	G4TouchableHistory* thePostTouchable = (G4TouchableHistory*)(postStepPoint->GetTouchable());
     	G4VPhysicalVolume* thePostPV = thePostTouchable->GetVolume();
     
-        G4cout << thePrePV->GetName() << " " <<preStepPoint->GetPosition()<< "&&" << thePostPV->GetName()<<postStepPoint->GetPosition() << G4endl;
+        G4cout << thePrePV->GetName() << " " <<preStepPoint->GetPosition()<< " && " << thePostPV->GetName()<< " " <<postStepPoint->GetPosition() << G4endl;
+        G4cout << thePrePV->GetName() << " " <<preStepPoint->GetMomentum()<< " && " << thePostPV->GetName()<< " " <<postStepPoint->GetMomentum() << G4endl;
+        G4cout << thePrePV->GetName() << " " <<preStepPoint->GetLocalTime()<< " && " << thePostPV->GetName()<< " " <<postStepPoint->GetLocalTime() << G4endl;
     
-    
-        if(thePrePV->GetName() == "World" && thePostPV->GetName() == "VD")
-        {
-            G4ThreeVector posIn = preStepPoint->GetPosition();
-            G4cout << "position in :" << posIn << G4endl;
-        }
-    
-        else return false;  
+        fVDTime = preStepPoint->GetLocalTime();
+        G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
+
+        G4AnalysisManager *man = G4AnalysisManager::Instance();
+        man->FillNtupleIColumn(0,evt);
+        man->FillNtupleDColumn(1,fVDTime);
+        man->AddNtupleRow(0);
     }
+
+    else return false;  
+
 }

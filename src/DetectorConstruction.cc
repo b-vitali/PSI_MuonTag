@@ -234,7 +234,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidVD	= new G4Box("VD", 0.5*vd_sizeX, 0.5*vd_sizeY, 0.5*vd_sizeZ);
     fLogicVD 	= new G4LogicalVolume(fSolidVD, fVacuum, "VD");
-    fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., 22*cm), fLogicVD, "VD", fLogicWorld, false, 0, fCheckOverlaps);
+    fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., 5*cm), fLogicVD, "VD", fLogicWorld, false, 0, fCheckOverlaps);
 
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
     fLogicScint	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.3));
