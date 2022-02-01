@@ -1,5 +1,5 @@
-/// \file  DetectorConstruction.cc
-/// \brief Class to define the experimental setup
+/// \file  DetectorConstruction.hh
+/// \brief Implementation of the class to define the experimental setup
 
 #include "DetectorConstruction.hh"
 
@@ -236,6 +236,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
     fLogicVD 	= new G4LogicalVolume(fSolidVD, fVacuum, "VD");
     fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., 5*cm), fLogicVD, "VD", fLogicWorld, false, 0, fCheckOverlaps);
 
+	// Set how the volumes are visualized
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
     fLogicScint	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.3));
     fLogicVD	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.2));
@@ -245,6 +246,9 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 void DetectorConstruction::ConstructSDandField()
 {
+	// Create the Sensitive Detector defined in VirtualDetectorSD 
 	VirtualDetectorSD * VD_SD = new VirtualDetectorSD("VirtualDetector");
+	
+	// Assign the SD to the logial volume
 	fLogicVD->SetSensitiveDetector(VD_SD);
 }

@@ -1,5 +1,5 @@
 /// \file  ActionInitialization.cc
-/// \brief Implementation on the ActionInitialization class
+/// \brief Implementation of the ActionInitialization class
 
 #include "ActionInitialization.hh"
 

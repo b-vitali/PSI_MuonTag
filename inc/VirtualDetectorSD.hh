@@ -1,5 +1,5 @@
 /// \file  VirtualDetectorSD.hh
-/// \brief Definition the SensitiveDetector for the VirtualDetector
+/// \brief Definition of the SensitiveDetector for the VirtualDetector
 
 #ifndef VirtualDetectorSD_h
 #define VirtualDetectorSD_h 1

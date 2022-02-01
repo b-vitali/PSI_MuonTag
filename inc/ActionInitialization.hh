@@ -7,14 +7,11 @@
 // Basic class
 #include "G4VUserActionInitialization.hh"
 
+// Dependences wit PrimaryGenerator Run and Event
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
+//#include "EventAction.hh"
 
-/*
-// Dependences wit Run Event and PrimaryGenerator
-#include "RunAction.hh"
-#include "EventAction.hh"
-*/
 
 class ActionInitialization : public G4VUserActionInitialization{
     public:
@@ -22,7 +19,7 @@ class ActionInitialization : public G4VUserActionInitialization{
         virtual ~ActionInitialization();
 
         // This is basically the main function of our simulation. 
-        //Takes care of a lot of stuff
+        // Takes care of a lot of stuff
         virtual void BuildForMaster() const;
         virtual void Build() const;
 };

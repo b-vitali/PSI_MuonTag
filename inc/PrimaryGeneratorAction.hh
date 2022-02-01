@@ -1,3 +1,6 @@
+/// \file  PrimaryGeneratorAction.hh
+/// \brief Definition of the PrimaryGeneratorAction class, it is the particle gun
+
 #ifndef PrimaryGeneratorAction_h
 #define PrimaryGeneratorAction_h 1
 

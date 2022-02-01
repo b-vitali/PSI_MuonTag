@@ -1,5 +1,5 @@
-/// \file   RunAction.hh
-/// \brief  Definition of RunAction class, takes care of ROOT output
+/// \file  RunAction.cc
+/// \brief Definition of the RunAction class, takes care of ROOT output
 
 #ifndef RunAction_h
 #define RunAction_h 1

@@ -1,5 +1,5 @@
 /// \file  Physics.cc
-/// \brief Define our PhysicsList : how the particles interact
+/// \brief Implement our PhysicsList : how the particles interact
 
 #include "Physics.hh"
 

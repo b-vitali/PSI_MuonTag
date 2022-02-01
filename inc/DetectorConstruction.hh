@@ -1,5 +1,5 @@
 /// \file  DetectorConstruction.hh
-/// \brief Class to define the experimental setup
+/// \brief Definition of the class to define the experimental setup
 
 #ifndef DetectorConstruction_h
 #define DecectorConstruction_h 1
@@ -39,6 +39,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		virtual void ConstructSDandField();
 
 	private:
+	
+		// Material and Optical properties separated for clarity
 		void DefineMaterials();	
 		void DefineOpticalProperties();	
 

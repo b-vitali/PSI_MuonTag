@@ -1,5 +1,5 @@
 /// \file  VirtualDetectorSD.hh
-/// \brief Definition the SensitiveDetector for the VirtualDetector
+/// \brief Implementation of the SensitiveDetector for the VirtualDetector
 
 // Basic class
 #include "VirtualDetectorSD.hh"
@@ -13,15 +13,13 @@ G4VSensitiveDetector(name)
 VirtualDetectorSD::~VirtualDetectorSD()
 {}
 
+
 G4bool VirtualDetectorSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ROHist)
 {
- 
     G4Track * track = aStep->GetTrack();
 
    	if(aStep->GetTrack()->GetTrackID() == 1)
         { 
-        //! Not working properly
-        //if(aStep->IsFirstStepInVolume()) {G4cout<<"blabla"<<G4endl; return false;}
         //track->SetTrackStatus(fStopAndKill);
     
         G4StepPoint *preStepPoint  = aStep->GetPreStepPoint();

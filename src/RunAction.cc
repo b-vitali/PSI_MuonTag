@@ -16,6 +16,7 @@ void RunAction::BeginOfRunAction(const G4Run*)
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 	man->OpenFile("output.root");
 
+	// Ntuple for the VirtualDetector
 	man->CreateNtuple("VD", "VD");
 	man->CreateNtupleIColumn("fEvent");
 	man->CreateNtupleDColumn("fVDTime");
@@ -32,6 +33,7 @@ void RunAction::BeginOfRunAction(const G4Run*)
 
 void RunAction::EndOfRunAction(const G4Run*)
 {
+	// Write and Close the Root file
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 	man->Write();
 	man->CloseFile();
