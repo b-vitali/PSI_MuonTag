@@ -214,7 +214,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	// Scintillator dimensions
     G4double scint_sizeX = 20*cm;
     G4double scint_sizeY = 20*cm;
-    G4double scint_sizeZ = 5*mm;
+    G4double scint_sizeZ = 10*mm;
 
 	// VirtualDetector dimensions
     G4double vd_sizeX = 20*cm;
@@ -234,7 +234,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidVD	= new G4Box("VD", 0.5*vd_sizeX, 0.5*vd_sizeY, 0.5*vd_sizeZ);
     fLogicVD 	= new G4LogicalVolume(fSolidVD, fVacuum, "VD");
-    fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., 5*cm), fLogicVD, "VD", fLogicWorld, false, 0, fCheckOverlaps);
+    fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., 22*cm), fLogicVD, "VD", fLogicWorld, false, 0, fCheckOverlaps);
 
 	// Set how the volumes are visualized
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));

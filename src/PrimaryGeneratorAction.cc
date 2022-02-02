@@ -9,14 +9,14 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 
     // Default in the construction so that it can be overwritten later
     G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
-    G4ParticleDefinition * particle = particleTable->FindParticle("mu+");
+    G4ParticleDefinition * particle = particleTable->FindParticle("gamma");
 
     G4ThreeVector pos(0.,0.,0.);
     G4ThreeVector mom(0.,0.,1.);
 
     fParticleGun->SetParticlePosition(pos);
     fParticleGun->SetParticleMomentumDirection(mom);
-    fParticleGun->SetParticleMomentum(100.*MeV);
+    fParticleGun->SetParticleMomentum(17.6*MeV);
     fParticleGun->SetParticleDefinition(particle);
 
 }
