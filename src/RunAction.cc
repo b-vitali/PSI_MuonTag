@@ -20,6 +20,8 @@ void RunAction::BeginOfRunAction(const G4Run*)
 	man->CreateNtuple("VD", "VD");
 	man->CreateNtupleIColumn("fEvent");
 	man->CreateNtupleDColumn("fVDTime");
+	man->CreateNtupleIColumn("fParticleID");
+	man->CreateNtupleDColumn("fMomOut");
 	man->FinishNtuple(0);
 	/*
 	fData = TFile::Open(fName, "RECREATE");
