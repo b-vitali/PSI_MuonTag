@@ -21,6 +21,8 @@
 
 #include "VirtualDetectorSD.hh"
 
+#include "DetectorMessenger.hh"
+
 class G4Box;
 class G4Material;
 class G4Element;
@@ -38,6 +40,12 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		// This is needed for SensitiveDetectors and Fields
 		virtual void ConstructSDandField();
 
+	public:
+		// Functions needed to use the Messenger
+		void SetScintSize(G4double);
+    	void SetScintSize(G4ThreeVector);
+		void SetScintMaterial(G4String);
+
 	private:
 	
 		// Material and Optical properties separated for clarity
@@ -46,7 +54,27 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
 		G4VPhysicalVolume* DefineVolumes();
 
+		DetectorMessenger* fDetectorMessenger;
+
+
 		//? Geometry	
+		//-----------------------------------
+		// World dimentions
+    	G4double fWorldSizeX;
+    	G4double fWorldSizeY;
+    	G4double fWorldSizeZ;
+
+		// Scintillator dimensions
+    	G4double fScintSizeX;
+    	G4double fScintSizeY;
+    	G4double fScintSizeZ;
+
+		// VirtualDetector dimensions
+    	G4double fVDSizeX;
+    	G4double fVDSizeY;
+    	G4double fVDSizeZ;
+
+		//-----------------------------------
 		// World
 		G4Box* fSolidWorld;
 		G4LogicalVolume* fLogicWorld;
@@ -65,14 +93,13 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4bool fCheckOverlaps;
 
 		//? Materials & Elements
+		G4Material* fScintMaterial;
+
+		//-----------------------------------
 		G4Material* fAir;
 		G4Material* fVacuum;
 		G4Material* fBC400;
 		G4Material* fLYSO;
-
-		G4MaterialPropertiesTable* fBC400_mt;
-		G4MaterialPropertiesTable* fLYSO_mt;
-  		G4bool fPhotonWorldPropagation;
 
 		G4Element* fH;
 		G4Element* fC;
@@ -82,6 +109,11 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4Element* fY;
 		G4Element* fCe;
 		G4Element* fLu;
+
+		//-----------------------------------
+		G4MaterialPropertiesTable* fBC400_mt;
+		G4MaterialPropertiesTable* fLYSO_mt;
+  		G4bool fPhotonWorldPropagation;
 
 };
 

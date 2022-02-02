@@ -6,13 +6,31 @@
 
 DetectorConstruction::DetectorConstruction()
 {
+	// World dimentions
+    fWorldSizeX = 30*cm;
+    fWorldSizeY = 30*cm;
+    fWorldSizeZ = 50*cm;
+	
+	// Scintillator dimensions
+    fScintSizeX = 20*cm;
+    fScintSizeY = 20*cm;
+    fScintSizeZ = 5*mm;
+
+	// VirtualDetector dimensions
+    fVDSizeX = 20*cm;
+    fVDSizeY = 20*cm;
+    fVDSizeZ = 10*mm;
+
 	// At creation it calls for the function creating the materials 
+	fDetectorMessenger = new DetectorMessenger(this);
 	DefineMaterials();
 	DefineOpticalProperties();
 }
 
 DetectorConstruction :: ~DetectorConstruction()
-{}
+{
+	delete fDetectorMessenger;
+}
 
 G4VPhysicalVolume* DetectorConstruction::Construct()
 {
@@ -63,6 +81,9 @@ void DetectorConstruction::DefineMaterials()
 	fAir = new G4Material("Air", density = 0.0010*g/cm3, 2);
 	fAir->AddElement(fN, 70 * perCent);
 	fAir->AddElement(fO, 30 * perCent);
+
+	// Assign default materials
+	fScintMaterial = fBC400;
 }
 
 void DetectorConstruction::DefineOpticalProperties()
@@ -206,33 +227,18 @@ void DetectorConstruction::DefineOpticalProperties()
 
 G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 {
-	// World dimentions
-    G4double world_sizeX = 30*cm;
-    G4double world_sizeY = 30*cm;
-    G4double world_sizeZ = 50*cm;
-	
-	// Scintillator dimensions
-    G4double scint_sizeX = 20*cm;
-    G4double scint_sizeY = 20*cm;
-    G4double scint_sizeZ = 5*mm;
-
-	// VirtualDetector dimensions
-    G4double vd_sizeX = 20*cm;
-    G4double vd_sizeY = 20*cm;
-    G4double vd_sizeZ = 10*mm;
-
 	// World Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
-	fSolidWorld	= new G4Box("World", 0.5*world_sizeX, 0.5*world_sizeY, 0.5*world_sizeZ);
+	fSolidWorld	= new G4Box("World", 0.5*fWorldSizeX, 0.5*fWorldSizeY, 0.5*fWorldSizeZ);
     fLogicWorld = new G4LogicalVolume(fSolidWorld, fVacuum, "World");
     fPhysWorld	= new G4PVPlacement(0, G4ThreeVector(), fLogicWorld, "World", 0, false, 0, fCheckOverlaps);
 
 	// Scintillator Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
-	fSolidScint	= new G4Box("Scint", 0.5*scint_sizeX, 0.5*scint_sizeY, 0.5*scint_sizeZ);
-    fLogicScint = new G4LogicalVolume(fSolidScint, fBC400, "Scint");
+	fSolidScint	= new G4Box("Scint", 0.5*fScintSizeX, 0.5*fScintSizeY, 0.5*fScintSizeZ);
+    fLogicScint = new G4LogicalVolume(fSolidScint, fScintMaterial, "Scint");
     fPhysScint	= new G4PVPlacement(0, G4ThreeVector(0., 0., 20*cm), fLogicScint, "Scint", fLogicWorld, false, 0, fCheckOverlaps);
 
 	// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
-	fSolidVD	= new G4Box("VD", 0.5*vd_sizeX, 0.5*vd_sizeY, 0.5*vd_sizeZ);
+	fSolidVD	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
     fLogicVD 	= new G4LogicalVolume(fSolidVD, fVacuum, "VD");
     fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., 5*cm), fLogicVD, "VD", fLogicWorld, false, 0, fCheckOverlaps);
 
@@ -251,4 +257,60 @@ void DetectorConstruction::ConstructSDandField()
 	
 	// Assign the SD to the logial volume
 	fLogicVD->SetSensitiveDetector(VD_SD);
+}
+
+/*
+	From here functions used through the Messenger to modify the detector
+*/
+
+void DetectorConstruction :: SetScintSize(G4double size){
+	fScintSizeX = size;
+	fScintSizeY = size;
+	fScintSizeZ = size;
+
+	fWorldSizeX = std::max(fScintSizeX, fWorldSizeX);
+	fWorldSizeY = std::max(fScintSizeY, fWorldSizeY);
+	fWorldSizeZ = std::max(fScintSizeZ, fWorldSizeZ);
+
+	fSolidScint->SetXHalfLength(size*0.5);
+	fSolidScint->SetYHalfLength(size*0.5);
+	fSolidScint->SetZHalfLength(size*0.5);
+
+	fSolidWorld->SetXHalfLength(0.5*fWorldSizeX);
+	fSolidWorld->SetYHalfLength(0.5*fWorldSizeY);
+	fSolidWorld->SetZHalfLength(0.5*fWorldSizeZ);
+
+	fPhysScint->SetTranslation(G4ThreeVector(0, 0, 20*cm));
+	G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+
+void DetectorConstruction :: SetScintSize(G4ThreeVector size){
+	fScintSizeX = size.getX();
+	fScintSizeY = size.getY();
+	fScintSizeZ = size.getZ();
+
+	fWorldSizeX = std::max(fScintSizeX, fWorldSizeX);
+	fWorldSizeY = std::max(fScintSizeY, fWorldSizeY);
+	fWorldSizeZ = std::max(fScintSizeZ, fWorldSizeZ);
+
+	fSolidScint->SetXHalfLength(size.getX()*0.5);
+	fSolidScint->SetYHalfLength(size.getY()*0.5);
+	fSolidScint->SetZHalfLength(size.getZ()*0.5);
+
+	fSolidWorld->SetXHalfLength(0.5*fWorldSizeX);
+	fSolidWorld->SetYHalfLength(0.5*fWorldSizeY);
+	fSolidWorld->SetZHalfLength(0.5*fWorldSizeZ);
+
+	fSolidWorld	= new G4Box("World", 0.5*std::max(fScintSizeX, fWorldSizeX), 
+		0.5*std::max(fScintSizeY, fWorldSizeY), 
+		0.5*std::max(fScintSizeZ, fWorldSizeZ));
+
+	fPhysScint->SetTranslation(G4ThreeVector(0, 0, 20*cm));
+	G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+
+void DetectorConstruction::SetScintMaterial(G4String name){
+	if(name == "BC400") fScintMaterial = fBC400;
+	else if(name == "LYSO") fScintMaterial = fLYSO;
+	G4RunManager::GetRunManager()->ReinitializeGeometry();
 }
