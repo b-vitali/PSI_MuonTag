@@ -5,8 +5,8 @@
 #define RunAction_h 1
 
 #include "G4UserRunAction.hh"
-
-#include "g4root.hh"
+#include "G4Run.hh"				// to have the run number in the file name
+#include "g4root.hh"			// to access root stuff
 
 /// Run action class
 ///

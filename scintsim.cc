@@ -73,10 +73,10 @@ int main(int argc, char** argv){
         UImanager->ApplyCommand("/vis/scene/endOfEventAction accumulate");
         */
         ui->SessionStart();
-        delete ui;
     }
 
     // Job termination
+    delete ui;
     delete visManager;
     delete runManager;
 }
