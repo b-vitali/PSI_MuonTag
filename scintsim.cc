@@ -5,11 +5,11 @@
 #include <TTree.h>
 #include <iostream>
 
-#ifdef G4MULTITHREADED
+//#ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
-#else
+//#else
 #include "G4RunManager.hh"
-#endif
+//#endif
 
 #include "G4UImanager.hh"
 #include "G4UIExecutive.hh"

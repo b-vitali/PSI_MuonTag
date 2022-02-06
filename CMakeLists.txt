@@ -60,6 +60,7 @@ target_link_libraries(scintsim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 #
 set(ELEMENT_SCRIPTS
     run.mac
+    run-mt.mac
     init_vis.mac
     vis.mac
     )
