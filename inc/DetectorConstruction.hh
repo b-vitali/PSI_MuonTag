@@ -23,6 +23,8 @@
 
 #include "DetectorMessenger.hh"
 
+#include "G4GlobalMagFieldMessenger.hh"
+
 class G4Box;
 class G4Material;
 class G4Element;
@@ -56,6 +58,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
 		DetectorMessenger* fDetectorMessenger;
 
+    static G4ThreadLocal G4GlobalMagFieldMessenger*  fMagFieldMessenger;
 
 		//? Geometry	
 		//-----------------------------------

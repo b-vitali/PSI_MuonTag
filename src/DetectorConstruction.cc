@@ -2,19 +2,28 @@
 /// \brief Implementation of the class to define the experimental setup
 
 #include "DetectorConstruction.hh"
+#include <math.h>  
+//#include "G4MagneticField.hh"
+
+#include "G4AutoDelete.hh"
+
+
+G4ThreadLocal 
+G4GlobalMagFieldMessenger* DetectorConstruction::fMagFieldMessenger = 0; 
 
 
 DetectorConstruction::DetectorConstruction()
 {
-	// World dimentions
-    fWorldSizeX = 30*cm;
-    fWorldSizeY = 30*cm;
-    fWorldSizeZ = 50*cm;
-	
+
 	// Scintillator dimensions
-    fScintSizeX = 20*cm;
-    fScintSizeY = 20*cm;
-    fScintSizeZ = 5*mm;
+    fScintSizeX = 2*cm;
+    fScintSizeY = 5*cm;
+    fScintSizeZ = 2*mm;
+
+	// World dimentions
+    fWorldSizeX = 10*std::max(fScintSizeX,fScintSizeY);
+    fWorldSizeY = 10*std::max(fScintSizeX,fScintSizeY);
+    fWorldSizeZ = 10*std::max(fScintSizeX,fScintSizeY);
 
 	// VirtualDetector dimensions
     fVDSizeX = 20*cm;
@@ -225,8 +234,34 @@ void DetectorConstruction::DefineOpticalProperties()
 	}
 }
 
+//defined here in order to have the bool muEDM
+G4double 	r;
+G4int 		skip;		
+G4double	theta; 	
+G4int 		N;		
+
 G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 {
+	G4bool muEDM=false;
+	if(muEDM)
+{
+	fScintSizeX = 1*mm;
+    fScintSizeY = 5*cm;
+    fScintSizeZ = 2*cm;
+
+	r 		= 10*cm;
+	skip	= 20;
+	theta 	= std::atan(fScintSizeX/(r-fScintSizeZ/2)/2);
+	N 		= M_PI/theta;
+	G4cout<<theta<<G4endl;
+	G4cout<<N<<G4endl;
+
+	if(N * theta > 2 *M_PI || 2*M_PI*r - N*theta*r > (1+skip)* fScintSizeX) theta = M_PI / (N-1);
+	else theta = M_PI / N;
+	G4cout<<theta<<G4endl;
+	G4cout<<N<<G4endl;
+}
+
 	// World Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidWorld	= new G4Box("World", 0.5*fWorldSizeX, 0.5*fWorldSizeY, 0.5*fWorldSizeZ);
     fLogicWorld = new G4LogicalVolume(fSolidWorld, fVacuum, "World");
@@ -235,7 +270,19 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	// Scintillator Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidScint	= new G4Box("Scint", 0.5*fScintSizeX, 0.5*fScintSizeY, 0.5*fScintSizeZ);
     fLogicScint = new G4LogicalVolume(fSolidScint, fScintMaterial, "Scint");
-    fPhysScint	= new G4PVPlacement(0, G4ThreeVector(0., 0., 20*cm), fLogicScint, "Scint", fLogicWorld, false, 0, fCheckOverlaps);
+	
+	if(muEDM)
+	{
+    	for(int i=0; i<N; i=i+1+skip)
+		{
+			G4Rotate3D 	rotation =  G4Rotate3D(i*2*theta*rad, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
+			G4Translate3D 	translate =  G4Translate3D(G4ThreeVector(0., 0, -r));
+			G4Transform3D transform = G4Translate3D(r*mm,0,0)*rotation*translate;
+			fPhysScint	= new G4PVPlacement(transform, fLogicScint, "Scint", fLogicWorld, false, i, fCheckOverlaps);
+		}
+	}
+
+	else    fPhysScint		= new G4PVPlacement(0, G4ThreeVector(0., 0., 3*cm), fLogicScint, "Scint", fLogicWorld, false, 0, fCheckOverlaps);
 
 	// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidVD	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
@@ -244,7 +291,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 	// Set how the volumes are visualized
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
-    fLogicScint	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.3));
+    fLogicScint	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.5));
     fLogicVD	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.2));
 	
     return fPhysWorld;
@@ -252,6 +299,13 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 void DetectorConstruction::ConstructSDandField()
 {
+	G4ThreeVector fieldValue(0.,-4*tesla,0.);
+  	fMagFieldMessenger = new G4GlobalMagFieldMessenger(fieldValue);
+  	//fMagFieldMessenger->SetVerboseLevel(1);
+  
+  	// Register the field messenger for deleting
+  	G4AutoDelete::Register(fMagFieldMessenger);
+	
 	// Create the Sensitive Detector defined in VirtualDetectorSD 
 	VirtualDetectorSD * VD_SD = new VirtualDetectorSD("VirtualDetector");
 	
