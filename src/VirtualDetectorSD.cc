@@ -31,6 +31,8 @@ G4bool VirtualDetectorSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ROHis
     	G4TouchableHistory* thePostTouchable = (G4TouchableHistory*)(postStepPoint->GetTouchable());
     	G4VPhysicalVolume* thePostPV = thePostTouchable->GetVolume();
     
+        fVDNo = thePrePV->GetCopyNo();
+
     //    G4cout << thePrePV->GetName() << " " <<preStepPoint->GetPosition()<< " && " << thePostPV->GetName()<< " " <<postStepPoint->GetPosition() << G4endl;
     //    G4cout << thePrePV->GetName() << " " <<preStepPoint->GetMomentum()<< " && " << thePostPV->GetName()<< " " <<postStepPoint->GetMomentum() << G4endl;
     //    G4cout << thePrePV->GetName() << " " <<preStepPoint->GetLocalTime()<< " && " << thePostPV->GetName()<< " " <<postStepPoint->GetLocalTime() << G4endl;
@@ -40,9 +42,10 @@ G4bool VirtualDetectorSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ROHis
 
         G4AnalysisManager *man = G4AnalysisManager::Instance();
         man->FillNtupleIColumn(0, evt);
-        man->FillNtupleDColumn(1, fVDTime);
+        man->FillNtupleIColumn(1, fVDNo);
         man->FillNtupleIColumn(2, fParticleID);
-        man->FillNtupleDColumn(3, preStepPoint->GetMomentum().mag());
+        man->FillNtupleDColumn(3, fVDTime);
+        man->FillNtupleDColumn(4, preStepPoint->GetMomentum().mag());
         man->AddNtupleRow(0);
     //}
 

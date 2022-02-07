@@ -12,9 +12,10 @@ RunAction::RunAction()
 	// Ntuple for the VirtualDetector
 	man->CreateNtuple("VD", "VD");
 	man->CreateNtupleIColumn("fEvent");
-	man->CreateNtupleDColumn("fVDTime");
+	man->CreateNtupleIColumn("fVDNo");
 	man->CreateNtupleIColumn("fParticleID");
-	man->CreateNtupleDColumn("fMomOut");
+	man->CreateNtupleDColumn("fVDTime");
+	man->CreateNtupleDColumn("fMom");
 	man->FinishNtuple(0);
 }
 

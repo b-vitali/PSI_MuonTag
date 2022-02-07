@@ -26,9 +26,10 @@ class VirtualDetectorSD : public G4VSensitiveDetector
         virtual G4bool ProcessHits(G4Step *, G4TouchableHistory *);
 
     private:
-        G4double    fVDTime;
-        G4int       fParticleID;
-        G4double    fMomOut;
+        G4int       fVDNo;      // which VirtualDetector?
+        G4int       fParticleID;// pdg particle ID
+        G4double    fVDTime;    // time of hit
+        G4double    fMom;    // entering momentum
 };
 
 #endif
