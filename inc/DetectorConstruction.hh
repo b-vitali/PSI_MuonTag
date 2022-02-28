@@ -98,6 +98,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4LogicalVolume* fLogicVD_2;
 		G4PVPlacement* fPhysVD_2;
 
+		G4bool fVDOn;
+		G4bool fmuEDM;
 		G4bool fCheckOverlaps;
 
 		//? Materials & Elements

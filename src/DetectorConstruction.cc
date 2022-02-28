@@ -11,9 +11,17 @@
 G4ThreadLocal 
 G4GlobalMagFieldMessenger* DetectorConstruction::fMagFieldMessenger = 0; 
 
+//defined here in order to have the bool muEDM
+G4double 	r;
+G4int 		skip;		
+G4double	theta; 	
+G4int 		N;		
+
 
 DetectorConstruction::DetectorConstruction()
 {
+	fVDOn = false;
+	fmuEDM= true;
 
 	// Scintillator dimensions
     fScintSizeX = 2*cm;
@@ -234,17 +242,10 @@ void DetectorConstruction::DefineOpticalProperties()
 	}
 }
 
-//defined here in order to have the bool muEDM
-G4bool muEDM=false;
-G4double 	r;
-G4int 		skip;		
-G4double	theta; 	
-G4int 		N;		
 
 G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 {
-	if(muEDM)
-{
+	if(fmuEDM){
 	fScintSizeX = 1*mm;
     fScintSizeY = 5*cm;
     fScintSizeZ = 2*cm;
@@ -260,7 +261,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	else theta = M_PI / N;
 	G4cout<<theta<<G4endl;
 	G4cout<<N<<G4endl;
-}
+	}
 
 	// World Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidWorld	= new G4Box("World", 0.5*fWorldSizeX, 0.5*fWorldSizeY, 0.5*fWorldSizeZ);
@@ -271,7 +272,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	fSolidScint	= new G4Box("Scint", 0.5*fScintSizeX, 0.5*fScintSizeY, 0.5*fScintSizeZ);
     fLogicScint = new G4LogicalVolume(fSolidScint, fScintMaterial, "Scint");
 	
-	if(muEDM)
+	if(fmuEDM)
 	{
     	for(int i=0; i<N; i=i+1+skip)
 		{
@@ -284,28 +285,30 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 	else    fPhysScint		= new G4PVPlacement(0, G4ThreeVector(0., 0., 3*cm), fLogicScint, "Scint", fLogicWorld, false, 0, fCheckOverlaps);
 
-	// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
-	fSolidVD	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
-    fLogicVD 	= new G4LogicalVolume(fSolidVD, fVacuum, "VD");
-    fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., 5*cm), fLogicVD, "VD", fLogicWorld, false, 0, fCheckOverlaps);
-
-	// 2_VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
-	fSolidVD_2	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
-    fLogicVD_2 	= new G4LogicalVolume(fSolidVD_2, fVacuum, "VD");
-    fPhysVD_2	= new G4PVPlacement(0, G4ThreeVector(0., 0., 1*cm), fLogicVD_2, "VD", fLogicWorld, false, 1, fCheckOverlaps);
-
 	// Set how the volumes are visualized
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
     fLogicScint	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.5));
-    fLogicVD	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.2));
-    fLogicVD_2	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.2));
+
+	if(fVDOn){
+		// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
+		fSolidVD	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
+    	fLogicVD 	= new G4LogicalVolume(fSolidVD, fVacuum, "VD");
+    	fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., 5*cm), fLogicVD, "VD", fLogicWorld, false, 0, fCheckOverlaps);
+
+		// 2_VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
+		fSolidVD_2	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
+    	fLogicVD_2 	= new G4LogicalVolume(fSolidVD_2, fVacuum, "VD");
+    	fPhysVD_2	= new G4PVPlacement(0, G4ThreeVector(0., 0., 1*cm), fLogicVD_2, "VD", fLogicWorld, false, 1, fCheckOverlaps);
+    	fLogicVD	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.2));
+    	fLogicVD_2	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.2));
+	}
 	
     return fPhysWorld;
 }
 
 void DetectorConstruction::ConstructSDandField()
 {
-	if(muEDM)
+	if(fmuEDM)
 	{
 		G4ThreeVector fieldValue(0.,-4*tesla,0.);
   		fMagFieldMessenger = new G4GlobalMagFieldMessenger(fieldValue);
@@ -314,14 +317,17 @@ void DetectorConstruction::ConstructSDandField()
   		// Register the field messenger for deleting
   		G4AutoDelete::Register(fMagFieldMessenger);
 	}
-	// Create the Sensitive Detector defined in VirtualDetectorSD 
-	VirtualDetectorSD * VD_SD = new VirtualDetectorSD("VirtualDetector");
 	
-	// Assign the SD to the logial volume
-	fLogicVD->SetSensitiveDetector(VD_SD);
+	if(fVDOn){
+		// Create the Sensitive Detector defined in VirtualDetectorSD 
+		VirtualDetectorSD * VD_SD = new VirtualDetectorSD("VirtualDetector");
 
-	VirtualDetectorSD * VD_SD_2 = new VirtualDetectorSD("VirtualDetector2");
-	fLogicVD_2->SetSensitiveDetector(VD_SD_2);
+		// Assign the SD to the logial volume
+		fLogicVD->SetSensitiveDetector(VD_SD);
+
+		VirtualDetectorSD * VD_SD_2 = new VirtualDetectorSD("VirtualDetector2");
+		fLogicVD_2->SetSensitiveDetector(VD_SD_2);
+	}
 }
 
 /*
