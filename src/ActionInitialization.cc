@@ -18,9 +18,9 @@ void ActionInitialization::Build() const{
     
     RunAction* runAction = new RunAction();
     SetUserAction(runAction);
-    /*
+    
     SetUserAction(new EventAction(runAction));
-     
+    /* 
     PrimaryGeneratorAction *generator = new PrimaryGeneratorAction();
     SetUserAction(generator);
     */

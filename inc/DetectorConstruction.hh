@@ -20,10 +20,15 @@
 #include "G4Colour.hh"
 
 #include "VirtualDetectorSD.hh"
+#include "ScintSD.hh"
 
 #include "DetectorMessenger.hh"
 
 #include "G4GlobalMagFieldMessenger.hh"
+
+#include "G4Cache.hh"
+#include "G4SDManager.hh"
+
 
 class G4Box;
 class G4Material;
@@ -124,6 +129,9 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4MaterialPropertiesTable* fBC400_mt;
 		G4MaterialPropertiesTable* fLYSO_mt;
   		G4bool fPhotonWorldPropagation;
+
+		G4Cache<ScintSD*> fScint_SD;
+
 
 };
 

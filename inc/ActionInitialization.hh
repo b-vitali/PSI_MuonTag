@@ -10,7 +10,7 @@
 // Dependences wit PrimaryGenerator Run and Event
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
-//#include "EventAction.hh"
+#include "EventAction.hh"
 
 
 class ActionInitialization : public G4VUserActionInitialization{

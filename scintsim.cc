@@ -4,7 +4,7 @@
 // Stuff needed to have some handle
 #include <TTree.h>
 #include <iostream>
-
+#include <cmath>
 //#ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
 //#else
