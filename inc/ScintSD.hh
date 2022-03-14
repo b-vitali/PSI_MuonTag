@@ -23,6 +23,9 @@ class ScintSD : public G4VSensitiveDetector{
 
 		virtual void Initialize(G4HCofThisEvent*);
 		virtual G4bool ProcessHits(G4Step* aStep, G4TouchableHistory*);
+		
+		virtual void FillHit();
+
 		virtual void EndOfEvent(G4HCofThisEvent*);
 		virtual void clear();
 		virtual void DrawAll();
@@ -34,10 +37,12 @@ class ScintSD : public G4VSensitiveDetector{
 		G4double fEin, fEdep, fEout, fDelta, fThetaIn, fTrackLength, fThetaOut;
 		G4int fBounce;
 		G4ThreeVector fDirIN, fDirOUT;
-		std::vector<G4double> fPosX;
-		std::vector<G4double> fPosY;
-		std::vector<G4double> fPosZ;
-		std::vector<G4double> fTime;
+		
+		G4ThreeVector fPosIn;
+		G4double fTimeIn;
+		G4ThreeVector fPosOut;
+		G4double fTimeOut;
+
 		G4int fNgamma;
 		G4int fNgammaSec;
 		std::vector<G4int> fCer;

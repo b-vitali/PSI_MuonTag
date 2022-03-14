@@ -39,7 +39,18 @@ fDown(0), fUp(0), fBack(0), fFront(0), fSiPM(0), fDecayTime(-1){
 	man->CreateNtupleIColumn("fFront");
 	man->CreateNtupleDColumn("fThetaIn");
 	man->CreateNtupleDColumn("fThetaOut");
-	man->CreateNtupleDColumn("PosX", fPosX);
+	man->CreateNtupleDColumn("fEin");
+	man->CreateNtupleDColumn("fEout");
+	man->CreateNtupleDColumn("fEdep");
+
+	man->CreateNtupleDColumn("fPosInX");
+	man->CreateNtupleDColumn("fPosInY");
+	man->CreateNtupleDColumn("fPosInZ");
+	man->CreateNtupleDColumn("fTimeIn");
+	man->CreateNtupleDColumn("fPosOutX");
+	man->CreateNtupleDColumn("fPosOutY");
+	man->CreateNtupleDColumn("fPosOutZ");
+	man->CreateNtupleDColumn("fTimeOut");
 
 	man->FinishNtuple(1);
 
@@ -96,17 +107,7 @@ if(debug>0)std::cout<<"track id "<< aStep->GetTrack()->GetTrackID()<< std::endl;
 		fEdep += edep;
 		fDelta -= delta;
 		fTrackLength += aStep->GetStepLength();
-		
-		G4ThreeVector pos_tmp = aStep->GetPreStepPoint()->GetPosition();
-		
-		fPosX.push_back(pos_tmp.getX());
-
-		if(fTracksCmd != 1 || fPosX.size() == 0){
-			fPosX.push_back(pos_tmp.getX());
-			fPosY.push_back(pos_tmp.getY());
-			fPosZ.push_back(pos_tmp.getZ());
-			fTime.push_back(aStep->GetPreStepPoint()->GetGlobalTime());
-		}
+				
 		G4double ein = 0, eout = 0;
 
 		// Counting and classifying photons
@@ -161,7 +162,9 @@ if(debug>0)std::cout<<"track id "<< aStep->GetTrack()->GetTrackID()<< std::endl;
 			momentumTransform.SetNetTranslation(G4ThreeVector(0,0,0));
 			G4ThreeVector momentumDir = momentumTransform.TransformPoint(aStep->GetPreStepPoint()->GetMomentumDirection());
 			fDirIN = momentumDir;
-			
+
+			fPosIn = aStep->GetPreStepPoint()->GetPosition();
+			fTimeIn = aStep->GetPreStepPoint()->GetGlobalTime();
 
 			/// Surfaces:
 			///          - x>0: DS right. Surf = 0
@@ -205,11 +208,9 @@ if(debug>0)std::cout<<"eout "<< eout <<std::endl;
 			fDirOUT = preStep->GetMomentumDirection();
 			fThetaOut = (Double_t)(std::numeric_limits<double>::infinity());
 			if(fBounce > 0) fBounce += 1;
-			pos_tmp = aStep->GetPreStepPoint()->GetPosition();
-			fPosX.push_back(pos_tmp.getX());
-			fPosY.push_back(pos_tmp.getY());
-			fPosZ.push_back(pos_tmp.getZ());
-			fTime.push_back(aStep->GetPostStepPoint()->GetGlobalTime());
+			fPosOut = aStep->GetPostStepPoint()->GetPosition();
+			fTimeOut = aStep->GetPostStepPoint()->GetGlobalTime();
+
 			//aStep->Getrack()->SetTrackStatus(fStopAndKill);
 
 			// std::cout<<"STOPPED "<< fThetaOut<<std::endl;
@@ -218,6 +219,7 @@ if(debug>0)std::cout<<"eout "<< eout <<std::endl;
 			// std::cout<<"fThetaOut "<< fThetaOut<<std::endl;
 
 			std::cout<<"c"<<std::endl;
+			FillHit();
 			return true;
 		}
 
@@ -232,11 +234,8 @@ if(debug>0)std::cout<<"boh "<<fThetaOut<<std::endl;
 						//fThetaOut = (Double_t)(std::numeric_limits<double>::infinity());
 
 			fBounce += 1;
-			pos_tmp = aStep->GetPostStepPoint()->GetPosition();
-			fPosX.push_back(pos_tmp.getX());
-			fPosY.push_back(pos_tmp.getY());
-			fPosZ.push_back(pos_tmp.getZ());
-			fTime.push_back(aStep->GetPostStepPoint()->GetGlobalTime());
+			fPosOut = aStep->GetPostStepPoint()->GetPosition();
+			fTimeOut = aStep->GetPostStepPoint()->GetGlobalTime();
 			//aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 
 if(debug>0)std::cout<<"NOT STOPPED "<< fThetaOut<<std::endl;
@@ -245,6 +244,7 @@ if(debug>0)std::cout<<"fDirIN "<< fDirIN.getX()<<" "<<fDirIN.getY()<<std::endl;
 if(debug>0)std::cout<<"fThetaOut "<< fThetaOut<<std::endl;
 
 			std::cout<<"d"<<std::endl;
+			FillHit();
 			return true;
 		}
 		std::cout<<"e"<<std::endl;
@@ -328,7 +328,7 @@ if(debug>0)std::cout<<"fThetaOut "<< fThetaOut<<std::endl;
 	}
 }
 
-void ScintSD::EndOfEvent(G4HCofThisEvent*){
+void ScintSD::FillHit(){
 	ScintHit* Hit = new ScintHit();
 	
 	Hit->SetEvent(fEvent);
@@ -343,10 +343,10 @@ void ScintSD::EndOfEvent(G4HCofThisEvent*){
 	Hit->SetTrackLength(fTrackLength);
 	Hit->SetThetaOut(std::acos(fThetaOut) * 180/CLHEP::pi);
 	Hit->SetBounce(fBounce);
-	Hit->SetPosX(fPosX);
-	Hit->SetPosY(fPosY);
-	Hit->SetPosZ(fPosZ);
-	Hit->SetTime(fTime);
+	Hit->SetPosIn(fPosIn);
+	Hit->SetTimeIn(fTimeIn);
+	Hit->SetPosOut(fPosOut);
+	Hit->SetTimeOut(fTimeOut);
 	Hit->SetNgamma(fNgamma);
 	Hit->SetNgammaSec(fNgammaSec);
 	Hit->SetCer(fCer);
@@ -374,10 +374,10 @@ void ScintSD::EndOfEvent(G4HCofThisEvent*){
 	fTrackLength = 0;
 	fBounce = 0;
 	fDirIN = fDirOUT = G4ThreeVector();
-	fPosX.clear();
-	fPosY.clear();
-	fPosZ.clear();
-	fTime.clear();
+fPosIn = CLHEP::Hep3Vector();
+fTimeIn = 0;
+fPosOut = CLHEP::Hep3Vector();
+fTimeOut = 0;
 	fNgamma = 0;
 	fNgammaSec = 0;
 	fThetaGamma.clear();
@@ -394,6 +394,10 @@ void ScintSD::EndOfEvent(G4HCofThisEvent*){
 	fSiPM = 0;
 	fDecayTime = -1;
 	fCer.clear();
+}
+
+void ScintSD::EndOfEvent(G4HCofThisEvent*){
+
 }
 
 void ScintSD::clear(){}

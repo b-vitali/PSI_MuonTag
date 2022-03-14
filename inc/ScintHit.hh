@@ -51,7 +51,6 @@ class ScintHit : public G4VHit{
 		inline G4int GetScintNo(){return fScintNo;}
 		inline G4int GetParticleID(){return fParticleID;}
 
-
 		inline G4double GetEin (){return fEin;}
 		inline G4double GetEdep(){return fEdep;}
 		inline G4double GetEout(){return fEout;}
@@ -62,17 +61,15 @@ class ScintHit : public G4VHit{
 		inline G4int GetBounce(){return fBounce;}
 		inline G4double GetDecayTime(){return fDecayTime;}
 
-		inline void SetPosX(std::vector<G4double> pos){fPosX = pos;}
-		inline std::vector<G4double> GetPosX(){return fPosX;}
+		inline void SetPosIn(G4ThreeVector pos){fPosIn = pos;}
+		inline void SetTimeIn(G4double time){fTimeIn = time;}
+		inline G4ThreeVector GetPosIn(){return fPosIn;}
+		inline G4double GetTimeIn(){return fTimeIn;}
 
-		inline void SetPosY(std::vector<G4double> pos){fPosY = pos;}
-		inline std::vector<G4double> GetPosY(){return fPosY;}
-
-		inline void SetPosZ(std::vector<G4double> pos){fPosZ = pos;}
-		inline std::vector<G4double> GetPosZ(){return fPosZ;}
-
-		inline void SetTime(std::vector<G4double> time){fTime = time;}
-		inline std::vector<G4double> GetTime(){return fTime;}
+		inline void SetPosOut(G4ThreeVector pos){fPosOut = pos;}
+		inline void SetTimeOut(G4double time){fTimeOut = time;}
+		inline G4ThreeVector GetPosOut(){return fPosOut;}
+		inline G4double GetTimeOut(){return fTimeOut;}
 
 		inline void SetNgamma(G4int ngamma){fNgamma = ngamma;}
 		inline G4int GetNgamma(){return fNgamma;}
@@ -116,17 +113,23 @@ class ScintHit : public G4VHit{
 		inline void SetSiPM(G4int sipm){fSiPM = sipm;}
 		inline G4int GetSiPM(){return fSiPM;}
 
-		inline void Clear(){fEin = 0; fEdep = 0; fEout = 0; fDelta = 0; fThetaIn = 0; fTrackLength = 0; fThetaOut = 0; fBounce = 0; fPosX.clear(); fPosY.clear(); fPosZ.clear(); fTime.clear(); fNgamma = 0; fNgammaSec = 0; fNCer = 0; fCer.clear(); fThetaGamma.clear(); fTimeGamma.clear(); fEGamma.clear(); fRight = 0; fLeft = 0; fDown = 0; fUp = 0; fBack = 0; fFront = 0; fSiPM = 0; fDecayTime = -1;}
+		inline void Clear(){fEin = 0; fEdep = 0; fEout = 0; fDelta = 0; 
+		fThetaIn = 0; fTrackLength = 0; fThetaOut = 0; fBounce = 0; 
+		fPosIn = CLHEP::Hep3Vector(); fTimeIn = 0; 
+		fPosOut = CLHEP::Hep3Vector(); fTimeOut = 0; 
+		fNgamma = 0; fNgammaSec = 0; fNCer = 0; fCer.clear(); fThetaGamma.clear(); fTimeGamma.clear(); fEGamma.clear(); fRight = 0; fLeft = 0; fDown = 0; fUp = 0; fBack = 0; fFront = 0; fSiPM = 0; fDecayTime = -1;}
 		inline const G4VPhysicalVolume* GetPhysV(){return fPhysVol;}
 
 	private:
 		G4int fEvent, fScintNo, fParticleID;
 		G4double fEin, fEdep, fEout, fDelta, fThetaIn, fTrackLength, fThetaOut;
 		G4int fBounce;
-		std::vector<G4double> fPosX;
-		std::vector<G4double> fPosY;
-		std::vector<G4double> fPosZ;
-		std::vector<G4double> fTime;
+
+		G4ThreeVector fPosIn;
+		G4double fTimeIn;
+		G4ThreeVector fPosOut;
+		G4double fTimeOut;
+
 		G4int fNgamma;
 		G4int fNgammaSec;
 		std::vector<G4int> fCer;
