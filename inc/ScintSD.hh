@@ -12,6 +12,8 @@
 
 #include "TVector3.h"
 
+#include "g4root.hh"			// to access root stuff
+
 class G4Step;
 class G4HCofThisEvent;
 class G4VLogicalVolume;
@@ -61,6 +63,8 @@ class ScintSD : public G4VSensitiveDetector{
 		
 		G4int fPhotonsCmd, fTracksCmd;
 };
+
+void FillScintNtupla(G4AnalysisManager *man, ScintHit* scintHit);
 
 #endif
 

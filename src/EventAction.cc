@@ -16,6 +16,8 @@
 #include "G4THitsMap.hh"
 #include "G4SystemOfUnits.hh"
 
+#include "ScintSD.hh"
+
 EventAction::EventAction(RunAction* runAction) : 
 	G4UserEventAction(), fRunAction(runAction), fCollIDScint(-1)
 	, fEvID(-1){}
@@ -44,27 +46,8 @@ void EventAction::EndOfEventAction(const G4Event* event){
 		scintHit = (*ScintHitCollection)[i];
 
 		fEvID = event->GetEventID();
-		man->FillNtupleIColumn(1, 0, scintHit->GetEvent());
-		man->FillNtupleIColumn(1, 1, scintHit->GetScintNo());
-		man->FillNtupleIColumn(1, 2, scintHit->GetParticleID());
-       	man->FillNtupleIColumn(1, 3, scintHit->GetCurrentFront());
-       	man->FillNtupleDColumn(1, 4, scintHit->GetThetaIn());
-       	man->FillNtupleDColumn(1, 5, scintHit->GetThetaOut());
-       	man->FillNtupleDColumn(1, 6, scintHit->GetEin());
-       	man->FillNtupleDColumn(1, 7, scintHit->GetEout());
-       	man->FillNtupleDColumn(1, 8, scintHit->GetEdep());
 
-       	man->FillNtupleDColumn(1, 9,  scintHit->GetPosIn().x());
-       	man->FillNtupleDColumn(1, 10, scintHit->GetPosIn().y());
-       	man->FillNtupleDColumn(1, 11, scintHit->GetPosIn().z());
-       	man->FillNtupleDColumn(1, 12, scintHit->GetTimeIn());
-       	man->FillNtupleDColumn(1, 13, scintHit->GetPosOut().x());
-       	man->FillNtupleDColumn(1, 14, scintHit->GetPosOut().y());
-       	man->FillNtupleDColumn(1, 15, scintHit->GetPosOut().z());
-       	man->FillNtupleDColumn(1, 16, scintHit->GetTimeOut());
-
-
-		man->AddNtupleRow(1);
+		FillScintNtupla(man, scintHit);
 
 		scintHit->Clear();
 	}

@@ -21,7 +21,7 @@ G4int 		N;
 DetectorConstruction::DetectorConstruction()
 {
 	fVDOn = true;
-	fmuEDM= false;
+	fmuEDM= true;
 
 	// Scintillator dimensions
     fScintSizeX = 2*cm;
@@ -251,7 +251,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
     fScintSizeZ = 2*cm;
 
 	r 		= 10*cm;
-	skip	= 20;
+	skip	= 5;
 	theta 	= std::atan(fScintSizeX/(r-fScintSizeZ/2)/2);
 	N 		= M_PI/theta;
 	G4cout<<theta<<G4endl;
@@ -278,12 +278,14 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 	if(fmuEDM)
 	{
+		int j = 0;
     	for(int i=0; i<N; i=i+1+skip)
 		{
 			G4Rotate3D 	rotation =  G4Rotate3D(i*2*theta*rad, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
 			G4Translate3D 	translate =  G4Translate3D(G4ThreeVector(0., 0, -r));
 			G4Transform3D transform = G4Translate3D(r*mm,0,0)*rotation*translate;
-			fPhysScint	= new G4PVPlacement(transform, fLogicScint, "Scint", fLogicWorld, false, i, fCheckOverlaps);
+			fPhysScint	= new G4PVPlacement(transform, fLogicScint, "Scint", fLogicWorld, false, j, fCheckOverlaps);
+			j += 1;
 		}
 	}
 
