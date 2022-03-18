@@ -33,7 +33,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	// Get hits collections IDs
 	if(fCollIDScint < 0){
 		G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-		fCollIDScint = SDMan->GetCollectionID("scintCollection");
+		fCollIDScint = SDMan->GetCollectionID("Scint/scintCollection");
 	}
 	
 	ScintHitsCollection* ScintHitCollection = (ScintHitsCollection*) (HCE->GetHC(fCollIDScint));
@@ -47,7 +47,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 
 		fEvID = event->GetEventID();
 
-		FillScintNtupla(man, scintHit);
+		FillScintNtupla(man, scintHit,1);
 
 		scintHit->Clear();
 	}

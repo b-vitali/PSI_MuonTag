@@ -21,18 +21,19 @@
 
 
 #include "TVector3.h"
-ScintSD::ScintSD(G4String name) : 
+ScintSD::ScintSD(G4String name, G4int ntuple) : 
 G4VSensitiveDetector(name), fEvent(-1), fScintNo(-1), fParticleID(0),fEin(0), fEdep(0), fEout(0), fDelta(0), fThetaIn(0), 
 fTrackLength(0), fThetaOut((Double_t)(std::numeric_limits<double>::infinity())), fBounce(0), fDirIN(G4ThreeVector()), 
 fDirOUT(G4ThreeVector()), fNgamma(0), fNgammaSec(0), fNCer(0), fRight(0), fLeft(0), 
 fDown(0), fUp(0), fBack(0), fFront(0), fSiPM(0), fDecayTime(-1){
 	fScintCollection = nullptr;
 	collectionName.insert("scintCollection");
+hitsCID = -1;
 
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 
 	// Ntuple for the Scintillator
-	man->CreateNtuple("Scint", "Scint");
+	man->CreateNtuple(name, name);
 	man->CreateNtupleIColumn("fEvent");
 	man->CreateNtupleIColumn("fScintNo");
 	man->CreateNtupleIColumn("fParticleID");
@@ -52,7 +53,9 @@ fDown(0), fUp(0), fBack(0), fFront(0), fSiPM(0), fDecayTime(-1){
 	man->CreateNtupleDColumn("fPosOutZ");
 	man->CreateNtupleDColumn("fTimeOut");
 
-	man->FinishNtuple(1);
+	G4cout<<"Createntupla "<<ntuple<<" for scint "<<name<<G4endl;
+
+	man->FinishNtuple(ntuple);
 
 }
 
@@ -62,20 +65,17 @@ void ScintSD::Initialize(G4HCofThisEvent* hitsCE){
 	fScintCollection = new ScintHitsCollection(SensitiveDetectorName, collectionName[0]);
 
 	// Putting all the hits in the same place
-	static G4int hitsCID = -1;
+
 	if(hitsCID<0){
-		hitsCID = GetCollectionID(0);
+		hitsCID = G4SDManager::GetSDMpointer()->GetCollectionID(fScintCollection); 
 	}
 	hitsCE->AddHitsCollection(hitsCID, fScintCollection);
-	RunAction* runAction = (RunAction*) G4RunManager::GetRunManager()->GetUserRunAction();
-	//fPhotonsCmd = runAction->GetCmdPhotons();
-	//fTracksCmd = runAction->GetCmdTracks();
 }
 int t = 0;
 
-G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory*){	
+G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){	
 // no printout == 0 ; 
-int debug	=	5;
+int debug	=	0;
 
 	// Take start and end of the G4Step
 	G4StepPoint* preStep = aStep->GetPreStepPoint();
@@ -87,6 +87,8 @@ int debug	=	5;
     G4TouchableHistory* thePostTouchable = (G4TouchableHistory*)(postStep->GetTouchable());
     G4VPhysicalVolume* thePostPV = thePostTouchable->GetVolume();
     
+if(debug>0)std::cout<<thePrePV->GetName()<<" "<<thePostPV->GetName()<< std::endl;
+
 	// If both start and end are out the volume we are itnerested return
 	if(thePrePV->GetName() != "Scint" && thePostPV->GetName() != "Scint"){
 		return false;
@@ -95,11 +97,6 @@ int debug	=	5;
 
 	if(aStep->GetTrack()->GetTrackID() == 1){
 if(debug>0)std::cout<<"track id "<< aStep->GetTrack()->GetTrackID()<< std::endl;
-
-		// Check we are in the scintillator
-		if(thePrePV->GetName() != "Scint" && thePostPV->GetName() != "Scint"){
-			return false;
-		} 
 
 		G4double edep = aStep->GetTotalEnergyDeposit();
 		G4double delta = aStep->GetPostStepPoint()->GetKineticEnergy() - aStep->GetPreStepPoint()->GetKineticEnergy() + edep;
@@ -218,7 +215,7 @@ if(debug>0)std::cout<<"eout "<< eout <<std::endl;
 			// std::cout<<"fDirIN "<< fDirIN.getX()<<" "<<fDirIN.getY()<<std::endl;
 			// std::cout<<"fThetaOut "<< fThetaOut<<std::endl;
 
-			std::cout<<"c"<<std::endl;
+if(debug>0)std::cout<<"c"<<std::endl;
 			FillHit();
 			return true;
 		}
@@ -243,11 +240,11 @@ if(debug>0)std::cout<<"fDirOUT "<< fDirOUT.getX()<<" "<<fDirOUT.getY()<<std::end
 if(debug>0)std::cout<<"fDirIN "<< fDirIN.getX()<<" "<<fDirIN.getY()<<std::endl;
 if(debug>0)std::cout<<"fThetaOut "<< fThetaOut<<std::endl;
 
-			std::cout<<"d"<<std::endl;
+if(debug>0)std::cout<<"d"<<std::endl;
 			FillHit();
 			return true;
 		}
-		std::cout<<"e"<<std::endl;
+if(debug>0)std::cout<<"e"<<std::endl;
 		return false;
 	}
 	else if(aStep->GetTrack()->GetDynamicParticle()->GetParticleDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()){
@@ -406,25 +403,26 @@ void ScintSD::DrawAll(){}
 
 void ScintSD::PrintAll(){}
 
-void FillScintNtupla(G4AnalysisManager *man, ScintHit* scintHit){
-	man->FillNtupleIColumn(1, 0, scintHit->GetEvent());
-	man->FillNtupleIColumn(1, 1, scintHit->GetScintNo());
-	man->FillNtupleIColumn(1, 2, scintHit->GetParticleID());
-    man->FillNtupleIColumn(1, 3, scintHit->GetCurrentFront());
-    man->FillNtupleDColumn(1, 4, scintHit->GetThetaIn());
-    man->FillNtupleDColumn(1, 5, scintHit->GetThetaOut());
-    man->FillNtupleDColumn(1, 6, scintHit->GetEin());
-    man->FillNtupleDColumn(1, 7, scintHit->GetEout());
-    man->FillNtupleDColumn(1, 8, scintHit->GetEdep());
+void FillScintNtupla(G4AnalysisManager *man, ScintHit* scintHit, G4int ntupla){
+//G4cout<<"FillScintNtupla "<<ntupla<<G4endl;
 
-    man->FillNtupleDColumn(1, 9,  scintHit->GetPosIn().x());
-    man->FillNtupleDColumn(1, 10, scintHit->GetPosIn().y());
-    man->FillNtupleDColumn(1, 11, scintHit->GetPosIn().z());
-    man->FillNtupleDColumn(1, 12, scintHit->GetTimeIn());
-    man->FillNtupleDColumn(1, 13, scintHit->GetPosOut().x());
-    man->FillNtupleDColumn(1, 14, scintHit->GetPosOut().y());
-    man->FillNtupleDColumn(1, 15, scintHit->GetPosOut().z());
-    man->FillNtupleDColumn(1, 16, scintHit->GetTimeOut());
+	man->FillNtupleIColumn(ntupla, 0, scintHit->GetEvent());
+	man->FillNtupleIColumn(ntupla, 1, scintHit->GetScintNo());
+	man->FillNtupleIColumn(ntupla, 2, scintHit->GetParticleID());
+    man->FillNtupleIColumn(ntupla, 3, scintHit->GetCurrentFront());
+    man->FillNtupleDColumn(ntupla, 4, scintHit->GetThetaIn());
+    man->FillNtupleDColumn(ntupla, 5, scintHit->GetThetaOut());
+    man->FillNtupleDColumn(ntupla, 6, scintHit->GetEin());
+    man->FillNtupleDColumn(ntupla, 7, scintHit->GetEout());
+    man->FillNtupleDColumn(ntupla, 8, scintHit->GetEdep());
+    man->FillNtupleDColumn(ntupla, 9,  scintHit->GetPosIn().x());
+    man->FillNtupleDColumn(ntupla, 10, scintHit->GetPosIn().y());
+    man->FillNtupleDColumn(ntupla, 11, scintHit->GetPosIn().z());
+    man->FillNtupleDColumn(ntupla, 12, scintHit->GetTimeIn());
+    man->FillNtupleDColumn(ntupla, 13, scintHit->GetPosOut().x());
+    man->FillNtupleDColumn(ntupla, 14, scintHit->GetPosOut().y());
+    man->FillNtupleDColumn(ntupla, 15, scintHit->GetPosOut().z());
+    man->FillNtupleDColumn(ntupla, 16, scintHit->GetTimeOut());
 
-	man->AddNtupleRow(1);
+	man->AddNtupleRow(ntupla);
 }

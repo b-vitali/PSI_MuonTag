@@ -130,9 +130,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4MaterialPropertiesTable* fLYSO_mt;
   		G4bool fPhotonWorldPropagation;
 
-		G4Cache<ScintSD*> fScint_SD;
-
-
 };
 
 #endif

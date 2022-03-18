@@ -21,7 +21,7 @@ G4int 		N;
 DetectorConstruction::DetectorConstruction()
 {
 	fVDOn = true;
-	fmuEDM= true;
+	fmuEDM= false;
 
 	// Scintillator dimensions
     fScintSizeX = 2*cm;
@@ -250,8 +250,8 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
     fScintSizeY = 5*cm;
     fScintSizeZ = 2*cm;
 
-	r 		= 10*cm;
-	skip	= 5;
+	r 		= 8*cm;
+	skip	= 10;
 	theta 	= std::atan(fScintSizeX/(r-fScintSizeZ/2)/2);
 	N 		= M_PI/theta;
 	G4cout<<theta<<G4endl;
@@ -316,13 +316,12 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 void DetectorConstruction::ConstructSDandField()
 {
-	if(!fScint_SD.Get()){
-		G4cout << "Construction /Det/ScintSD" << G4endl;
-		ScintSD* scint_SD = new ScintSD("Scint");
-		fScint_SD.Put(scint_SD);
-	};
-	G4SDManager::GetSDMpointer()->AddNewDetector(fScint_SD.Get());
-	SetSensitiveDetector(fLogicScint, fScint_SD.Get());
+	auto sdManager = G4SDManager::GetSDMpointer();
+   	G4String SDname;
+	
+	ScintSD* scint_SD = new ScintSD("Scint",1);
+  	sdManager->AddNewDetector(scint_SD);
+	fLogicScint->SetSensitiveDetector(scint_SD);
 
 	if(fmuEDM)
 	{
