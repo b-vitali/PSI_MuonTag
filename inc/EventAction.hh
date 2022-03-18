@@ -21,7 +21,8 @@ class EventAction : public G4UserEventAction{
 	private:
 		RunAction* fRunAction;
 		
-		G4int fCollIDScint;
+		G4int fCollIDScint_telescope;
+		G4int fCollIDScint_gate;
 		
 		G4int fEvID; // to register each event just once
 };

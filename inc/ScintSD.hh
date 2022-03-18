@@ -14,21 +14,23 @@
 
 #include "g4root.hh"			// to access root stuff
 
+#include "G4SDManager.hh"
+
 class G4Step;
 class G4HCofThisEvent;
 class G4VLogicalVolume;
 
 class ScintSD : public G4VSensitiveDetector{
 	public:
-		ScintSD(G4String name);
+		ScintSD(G4String name, G4int ntupla);
 		virtual ~ScintSD();
 
-		virtual void Initialize(G4HCofThisEvent*);
-		virtual G4bool ProcessHits(G4Step* aStep, G4TouchableHistory*);
+		virtual void Initialize(G4HCofThisEvent* hitsCE);
+		virtual G4bool ProcessHits(G4Step* aStep, G4TouchableHistory*ROhist);
 		
 		virtual void FillHit();
 
-		virtual void EndOfEvent(G4HCofThisEvent*);
+		virtual void EndOfEvent(G4HCofThisEvent* hitsCE);
 		virtual void clear();
 		virtual void DrawAll();
 		virtual void PrintAll();
@@ -62,9 +64,10 @@ class ScintSD : public G4VSensitiveDetector{
 		G4double fDecayTime;
 		
 		G4int fPhotonsCmd, fTracksCmd;
+		G4int hitsCID;
 };
 
-void FillScintNtupla(G4AnalysisManager *man, ScintHit* scintHit);
+void FillScintNtupla(G4AnalysisManager *man, ScintHit* scintHit, G4int ntupla);
 
 #endif
 

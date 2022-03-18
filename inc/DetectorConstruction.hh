@@ -89,9 +89,14 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4PVPlacement* fPhysWorld;
 
 		// Scint
-		G4Box* fSolidScint;
-		G4LogicalVolume* fLogicScint;
-		G4PVPlacement* fPhysScint;
+		G4Box* fSolidScint_gate;
+		G4LogicalVolume* fLogicScint_gate;
+		G4PVPlacement* fPhysScint_gate;
+
+		G4Box* fSolidScint_telescope;
+		G4LogicalVolume* fLogicScint_telescope;
+		G4PVPlacement* fPhysScint_telescope;
+
 
 		// VD
 		G4Box* fSolidVD;
@@ -129,9 +134,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4MaterialPropertiesTable* fBC400_mt;
 		G4MaterialPropertiesTable* fLYSO_mt;
   		G4bool fPhotonWorldPropagation;
-
-		G4Cache<ScintSD*> fScint_SD;
-
 
 };
 
