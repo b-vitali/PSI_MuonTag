@@ -62,13 +62,17 @@ class ScintHit : public G4VHit{
 		inline G4double GetDecayTime(){return fDecayTime;}
 
 		inline void SetPosIn(G4ThreeVector pos){fPosIn = pos;}
+		inline void SetMomIn(G4ThreeVector mom){fMomIn = mom;}
 		inline void SetTimeIn(G4double time){fTimeIn = time;}
 		inline G4ThreeVector GetPosIn(){return fPosIn;}
+		inline G4ThreeVector GetMomIn(){return fMomIn;}
 		inline G4double GetTimeIn(){return fTimeIn;}
 
 		inline void SetPosOut(G4ThreeVector pos){fPosOut = pos;}
+		inline void SetMomOut(G4ThreeVector mom){fMomOut = mom;}
 		inline void SetTimeOut(G4double time){fTimeOut = time;}
 		inline G4ThreeVector GetPosOut(){return fPosOut;}
+		inline G4ThreeVector GetMomOut(){return fMomOut;}
 		inline G4double GetTimeOut(){return fTimeOut;}
 
 		inline void SetNgamma(G4int ngamma){fNgamma = ngamma;}
@@ -115,8 +119,8 @@ class ScintHit : public G4VHit{
 
 		inline void Clear(){fEin = 0; fEdep = 0; fEout = 0; fDelta = 0; 
 		fThetaIn = 0; fTrackLength = 0; fThetaOut = 0; fBounce = 0; 
-		fPosIn = CLHEP::Hep3Vector(); fTimeIn = 0; 
-		fPosOut = CLHEP::Hep3Vector(); fTimeOut = 0; 
+		fPosIn = CLHEP::Hep3Vector(); fMomIn = CLHEP::Hep3Vector(); fTimeIn = 0; 
+		fPosOut = CLHEP::Hep3Vector(); fMomOut = CLHEP::Hep3Vector(); fTimeOut = 0; 
 		fNgamma = 0; fNgammaSec = 0; fNCer = 0; fCer.clear(); fThetaGamma.clear(); fTimeGamma.clear(); fEGamma.clear(); fRight = 0; fLeft = 0; fDown = 0; fUp = 0; fBack = 0; fFront = 0; fSiPM = 0; fDecayTime = -1;}
 		inline const G4VPhysicalVolume* GetPhysV(){return fPhysVol;}
 
@@ -125,10 +129,9 @@ class ScintHit : public G4VHit{
 		G4double fEin, fEdep, fEout, fDelta, fThetaIn, fTrackLength, fThetaOut;
 		G4int fBounce;
 
-		G4ThreeVector fPosIn;
-		G4double fTimeIn;
-		G4ThreeVector fPosOut;
-		G4double fTimeOut;
+		G4ThreeVector fPosIn, fPosOut;
+		G4ThreeVector fMomIn, fMomOut;
+		G4double fTimeIn, fTimeOut;
 
 		G4int fNgamma;
 		G4int fNgammaSec;

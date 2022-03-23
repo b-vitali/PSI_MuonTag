@@ -31,8 +31,10 @@ ScintHit::ScintHit(const ScintHit &hit) : G4VHit(){
 	fThetaOut = hit.fThetaOut;
 	fBounce = hit.fBounce;
 	fPosIn = hit.fPosIn;
+	fMomIn = hit.fMomIn;
 	fTimeIn = hit.fTimeIn;
 	fPosOut = hit.fPosOut;
+	fMomOut = hit.fMomOut;
 	fTimeOut = hit.fTimeOut;
 
 	fNgamma = hit.fNgamma;
@@ -67,8 +69,10 @@ const ScintHit& ScintHit::operator=(const ScintHit &hit){
 	fThetaOut = hit.fThetaOut;
 	fBounce = hit.fBounce;
 	fPosIn = hit.fPosIn;
+	fMomIn = hit.fMomIn;
 	fTimeIn = hit.fTimeIn;
 	fPosOut = hit.fPosOut;
+	fMomOut = hit.fMomOut;
 	fTimeOut = hit.fTimeOut;
 	fNgamma = hit.fNgamma;
 	fNgammaSec = hit.fNgammaSec;
