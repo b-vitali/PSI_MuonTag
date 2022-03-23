@@ -13,15 +13,16 @@ G4GlobalMagFieldMessenger* DetectorConstruction::fMagFieldMessenger = 0;
 
 //defined here in order to have the bool muEDM
 G4double 	r;
-G4int 		skip;		
 G4double	theta; 	
+G4double	theta_scint; 	
 G4int 		N;		
 
 
 DetectorConstruction::DetectorConstruction()
 {
 	fVDOn = true;
-	fmuEDM= false;
+	fmuEDM= true;
+	if(fmuEDM)fVDOn = false;
 
 	// Scintillator dimensions
     fScintSizeX = 2*cm;
@@ -245,22 +246,26 @@ void DetectorConstruction::DefineOpticalProperties()
 
 G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 {
+	fCheckOverlaps = true;
 	if(fmuEDM){
-	fScintSizeX = 1*mm;
-    fScintSizeY = 5*cm;
-    fScintSizeZ = 2*cm;
+	fScintSizeX = 2*cm;
+    fScintSizeY = 8*cm;
+    fScintSizeZ = 2*mm;
 
-	r 		= 8*cm;
-	skip	= 10;
-	theta 	= std::atan(fScintSizeX/(r-fScintSizeZ/2)/2);
-	N 		= M_PI/theta;
+	r 	= 8*cm; 		// actual path of the particle
+	N	= 18;
+	theta 	= 2*M_PI / N; 
+	theta_scint = std::atan((fScintSizeZ/2) / (r - fScintSizeX/2)) *2;
 	G4cout<<theta<<G4endl;
 	G4cout<<N<<G4endl;
 
-	if(N * theta > 2 *M_PI || 2*M_PI*r - N*theta*r > (1+skip)* fScintSizeX) theta = M_PI / (N-1);
-	else theta = M_PI / N;
-	G4cout<<theta<<G4endl;
-	G4cout<<N<<G4endl;
+	if(N * theta >  2*M_PI) {N = N-1; theta = 2*M_PI / N;}
+	while(theta_scint > theta) {
+		G4cout<<"Too tight: "<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<theta_scint*180/M_PI<<G4endl;
+		N = N-1; theta = 2*M_PI / N;
+	}
+G4cout<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<theta_scint*180/M_PI<<G4endl;
+
 	}
 
 	// World Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
@@ -278,19 +283,20 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 	if(fmuEDM)
 	{
-		int j = 0;
-    	for(int i=0; i<N; i=i+1+skip)
+    	for(int j=0; j<N; j += 1)
 		{
-			G4Rotate3D 	rotation =  G4Rotate3D(i*2*theta*rad, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
-			G4Translate3D 	translate =  G4Translate3D(G4ThreeVector(0., 0, -r));
+			G4Rotate3D 	rotation =  G4Rotate3D(j*theta*rad, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
+			G4Translate3D 	translate =  G4Translate3D(G4ThreeVector(-r, 0, 0));
 			G4Transform3D transform = G4Translate3D(r*mm,0,0)*rotation*translate;
-			fPhysScint	= new G4PVPlacement(transform, fLogicScint, "Scint", fLogicWorld, false, j, fCheckOverlaps);
-			j += 1;
+			fPhysScint	= new G4PVPlacement(transform, fLogicScint, "Scint", fLogicWorld, false, j, fCheckOverlaps);			
 		}
 	}
 
-	else    fPhysScint		= new G4PVPlacement(transform , fLogicScint, "Scint", fLogicWorld, false, 0, fCheckOverlaps);
-
+	else {
+		fPhysScint		= new G4PVPlacement(transform , fLogicScint, "Scint", fLogicWorld, false, 0, fCheckOverlaps);
+		transform = translate*translate*rotation*rotation;
+		fPhysScint		= new G4PVPlacement(transform , fLogicScint, "Scint", fLogicWorld, false, 1, fCheckOverlaps);
+	}
 //	else    fPhysScint		= new G4PVPlacement(0, G4ThreeVector(0., 0., 3*cm), fLogicScint, "Scint", fLogicWorld, false, 0, fCheckOverlaps);
 
 	// Set how the volumes are visualized

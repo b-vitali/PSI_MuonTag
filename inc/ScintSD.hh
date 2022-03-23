@@ -40,8 +40,10 @@ class ScintSD : public G4VSensitiveDetector{
 		G4int fEvent, fScintNo, fParticleID;
 		G4double fEin, fEdep, fEout, fDelta, fThetaIn, fTrackLength, fThetaOut;
 		G4int fBounce;
-		G4ThreeVector fDirIN, fDirOUT;
-		
+		G4ThreeVector fDirIn, fDirOut;
+		G4ThreeVector fDirIn_trans, fDirOut_trans;
+		G4ThreeVector fMomIn, fMomOut;
+
 		G4ThreeVector fPosIn;
 		G4double fTimeIn;
 		G4ThreeVector fPosOut;
