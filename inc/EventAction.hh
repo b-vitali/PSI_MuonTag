@@ -6,6 +6,7 @@
 
 #include "G4UserEventAction.hh"
 #include "globals.hh"
+#include "ScintSD.hh"
 
 class RunAction;
 class TTree;
@@ -21,6 +22,9 @@ class EventAction : public G4UserEventAction{
 	private:
 		RunAction* fRunAction;
 		
+		ScintSD * tmp_scint_gate;
+		ScintSD * tmp_scint_telescope;
+
 		G4int fCollIDScint_telescope;
 		G4int fCollIDScint_gate;
 		

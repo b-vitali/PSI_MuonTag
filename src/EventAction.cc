@@ -16,11 +16,13 @@
 #include "G4THitsMap.hh"
 #include "G4SystemOfUnits.hh"
 
-#include "ScintSD.hh"
-
 EventAction::EventAction(RunAction* runAction) : 
 	G4UserEventAction(), fRunAction(runAction), fCollIDScint_gate(-1), fCollIDScint_telescope(-1)
-	, fEvID(-1){}
+	, fEvID(-1){
+	tmp_scint_gate = new ScintSD("Scint_gate",1);
+	tmp_scint_telescope = new ScintSD("Scint_telescope",2);
+
+	}
 
 EventAction::~EventAction(){}
 
@@ -28,6 +30,9 @@ void EventAction::BeginOfEventAction(const G4Event*){}
 
 void EventAction::EndOfEventAction(const G4Event* event){
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
+
+	if(event->GetEventID()==0){
+	}
 
 	// Hits collections
 	G4HCofThisEvent*HCE = event->GetHCofThisEvent();
@@ -48,7 +53,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 
 		fEvID = event->GetEventID();
 
-		FillScintNtupla(man, scintHit, 1);
+		tmp_scint_gate->FillNtupla(man, scintHit, 1);
 
 		scintHit->Clear();
 	}
@@ -70,7 +75,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 
 		fEvID = event->GetEventID();
 
-		FillScintNtupla(man, scintHit, 2);
+		tmp_scint_telescope->FillNtupla(man, scintHit, 2);
 
 		scintHit->Clear();
 	}
