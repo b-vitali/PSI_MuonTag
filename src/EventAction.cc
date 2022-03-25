@@ -16,19 +16,18 @@
 #include "G4THitsMap.hh"
 #include "G4SystemOfUnits.hh"
 
-#include "ScintSD.hh"
-
 EventAction::EventAction(RunAction* runAction) : 
 	G4UserEventAction(), fRunAction(runAction), fCollIDScint(-1)
-	, fEvID(-1){}
+	, fEvID(-1){
+		tmp_scint = new ScintSD("Scint",1);
+	}
 
 EventAction::~EventAction(){}
 
 void EventAction::BeginOfEventAction(const G4Event*){}
 
 void EventAction::EndOfEventAction(const G4Event* event){
-	ScintSD * tmp_scint = new ScintSD("Scint",1);
-
+	
 	// Hits collections
 	G4HCofThisEvent*HCE = event->GetHCofThisEvent();
 	if(!HCE) return;

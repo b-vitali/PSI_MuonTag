@@ -7,6 +7,8 @@
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 
+#include "ScintSD.hh"
+
 class RunAction;
 class TTree;
 
@@ -21,6 +23,8 @@ class EventAction : public G4UserEventAction{
 	private:
 		RunAction* fRunAction;
 		
+		ScintSD * tmp_scint;
+
 		G4int fCollIDScint;
 		
 		G4int fEvID; // to register each event just once
