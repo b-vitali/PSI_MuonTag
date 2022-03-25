@@ -325,7 +325,7 @@ void DetectorConstruction::ConstructSDandField()
 	auto sdManager = G4SDManager::GetSDMpointer();
    	G4String SDname;
 	
-	ScintSD* scint_SD = new ScintSD("Scint",1);
+	ScintSD* scint_SD = new ScintSD("Scint");
   	sdManager->AddNewDetector(scint_SD);
 	fLogicScint->SetSensitiveDetector(scint_SD);
 

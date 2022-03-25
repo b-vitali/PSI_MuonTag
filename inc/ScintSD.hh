@@ -22,13 +22,15 @@ class G4VLogicalVolume;
 
 class ScintSD : public G4VSensitiveDetector{
 	public:
-		ScintSD(G4String name, G4int ntupla);
+		ScintSD(G4String name);
+		ScintSD(G4String name, G4int ntuple);
 		virtual ~ScintSD();
 
 		virtual void Initialize(G4HCofThisEvent* hitsCE);
 		virtual G4bool ProcessHits(G4Step* aStep, G4TouchableHistory*ROhist);
 		
 		virtual void FillHit();
+		virtual void FillNtupla(G4AnalysisManager *man, ScintHit* scintHit, G4int ntupla);
 
 		virtual void EndOfEvent(G4HCofThisEvent* hitsCE);
 		virtual void clear();
@@ -43,6 +45,8 @@ class ScintSD : public G4VSensitiveDetector{
 		G4ThreeVector fDirIn, fDirOut;
 		G4ThreeVector fDirIn_trans, fDirOut_trans;
 		G4ThreeVector fMomIn, fMomOut;
+
+		std::vector<G4double> fTest;
 
 		G4ThreeVector fPosIn;
 		G4double fTimeIn;
@@ -68,8 +72,6 @@ class ScintSD : public G4VSensitiveDetector{
 		G4int fPhotonsCmd, fTracksCmd;
 		G4int hitsCID;
 };
-
-void FillScintNtupla(G4AnalysisManager *man, ScintHit* scintHit, G4int ntupla);
 
 #endif
 

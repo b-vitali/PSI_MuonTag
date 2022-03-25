@@ -27,6 +27,8 @@ EventAction::~EventAction(){}
 void EventAction::BeginOfEventAction(const G4Event*){}
 
 void EventAction::EndOfEventAction(const G4Event* event){
+	ScintSD * tmp_scint = new ScintSD("Scint",1);
+
 	// Hits collections
 	G4HCofThisEvent*HCE = event->GetHCofThisEvent();
 	if(!HCE) return;
@@ -47,7 +49,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 
 		fEvID = event->GetEventID();
 
-		FillScintNtupla(man, scintHit,1);
+		tmp_scint->FillNtupla(man, scintHit,1);
 
 		scintHit->Clear();
 	}

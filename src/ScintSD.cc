@@ -21,7 +21,7 @@
 
 
 #include "TVector3.h"
-ScintSD::ScintSD(G4String name, G4int ntuple) : 
+ScintSD::ScintSD(G4String name) : 
 G4VSensitiveDetector(name), fEvent(-1), fScintNo(-1), fParticleID(0),fEin(0), fEdep(0), fEout(0), fDelta(0), fThetaIn(0), 
 fTrackLength(0), fThetaOut((Double_t)(std::numeric_limits<double>::infinity())), fBounce(0), fDirIn(G4ThreeVector()), 
 fDirOut(G4ThreeVector()), fNgamma(0), fNgammaSec(0), fNCer(0), fRight(0), fLeft(0), 
@@ -29,6 +29,15 @@ fDown(0), fUp(0), fBack(0), fFront(0), fSiPM(0), fDecayTime(-1){
 	fScintCollection = nullptr;
 	collectionName.insert("scintCollection");
 hitsCID = -1;
+
+}
+
+ScintSD::ScintSD(G4String name, G4int ntuple):
+G4VSensitiveDetector("tmp"), fEvent(-1), fScintNo(-1), fParticleID(0),fEin(0), fEdep(0), fEout(0), fDelta(0), fThetaIn(0), 
+fTrackLength(0), fThetaOut((Double_t)(std::numeric_limits<double>::infinity())), fBounce(0), fDirIn(G4ThreeVector()), 
+fDirOut(G4ThreeVector()), fNgamma(0), fNgammaSec(0), fNCer(0), fRight(0), fLeft(0), 
+fDown(0), fUp(0), fBack(0), fFront(0), fSiPM(0), fDecayTime(-1){
+	G4cout<<"Create a tmp ScintSD to fill the Ntupla"<<G4endl;
 
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 
@@ -59,6 +68,7 @@ hitsCID = -1;
 	man->CreateNtupleDColumn("fMomOutY");
 	man->CreateNtupleDColumn("fMomOutZ");
 	man->CreateNtupleDColumn("fTimeOut");
+	man->CreateNtupleDColumn("fTest",fTest);
 
 	G4cout<<"Createntupla "<<ntuple<<" for scint "<<name<<G4endl;
 
@@ -381,9 +391,11 @@ void ScintSD::DrawAll(){}
 
 void ScintSD::PrintAll(){}
 
-void FillScintNtupla(G4AnalysisManager *man, ScintHit* scintHit, G4int ntupla){
+void ScintSD::FillNtupla(G4AnalysisManager *man, ScintHit* scintHit, G4int ntupla){
 //G4cout<<"FillScintNtupla "<<ntupla<<G4endl;
-	
+	fTest.push_back(scintHit->GetPosIn().getX());
+	fTest.push_back(scintHit->GetPosIn().getY());
+	fTest.push_back(scintHit->GetPosIn().getZ());
 	//! Smarter way to fill it?
 	man->FillNtupleIColumn(ntupla, 0, scintHit->GetEvent());
 	man->FillNtupleIColumn(ntupla, 1, scintHit->GetScintNo());
@@ -411,4 +423,6 @@ void FillScintNtupla(G4AnalysisManager *man, ScintHit* scintHit, G4int ntupla){
     man->FillNtupleDColumn(ntupla, 23, scintHit->GetTimeOut());
 
 	man->AddNtupleRow(ntupla);
+
+	fTest.clear();
 }
