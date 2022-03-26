@@ -103,7 +103,7 @@ int t = 0;
 
 G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){	
 // no printout == 0 ; 
-int debug	=	3;
+int debug	=	0;
 
 	//? Take start and end of the G4Step
 	G4StepPoint* preStep = aStep->GetPreStepPoint();
@@ -273,22 +273,22 @@ if(debug>0) G4cout<<"End of TrackID = 1"<<G4endl;
 			G4double dimensionY = boxSolid->GetYHalfLength();
 			G4double dimensionZ = boxSolid->GetZHalfLength();
 			
-			if(std::fabs(localpos.x() + dimensionX) < kCarTolerance && postStep->GetMomentumDirection().getX() < 0){
+			if(std::fabs(localpos.x() + dimensionX) < kCarTolerance ){ //&& postStep->GetMomentumDirection().getX() < 0
 				fLeft += 1;
 			}
-			else if(std::fabs(localpos.x() - dimensionX) < kCarTolerance && postStep->GetMomentumDirection().getX() > 0){
+			else if(std::fabs(localpos.x() - dimensionX) < kCarTolerance ){ //&& postStep->GetMomentumDirection().getX() > 0
 				fRight += 1;
 			}
-			else if(std::fabs(localpos.y() + dimensionY) < kCarTolerance && postStep->GetMomentumDirection().getY() < 0){
+			else if(std::fabs(localpos.y() + dimensionY) < kCarTolerance ){ //&& postStep->GetMomentumDirection().getY() < 0
 				fDown += 1;
 			}
-			else if(std::fabs(localpos.y() - dimensionY) < kCarTolerance && postStep->GetMomentumDirection().getY() > 0){
+			else if(std::fabs(localpos.y() - dimensionY) < kCarTolerance ){ //&& postStep->GetMomentumDirection().getY() > 0
 				fUp += 1;
 			}
-			else if(std::fabs(localpos.z() + dimensionZ) < kCarTolerance && postStep->GetMomentumDirection().getZ() < 0) {
+			else if(std::fabs(localpos.z() + dimensionZ) < kCarTolerance) { // && postStep->GetMomentumDirection().getZ() < 0
 				fBack += 1; 
 			}
-			else if(std::fabs(localpos.z() - dimensionZ) < kCarTolerance && postStep->GetMomentumDirection().getZ() > 0){
+			else if(std::fabs(localpos.z() - dimensionZ) < kCarTolerance){	// && postStep->GetMomentumDirection().getZ() > 0
 				fFront += 1;
 			}
 			aStep->GetTrack()->SetTrackStatus(fStopAndKill);
@@ -414,7 +414,7 @@ void ScintSD::FillNtupla(G4AnalysisManager *man, ScintHit* scintHit, G4int ntupl
     man->FillNtupleIColumn(ntupla, fNgamma_ID		, scintHit->GetNgamma());
     man->FillNtupleIColumn(ntupla, fNgammaSec_ID	, scintHit->GetNgammaSec());
     man->FillNtupleIColumn(ntupla, fNCer_ID			, scintHit->GetNCer());
-    man->FillNtupleIColumn(ntupla, fRight_ID		, scintHit->GetCurrentFront());
+    man->FillNtupleIColumn(ntupla, fRight_ID		, scintHit->GetCurrentRight());
     man->FillNtupleIColumn(ntupla, fLeft_ID		, scintHit->GetCurrentLeft());
     man->FillNtupleIColumn(ntupla, fDown_ID		, scintHit->GetCurrentDown());
     man->FillNtupleIColumn(ntupla, fUp_ID		, scintHit->GetCurrentUp());

@@ -72,10 +72,15 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     	G4double fWorldSizeY;
     	G4double fWorldSizeZ;
 
-		// Scintillator dimensions
-    	G4double fScintSizeX;
-    	G4double fScintSizeY;
-    	G4double fScintSizeZ;
+		// Scintillator Gate dimensions
+    	G4double fScintGateSizeX;
+    	G4double fScintGateSizeY;
+    	G4double fScintGateSizeZ;
+
+		// Scintillator Telescope dimensions
+    	G4double fScintTelescopeSizeX;
+    	G4double fScintTelescopeSizeY;
+    	G4double fScintTelescopeSizeZ;
 
 		// VirtualDetector dimensions
     	G4double fVDSizeX;
