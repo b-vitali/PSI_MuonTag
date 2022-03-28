@@ -46,6 +46,14 @@ G4bool VirtualDetectorSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ROHis
         man->FillNtupleIColumn(2, fParticleID);
         man->FillNtupleDColumn(3, fVDTime);
         man->FillNtupleDColumn(4, preStepPoint->GetMomentum().mag());
+        man->FillNtupleDColumn(5, preStepPoint->GetPosition().x());
+        man->FillNtupleDColumn(6, preStepPoint->GetPosition().y());
+        man->FillNtupleDColumn(7, preStepPoint->GetPosition().z());
+        man->FillNtupleDColumn(8, preStepPoint->GetMomentum().x());
+        man->FillNtupleDColumn(9, preStepPoint->GetMomentum().y());
+        man->FillNtupleDColumn(10, preStepPoint->GetMomentum().z());
+
+
         man->AddNtupleRow(0);
     //}
 

@@ -59,6 +59,9 @@ target_link_libraries(scintsim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 # relies on these scripts being the current working sirectory.
 #
 set(ELEMENT_SCRIPTS
+    init_vis.mac
+    vis.mac
+    run.mac
     run-mt.mac
     run-mtloop.mac
     thickness.loop

@@ -82,6 +82,10 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     	G4double fScintTelescopeSizeY;
     	G4double fScintTelescopeSizeZ;
 
+		G4double fScintTelescopeSizeX2;
+    	G4double fScintTelescopeSizeY2;
+    	G4double fScintTelescopeSizeZ2;
+
 		// VirtualDetector dimensions
     	G4double fVDSizeX;
     	G4double fVDSizeY;
@@ -102,6 +106,9 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4LogicalVolume* fLogicScint_telescope;
 		G4PVPlacement* fPhysScint_telescope;
 
+		G4Box* fSolidScint_telescope2;
+		G4LogicalVolume* fLogicScint_telescope2;
+		G4PVPlacement* fPhysScint_telescope2;
 
 		// VD
 		G4Box* fSolidVD;

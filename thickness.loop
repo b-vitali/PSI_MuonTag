@@ -1,4 +1,4 @@
 /ScintSim/Scint/ScintSize3 50 50 {thickness} mm
 /gun/momentumAmp 28 MeV
-/run/beamOn 10
+/run/beamOn 10000
 

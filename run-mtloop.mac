@@ -1,3 +1,4 @@
+/run/numberOfThreads 8
 /run/initialize
 /run/verbose 1
 /random/setSeeds 299792458 662607015

@@ -16,6 +16,12 @@ RunAction::RunAction()
 	man->CreateNtupleIColumn("fParticleID");
 	man->CreateNtupleDColumn("fVDTime");
 	man->CreateNtupleDColumn("fMom");
+	man->CreateNtupleDColumn("fPosX");
+	man->CreateNtupleDColumn("fPosY");
+	man->CreateNtupleDColumn("fPosZ");
+	man->CreateNtupleDColumn("fMomX");
+	man->CreateNtupleDColumn("fMomY");
+	man->CreateNtupleDColumn("fMomZ");
 	man->FinishNtuple(0);
 }
 
