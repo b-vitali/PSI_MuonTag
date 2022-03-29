@@ -30,12 +30,15 @@ Choose:
 - some printout to see what is happening
 */
 
+// https://root.cern.ch/doc/master/classTColor.html#C06
 // int my_colors[] = {kBlue, kRed, kViolet, kOrange, kYellow, kMagenta, kPink, kSpring, kGreen, kTeal, kCyan, kAzure};
 int my_colors[] = {30, 40, 31, 41, 32, 42, 33, 43, 34, 44, 35, 45, 36, 46, 37, 47, 38, 48, 39, 49};
 
 TString path="/home/bastiano/Documents/Geant4/PSI/insertion/data/";
 
-TString folder="28MeV_1k";
+TString energy = "28MeV";
+
+TString folder="28MeV_10k2";
 
 TString file_names[] = {
         "28MeV_0.01.root"
@@ -47,16 +50,25 @@ TString file_names[] = {
     ,   "28MeV_0.07.root"
     ,   "28MeV_0.08.root"
     ,   "28MeV_0.09.root"
-    ,   "28MeV_0.1.root"
-    ,   "28MeV_0.2.root"
-    ,   "28MeV_0.3.root"
-    ,   "28MeV_0.4.root"
-    ,   "28MeV_0.5.root"
-    ,   "28MeV_0.6.root"
-    ,   "28MeV_0.7.root"
-    ,   "28MeV_0.8.root"
-    ,   "28MeV_0.9.root"
-    ,   "28MeV_1.root"
+    ,   "28MeV_0.10.root"
+    ,   "28MeV_0.11.root"
+    ,   "28MeV_0.12.root"
+    ,   "28MeV_0.13.root"
+    ,   "28MeV_0.14.root"
+    ,   "28MeV_0.15.root"
+    ,   "28MeV_0.16.root"
+    ,   "28MeV_0.17.root"
+    ,   "28MeV_0.18.root"
+    ,   "28MeV_0.19.root"
+    ,   "28MeV_0.20.root"
+    ,   "28MeV_0.30.root"
+    ,   "28MeV_0.40.root"
+    ,   "28MeV_0.50.root"
+    ,   "28MeV_0.60.root"
+    ,   "28MeV_0.70.root"
+    ,   "28MeV_0.80.root"
+    ,   "28MeV_0.90.root"
+    ,   "28MeV_1.00.root"
 };
 
 double_t thickness[] = {
@@ -69,16 +81,25 @@ double_t thickness[] = {
     ,   0.07
     ,   0.08
     ,   0.09
-    ,   0.1
-    ,   0.2
-    ,   0.3
-    ,   0.4
-    ,   0.5
-    ,   0.6
-    ,   0.7
-    ,   0.8
-    ,   0.9
-    ,   1.
+    ,   0.10
+    ,   0.11
+    ,   0.12
+    ,   0.13
+    ,   0.14
+    ,   0.15
+    ,   0.16
+    ,   0.17
+    ,   0.18
+    ,   0.19
+    ,   0.20
+    ,   0.30
+    ,   0.40
+    ,   0.50
+    ,   0.60
+    ,   0.70
+    ,   0.80
+    ,   0.90
+    ,   1.00
 };
 
 // these are the commands you would give to TTree->Draw() with the branch names
@@ -102,12 +123,19 @@ std::vector <char *> cuts {
 };
 
 std::vector <char *> ranges {
-        (char*)"(100,0,40)"
-    ,   (char*)"(400,0,40)"
+        // (char*)"(300,58,61)"
+    // ,   (char*)"(300,58,61)"
+    // ,   (char*)"(100,0,1)"
+    // ,   (char*)"(250,0,5)"
+    // ,   (char*)"(1000,0,1.2)"
+    // ,   (char*)"(1000,0,10000)"
+    
+        (char*)"(250,0,5)"
+    ,   (char*)"(250,0,5)"
     ,   (char*)"(250,0,5)"
     ,   (char*)"(300,0,30)"
-    ,   (char*)"(1000,0,1.3)"
-    ,   (char*)"(1000,0,100000)"
+    ,   (char*)"(1000,0,1.2)"
+    ,   (char*)"(1000,0,30000)"
 }; 
 
 /*
@@ -144,9 +172,9 @@ void fai_legenda(TLegend *legendina, std::vector<TH1F *> h){
 // set aspect of histogram in a vector
 void color_histos(std::vector<TH1F *> h_v){
     for(int i=0; i<h_v.size();i++){
-        h_v[i]->SetLineColor(my_colors[i]);
+        // h_v[i]->SetLineColor(my_colors[i]);
         h_v[i]->SetLineWidth(3);
-        h_v[i]->SetFillColor(my_colors[i]);
+        // h_v[i]->SetFillColor(my_colors[i]);
         h_v[i]->SetFillStyle(3002);
     }
 }
@@ -220,13 +248,15 @@ void test(){
     
     std::vector<TLegend*> legende;    
 
+    gStyle->SetPalette(kRainBow);
+
     // make a canvas for every stack and put proper legend
     for(int j=0; j<h1.size();j++){
         color_histos(h1[j]);
         new TCanvas("",folder);
         sh_v[j]->SetTitle(folder+"/"+TString::Format("%s", plots[j]));
         sh_v[j]->SetName("sh_"+TString::Format("%s", plots[j]));
-        sh_v[j]->Draw("ehist nostack");
+        sh_v[j]->Draw("ehist nostack pfc plc");
         legende.push_back(new TLegend(0.83,0.3,0.98,0.7));
         fai_legenda(legende[j],h1[j]);
         legende[j]->Draw();
