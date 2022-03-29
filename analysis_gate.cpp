@@ -36,42 +36,13 @@ int my_colors[] = {30, 40, 31, 41, 32, 42, 33, 43, 34, 44, 35, 45, 36, 46, 37, 4
 
 TString path="/home/bastiano/Documents/Geant4/PSI/insertion/data/";
 
-TString energy = "28MeV";
+TString folder="128MeV_10k2";
 
-TString folder="28MeV_10k2";
+TString energy = "128MeV";
 
-TString file_names[] = {
-        "28MeV_0.01.root"
-    ,   "28MeV_0.02.root"
-    ,   "28MeV_0.03.root"
-    ,   "28MeV_0.04.root"
-    ,   "28MeV_0.05.root"
-    ,   "28MeV_0.06.root"
-    ,   "28MeV_0.07.root"
-    ,   "28MeV_0.08.root"
-    ,   "28MeV_0.09.root"
-    ,   "28MeV_0.10.root"
-    ,   "28MeV_0.11.root"
-    ,   "28MeV_0.12.root"
-    ,   "28MeV_0.13.root"
-    ,   "28MeV_0.14.root"
-    ,   "28MeV_0.15.root"
-    ,   "28MeV_0.16.root"
-    ,   "28MeV_0.17.root"
-    ,   "28MeV_0.18.root"
-    ,   "28MeV_0.19.root"
-    ,   "28MeV_0.20.root"
-    ,   "28MeV_0.30.root"
-    ,   "28MeV_0.40.root"
-    ,   "28MeV_0.50.root"
-    ,   "28MeV_0.60.root"
-    ,   "28MeV_0.70.root"
-    ,   "28MeV_0.80.root"
-    ,   "28MeV_0.90.root"
-    ,   "28MeV_1.00.root"
-};
+std::vector<TString> file_names;
 
-double_t thickness[] = {
+std::vector<double_t> thickness{
         0.01
     ,   0.02
     ,   0.03
@@ -103,40 +74,22 @@ double_t thickness[] = {
 };
 
 // these are the commands you would give to TTree->Draw() with the branch names
-std::vector <char *> plots {
-        (char*)"fEin"
-    ,   (char*)"fEout"
-    ,   (char*)"fEdep"
-    ,   (char*)"fThetaOut"
-    ,   (char*)"fTrackLength"
-    ,   (char*)"fNgamma"
-};
+// Choose *variable* *some cut* *histogram range*
+std::vector< std::tuple<char*, char*, char*> > plots {
+        {   (char*)"fEin",          (char*)"",  (char*)"(300,58,61)"    }
+    ,   {   (char*)"fEout",         (char*)"",  (char*)"(300,58,61)"    }
+    ,   {   (char*)"fEdep",         (char*)"",  (char*)"(100,0,1)"      }
+    ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(250,0,5)"      }
+    ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(1000,0,1.2)"   }
+    ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,10000)" }
 
-// in principle you can add also some cuts, on the same or on a different branch
-std::vector <char *> cuts {
-        (char*)""
-    ,   (char*)""
-    ,   (char*)""
-    ,   (char*)""
-    ,   (char*)""
-    ,   (char*)""
+    //     {   (char*)"fEin",          (char*)"",  (char*)"(250,0,5)"      }
+    // ,   {   (char*)"fEout",         (char*)"",  (char*)"(250,0,5)"      }
+    // ,   {   (char*)"fEdep",         (char*)"",  (char*)"(250,0,5)"      }
+    // ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(300,0,30)"     }
+    // ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(1000,0,1.2)"   }
+    // ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,30000)" }
 };
-
-std::vector <char *> ranges {
-        // (char*)"(300,58,61)"
-    // ,   (char*)"(300,58,61)"
-    // ,   (char*)"(100,0,1)"
-    // ,   (char*)"(250,0,5)"
-    // ,   (char*)"(1000,0,1.2)"
-    // ,   (char*)"(1000,0,10000)"
-    
-        (char*)"(250,0,5)"
-    ,   (char*)"(250,0,5)"
-    ,   (char*)"(250,0,5)"
-    ,   (char*)"(300,0,30)"
-    ,   (char*)"(1000,0,1.2)"
-    ,   (char*)"(1000,0,30000)"
-}; 
 
 /*
 basically the first plot will be:
@@ -146,15 +99,6 @@ basically the first plot will be:
 int skim = 1;
 
 bool debug = false;
-
-//* Some things are char * instead of strings because I think they work better with TTree->Draw()
-//* To improve might be nice to have one obj with both names and ranges for the plots, something like
-/*
-std::vector <std::pair<char*, char*>> ppp {
-    {(char*)"currentleft/currentback",  (char*)"(100,0,0.5)"},
-    {(char*)"edep",                     (char*)"(100,0,0.5)"}
-};
-*/
 
 /*
 --------------------------------------------------------------------------------------
@@ -181,6 +125,17 @@ void color_histos(std::vector<TH1F *> h_v){
 
 void test(){
     cout<<"Data from the files in path : "<<path<<endl<<endl;
+    
+    std::stringstream ss;
+    for(int i = 0; i< thickness.size(); i++){
+        ss << std::fixed<<std::setprecision(2)<<thickness[i];
+        TString str = ss.str();
+
+        file_names.push_back(energy+"_"+ str+".root");
+        std::cout<<file_names[i]<<std::endl;
+        
+        ss.str(std::string());
+    }
 
     std::vector<TTree *> tree_v;
 
@@ -207,8 +162,8 @@ void test(){
         sh_v.push_back(new THStack);
 
         gr_v.push_back(new TGraphErrors);
-        gr_v[j]->SetTitle(folder+"/"+TString::Format("%s", plots[j]));
-        gr_v[j]->SetName("gr_"+TString::Format("%s", plots[j]));
+        gr_v[j]->SetTitle(folder+"/"+TString::Format("%s", std::get<0>(plots[j]) ));
+        gr_v[j]->SetName("gr_"+TString::Format("%s", std::get<0>(plots[j]) ));
 
         // for every plot loop on all the TTrees
         for (int i=0; i<tree_v.size();i++)
@@ -216,7 +171,7 @@ void test(){
             // just a check on which file we are right now
             if(debug) {
                 std::cout<<file_names[i]<<endl;
-                std::cout<<TString::Format("%s>>h1_%d%d%s", plots[j], j,i,ranges[j])<<endl;
+                std::cout<<TString::Format("%s>>h1_%d%d%s", std::get<0>(plots[j]), j,i,std::get<2>(plots[j]))<<endl;
             }
 
             /*
@@ -224,7 +179,7 @@ void test(){
             */
 
             //new TCanvas("",file_names[i]);
-            tree_v[i]->Draw(TString::Format("%s>>h1_%d%d%s", plots[j], j,i,ranges[j]),cuts[j],"goff");
+            tree_v[i]->Draw(TString::Format("%s>>h1_%d%d%s", std::get<0>(plots[j]), j,i,std::get<2>(plots[j])),std::get<1>(plots[j]),"goff");
             h1_tmp = (TH1F*)gDirectory->Get(TString::Format("h1_%d%d",j,i));
 
             v_tmp.push_back(h1_tmp);
@@ -254,8 +209,8 @@ void test(){
     for(int j=0; j<h1.size();j++){
         color_histos(h1[j]);
         new TCanvas("",folder);
-        sh_v[j]->SetTitle(folder+"/"+TString::Format("%s", plots[j]));
-        sh_v[j]->SetName("sh_"+TString::Format("%s", plots[j]));
+        sh_v[j]->SetTitle(folder+"/"+TString::Format("%s", std::get<0>(plots[j]) ));
+        sh_v[j]->SetName("sh_"+TString::Format("%s", std::get<0>(plots[j]) ));
         sh_v[j]->Draw("ehist nostack pfc plc");
         legende.push_back(new TLegend(0.83,0.3,0.98,0.7));
         fai_legenda(legende[j],h1[j]);

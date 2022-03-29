@@ -36,42 +36,13 @@ int my_colors[] = {30, 40, 31, 41, 32, 42, 33, 43, 34, 44, 35, 45, 36, 46, 37, 4
 
 TString path="/home/bastiano/Documents/Geant4/PSI/insertion/data/";
 
+TString folder="28MeV_10k2";
+
 TString energy = "28MeV";
 
-TString folder="128MeV_10k2";
+std::vector<TString> file_names;
 
-TString file_names[] = {
-        "128MeV_0.01.root"
-    ,   "128MeV_0.02.root"
-    ,   "128MeV_0.03.root"
-    ,   "128MeV_0.04.root"
-    ,   "128MeV_0.05.root"
-    ,   "128MeV_0.06.root"
-    ,   "128MeV_0.07.root"
-    ,   "128MeV_0.08.root"
-    ,   "128MeV_0.09.root"
-    ,   "128MeV_0.10.root"
-    ,   "128MeV_0.11.root"
-    ,   "128MeV_0.12.root"
-    ,   "128MeV_0.13.root"
-    ,   "128MeV_0.14.root"
-    ,   "128MeV_0.15.root"
-    ,   "128MeV_0.16.root"
-    ,   "128MeV_0.17.root"
-    ,   "128MeV_0.18.root"
-    ,   "128MeV_0.19.root"
-    ,   "128MeV_0.20.root"
-    ,   "128MeV_0.30.root"
-    ,   "128MeV_0.40.root"
-    ,   "128MeV_0.50.root"
-    ,   "128MeV_0.60.root"
-    ,   "128MeV_0.70.root"
-    ,   "128MeV_0.80.root"
-    ,   "128MeV_0.90.root"
-    ,   "128MeV_1.00.root"
-};
-
-double_t thickness[] = {
+std::vector<double_t> thickness{
         0.01
     ,   0.02
     ,   0.03
@@ -107,47 +78,22 @@ double_t thickness[] = {
 //############################################################
 
 // these are the commands you would give to TTree->Draw() with the branch names
-std::vector <char *> plots {
-        (char*)"fParticleID"
-    ,   (char*)"fMom"
-    ,   (char*)"fPosX"
-    ,   (char*)"fPosY"
-    ,   (char*)"fMomX"
-    ,   (char*)"fMomY"
+// Choose *variable* *some cut* *histogram range*
+std::vector< std::tuple<char*, char*, char*> > plots {
+        {   (char*)"fParticleID",   (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-100,+100)"}
+    ,   {   (char*)"fMom",          (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(300,0, 30 )"   }
+    ,   {   (char*)"fPosX",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(220,-110,110)" }
+    ,   {   (char*)"fPosY",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(220,-110,110)" }
+    ,   {   (char*)"fMomX",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-5,5)"     }
+    ,   {   (char*)"fMomY",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-5,5)"     }
+
+        // {   (char*)"fParticleID",   (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-100,+100)"    }
+    // ,   {   (char*)"fMom",          (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(300,0, 30 )"    }
+    // ,   {   (char*)"fPosX",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(220,-110,110)"      }
+    // ,   {   (char*)"fPosY",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(220,-110,110)"      }
+    // ,   {   (char*)"fMomX",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-5,5)"   }
+    // ,   {   (char*)"fMomY",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-5,5)" }
 };
-
-// in principle you can add also some cuts, on the same or on a different branch
-std::vector <char *> cuts {
-        // (char*)""
-    // ,   (char*)""
-    // ,   (char*)""
-    // ,   (char*)""
-    // ,   (char*)""
-    // ,   (char*)""
-
-        (char*)"fVDNo == 1 && fParticleID == -13"
-    ,   (char*)"fVDNo == 1 && fParticleID == -13"
-    ,   (char*)"fVDNo == 1 && fParticleID == -13"
-    ,   (char*)"fVDNo == 1 && fParticleID == -13"
-    ,   (char*)"fVDNo == 1 && fParticleID == -13"
-    ,   (char*)"fVDNo == 1 && fParticleID == -13"
-};
-
-std::vector <char *> ranges {
-        // (char*)"(300,58,61)"
-    // ,   (char*)"(300,58,61)"
-    // ,   (char*)"(100,0,1)"
-    // ,   (char*)"(250,0,5)"
-    // ,   (char*)"(1000,0,1.2)"
-    // ,   (char*)"(1000,0,10000)"
-    
-        (char*)"(200,-100,+100)"
-    ,   (char*)"(300,0, 30 )"
-    ,   (char*)"(220,-110,110)"
-    ,   (char*)"(220,-110,110)"
-    ,   (char*)"(200,-5,5)"
-    ,   (char*)"(200,-5,5)"
-}; 
 
 //############################################################
 //####################### 2D Plots ###########################
@@ -214,10 +160,19 @@ if(debug) std::cout<<var<<std::endl;
 void emittance(){
     cout<<"Data from the files in path : "<<path<<endl<<endl;
 
+    std::stringstream ss;
+    for(int i = 0; i< thickness.size(); i++){
+        ss << std::fixed<<std::setprecision(2)<<thickness[i];
+        TString str = ss.str();
+
+        file_names.push_back(energy+"_"+ str+".root");
+        std::cout<<file_names[i]<<std::endl;
+        
+        ss.str(std::string());
+    }
+
     std::vector<TTree *> tree_v;
     TFile *file_tmp;
-
-    TMultiGraph *mgr = new TMultiGraph;
 
     TGraphErrors * grx = new TGraphErrors;
     grx->SetMarkerStyle(20);
@@ -274,7 +229,7 @@ if(debug) std::cout<<"!empty"<<std::endl;
         co_var = covariance(x,px);
 if(debug) std::cout<<"var : "<<q_var<<" "<<p_var<<" "<<co_var<<std::endl;
 
-        emittance =  q_var*p_var-co_var*co_var; ///(sqrt(q_var)*sqrt(p_var)) 
+        emittance =  q_var*p_var-co_var*co_var; //
 if(debug) std::cout<<"emittance : "<<emittance<<std::endl;
         emittance = sqrt(emittance);
 if(debug) std::cout<<"emittance : "<<emittance<<std::endl;
@@ -304,10 +259,13 @@ if(debug) std::cout<<"emittance : "<<emittance<<std::endl;
     new TCanvas;
     gry->Draw("AP0");
 
+    TMultiGraph *mgr = new TMultiGraph;
+    mgr->SetTitle("Emittance x,px and y,py; Thickness [mm]; #varepsilon [mm*MeV/c]");
     mgr->Add(grx);
     mgr->Add(gry);
-    new TCanvas;
+    TCanvas * c_mgr = new TCanvas;
     mgr->Draw("AP0");
+    c_mgr->BuildLegend();
 }
 
 //* Some things are char * instead of strings because I think they work better with TTree->Draw()
@@ -345,6 +303,17 @@ void color_histos(std::vector<TH1F *> h_v){
 void test(){
     cout<<"Data from the files in path : "<<path<<endl<<endl;
 
+    std::stringstream ss;
+    for(int i = 0; i< thickness.size(); i++){
+        ss << std::fixed<<std::setprecision(2)<<thickness[i];
+        TString str = ss.str();
+
+        file_names.push_back(energy+"_"+ str+".root");
+        std::cout<<file_names[i]<<std::endl;
+        
+        ss.str(std::string());
+    }
+
     std::vector<TTree *> tree_v;
 
     std::vector<std::vector<TH1F *>> h1;
@@ -372,8 +341,8 @@ void test(){
         sh_v.push_back(new THStack);
 
         gr_v.push_back(new TGraphErrors);
-        gr_v[j]->SetTitle(folder+"/"+TString::Format("%s", plots[j]));
-        gr_v[j]->SetName("gr_"+TString::Format("%s", plots[j]));
+        gr_v[j]->SetTitle(folder+"/"+TString::Format("%s", std::get<0>(plots[j]) ));
+        gr_v[j]->SetName("gr_"+TString::Format("%s", std::get<0>(plots[j]) ));
 
         // for every plot loop on all the TTrees
         for (int i=0; i<tree_v.size();i++)
@@ -381,7 +350,7 @@ void test(){
             // just a check on which file we are right now
             if(debug) {
                 std::cout<<file_names[i]<<endl;
-                std::cout<<TString::Format("%s>>h1_%d%d%s", plots[j], j,i,ranges[j])<<endl;
+                std::cout<<TString::Format("%s>>h1_%d%d%s", std::get<0>(plots[j]) , j,i, std::get<2>(plots[j]) )<<endl;
             }
 
             /*
@@ -389,7 +358,7 @@ void test(){
             */
 
             //new TCanvas("",file_names[i]);
-            tree_v[i]->Draw(TString::Format("%s>>h1_%d%d%s", plots[j], j,i,ranges[j]),cuts[j],"goff");
+            tree_v[i]->Draw(TString::Format("%s>>h1_%d%d%s", std::get<0>(plots[j]) , j,i,std::get<2>(plots[j])),std::get<1>(plots[j]),"goff");
             h1_tmp = (TH1F*)gDirectory->Get(TString::Format("h1_%d%d",j,i));
 
             v_tmp.push_back(h1_tmp);
@@ -419,8 +388,8 @@ void test(){
     for(int j=0; j<h1.size();j++){
         color_histos(h1[j]);
         new TCanvas("",folder);
-        sh_v[j]->SetTitle(folder+"/"+TString::Format("%s", plots[j]));
-        sh_v[j]->SetName("sh_"+TString::Format("%s", plots[j]));
+        sh_v[j]->SetTitle(folder+"/"+TString::Format("%s", std::get<0>(plots[j]) ));
+        sh_v[j]->SetName("sh_"+TString::Format("%s",std::get<0>(plots[j]) ));
         sh_v[j]->Draw("ehist nostack pfc plc");
         legende.push_back(new TLegend(0.83,0.3,0.98,0.7));
         fai_legenda(legende[j],h1[j]);
