@@ -414,7 +414,7 @@ void ScintSD::FillNtupla(G4AnalysisManager *man, ScintHit* scintHit, G4int ntupl
     man->FillNtupleIColumn(ntupla, fNgamma_ID		, scintHit->GetNgamma());
     man->FillNtupleIColumn(ntupla, fNgammaSec_ID	, scintHit->GetNgammaSec());
     man->FillNtupleIColumn(ntupla, fNCer_ID			, scintHit->GetNCer());
-    man->FillNtupleIColumn(ntupla, fRight_ID		, scintHit->GetCurrentFront());
+    man->FillNtupleIColumn(ntupla, fRight_ID		, scintHit->GetCurrentRight());
     man->FillNtupleIColumn(ntupla, fLeft_ID		, scintHit->GetCurrentLeft());
     man->FillNtupleIColumn(ntupla, fDown_ID		, scintHit->GetCurrentDown());
     man->FillNtupleIColumn(ntupla, fUp_ID		, scintHit->GetCurrentUp());
