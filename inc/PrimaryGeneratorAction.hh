@@ -11,6 +11,8 @@
 #include "G4ParticleGun.hh"
 #include "G4SystemOfUnits.hh"
 #include "globals.hh"
+#include "Randomize.hh"
+#include "G4PhysicalConstants.hh"
 
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {

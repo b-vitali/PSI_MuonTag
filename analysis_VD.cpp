@@ -80,12 +80,12 @@ std::vector<double_t> thickness{
 // these are the commands you would give to TTree->Draw() with the branch names
 // Choose *variable* *some cut* *histogram range*
 std::vector< std::tuple<char*, char*, char*> > plots {
-        {   (char*)"fParticleID",   (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-100,+100)"}
-    ,   {   (char*)"fMom",          (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(300,0, 30 )"   }
-    ,   {   (char*)"fPosX",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(220,-110,110)" }
-    ,   {   (char*)"fPosY",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(220,-110,110)" }
-    ,   {   (char*)"fMomX",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-5,5)"     }
-    ,   {   (char*)"fMomY",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-5,5)"     }
+        {   (char*)"fParticleID",   (char*)"fVDNo == 1",  (char*)"(200,-100,+100)"}
+    ,   {   (char*)"fMom",          (char*)"fVDNo == 1",  (char*)"(1300,0, 130 )"   }
+    ,   {   (char*)"fPosX",         (char*)"fVDNo == 1",  (char*)"(880,-55,55)" }
+    ,   {   (char*)"fPosY",         (char*)"fVDNo == 1",  (char*)"(880,-55,55)" }
+    ,   {   (char*)"fMomX",         (char*)"fVDNo == 1",  (char*)"(200,-5,5)"     }
+    ,   {   (char*)"fMomY",         (char*)"fVDNo == 1",  (char*)"(200,-5,5)"     }
 
         // {   (char*)"fParticleID",   (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-100,+100)"    }
     // ,   {   (char*)"fMom",          (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(300,0, 30 )"    }
@@ -101,8 +101,8 @@ std::vector< std::tuple<char*, char*, char*> > plots {
 
 // these are the commands you would give to TTree->Draw() with the branch names
 std::vector <char *> plots2D {
-        (char*)"fMomX:fPosX"
-    ,   (char*)"fMomY:fPosY"
+    //     (char*)"fMomX:fPosX"
+    // ,   (char*)"fMomY:fPosY"
 };
 
 // in principle you can add also some cuts, on the same or on a different branch

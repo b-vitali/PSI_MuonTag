@@ -76,19 +76,12 @@ std::vector<double_t> thickness{
 // these are the commands you would give to TTree->Draw() with the branch names
 // Choose *variable* *some cut* *histogram range*
 std::vector< std::tuple<char*, char*, char*> > plots {
-        // {   (char*)"fEin",          (char*)"",  (char*)"(300,58,61)"    }
-    // ,   {   (char*)"fEout",         (char*)"",  (char*)"(300,58,61)"    }
-    // ,   {   (char*)"fEdep",         (char*)"",  (char*)"(100,0,1)"      }
-    // ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(250,0,5)"      }
-    // ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(1000,0,1.2)"   }
-    // ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,10000)" }
-
-        {   (char*)"fEin",          (char*)"",  (char*)"(250,0,5)"      }
-    ,   {   (char*)"fEout",         (char*)"",  (char*)"(250,0,5)"      }
-    ,   {   (char*)"fEdep",         (char*)"",  (char*)"(250,0,5)"      }
-    ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(300,0,30)"     }
-    ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(1000,0,1.2)"   }
-    ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,30000)" }
+        {   (char*)"fEin",          (char*)"",  (char*)"(300,0,61)"     }
+    ,   {   (char*)"fEout",         (char*)"",  (char*)"(300,0,5)"      }
+    ,   {   (char*)"fEdep",         (char*)"",  (char*)"(500,0,5)"      }
+    ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(250,0,100)"    }
+    ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(600,0,1.2)"    }
+    ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,100000)"}
 };
 
 /*
@@ -96,7 +89,7 @@ basically the first plot will be:
     the variable "currentleft/currentback"; requiring ""thetapositron>0.01; in range 0-0.5 with 100 bin
 */
 
-int skim = 1;
+int skim = 5;
 
 bool debug = false;
 
@@ -150,10 +143,12 @@ void test(){
     // open the files and collect the TTrees in a vector
     for(const TString &file_name : file_names){
         file_tmp =  TFile::Open(path+folder+"/"+file_name);
-        tree_v.push_back(file_tmp->Get<TTree>("Scint_gate"));
+        tree_v.push_back(file_tmp->Get<TTree>("Scint_telescope"));
     }
     
     if(debug) cout<<"file importend and vector<TTree *> filled"<<endl<<endl;
+    if(debug) cout<<"plot size() = "<<plots.size()<<endl;
+    if(debug) cout<<"tree_v size() = "<<tree_v.size()<<endl;
 
     // loop on every plot you want
     for(int j = 0; j < plots.size(); j++){
@@ -177,6 +172,8 @@ void test(){
             /*
                 if you want to see all the plots un-comment new TCanvas and "goff"->"" in the Draw()
             */
+
+            if(tree_v[i]->GetEntries()==0) return;
 
             //new TCanvas("",file_names[i]);
             tree_v[i]->Draw(TString::Format("%s>>h1_%d%d%s", std::get<0>(plots[j]), j,i,std::get<2>(plots[j])),std::get<1>(plots[j]),"goff");
