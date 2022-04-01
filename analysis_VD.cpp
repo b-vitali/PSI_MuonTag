@@ -40,6 +40,10 @@ TString folder="28MeV_10k2";
 
 TString energy = "28MeV";
 
+int skim = 3;
+
+bool debug = false;
+
 std::vector<TString> file_names;
 
 std::vector<double_t> thickness{
@@ -80,7 +84,7 @@ std::vector<double_t> thickness{
 // these are the commands you would give to TTree->Draw() with the branch names
 // Choose *variable* *some cut* *histogram range*
 std::vector< std::tuple<char*, char*, char*> > plots {
-        {   (char*)"fParticleID",   (char*)"fVDNo == 1",  (char*)"(200,-100,+100)"}
+        {   (char*)"fParticleID",   (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-100,+100)"}
     ,   {   (char*)"fMom",          (char*)"fVDNo == 1",  (char*)"(1300,0, 130 )"   }
     ,   {   (char*)"fPosX",         (char*)"fVDNo == 1",  (char*)"(880,-55,55)" }
     ,   {   (char*)"fPosY",         (char*)"fVDNo == 1",  (char*)"(880,-55,55)" }
@@ -123,15 +127,6 @@ std::vector <char *> ranges2D {
         (char*)"(100,-20,20, 100,-5,5)"
     ,   (char*)"(100,-20,20, 100,-5,5)"
 }; 
-
-/*
-basically the first plot will be:
-    the variable "currentleft/currentback"; requiring ""thetapositron>0.01; in range 0-0.5 with 100 bin
-*/
-
-int skim = 1;
-
-bool debug = false;
 
 double_t covariance(std::vector<double_t> v1, std::vector<double_t> v2){
 if(debug) std::cout<< "covariance function with v1.size = "<<v1.size()<<std::endl;
@@ -260,7 +255,7 @@ if(debug) std::cout<<"emittance : "<<emittance<<std::endl;
     gry->Draw("AP0");
 
     TMultiGraph *mgr = new TMultiGraph;
-    mgr->SetTitle("Emittance x,px and y,py; Thickness [mm]; #varepsilon [mm*MeV/c]");
+    mgr->SetTitle("128 MeV : Emittance (x,px) and (y,py); Thickness [mm]; #varepsilon [mm*MeV/c]");
     mgr->Add(grx);
     mgr->Add(gry);
     TCanvas * c_mgr = new TCanvas;

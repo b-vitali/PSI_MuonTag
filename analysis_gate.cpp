@@ -36,9 +36,13 @@ int my_colors[] = {30, 40, 31, 41, 32, 42, 33, 43, 34, 44, 35, 45, 36, 46, 37, 4
 
 TString path="/home/bastiano/Documents/Geant4/PSI/insertion/data/";
 
-TString folder="28MeV_10k2";
+TString folder="128MeV_10k2";
 
-TString energy = "28MeV";
+TString energy = "128MeV";
+
+int skim = 3;
+
+bool debug = false;
 
 std::vector<TString> file_names;
 
@@ -76,29 +80,20 @@ std::vector<double_t> thickness{
 // these are the commands you would give to TTree->Draw() with the branch names
 // Choose *variable* *some cut* *histogram range*
 std::vector< std::tuple<char*, char*, char*> > plots {
-        // {   (char*)"fEin",          (char*)"",  (char*)"(300,58,61)"    }
-    // ,   {   (char*)"fEout",         (char*)"",  (char*)"(300,58,61)"    }
-    // ,   {   (char*)"fEdep",         (char*)"",  (char*)"(100,0,1)"      }
-    // ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(250,0,5)"      }
-    // ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(1000,0,1.2)"   }
-    // ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,10000)" }
-
-        {   (char*)"fEin",          (char*)"",  (char*)"(250,0,5)"      }
-    ,   {   (char*)"fEout",         (char*)"",  (char*)"(250,0,5)"      }
-    ,   {   (char*)"fEdep",         (char*)"",  (char*)"(250,0,5)"      }
-    ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(300,0,30)"     }
+        {   (char*)"fEin",          (char*)"",  (char*)"(300,59,60.5)"    }
+    ,   {   (char*)"fEout",         (char*)"",  (char*)"(300,59,60.5)"    }
+    ,   {   (char*)"fEdep",         (char*)"",  (char*)"(1000,0,1)"      }
+    ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(160,0,1.6)"      }
     ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(1000,0,1.2)"   }
-    ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,30000)" }
+    ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,10000)" }
+
+        // {   (char*)"fEin",          (char*)"",  (char*)"(250,0,5)"      }
+    // ,   {   (char*)"fEout",         (char*)"",  (char*)"(250,0,5)"      }
+    // ,   {   (char*)"fEdep",         (char*)"",  (char*)"(250,0,5)"      }
+    // ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(300,0,30)"     }
+    // ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(1000,0,1.2)"   }
+    // ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,30000)" }
 };
-
-/*
-basically the first plot will be:
-    the variable "currentleft/currentback"; requiring ""thetapositron>0.01; in range 0-0.5 with 100 bin
-*/
-
-int skim = 1;
-
-bool debug = false;
 
 /*
 --------------------------------------------------------------------------------------
