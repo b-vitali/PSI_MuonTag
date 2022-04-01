@@ -29,6 +29,14 @@ fDown(0), fUp(0), fBack(0), fFront(0), fSiPM(0), fDecayTime(-1){
 	fScintCollection = nullptr;
 	collectionName.insert("scintCollection");
 hitsCID = -1;
+	
+	G4AnalysisManager *man = G4AnalysisManager::Instance();
+
+	gammaTime_ID = man->CreateH1(name+"_PhotonTime","PhotonTime", 2000, 0., 200);
+	gammaFront_ID = man->CreateH2(name+"_PhotonPosFront","PhotonPositionFront", 2000, -500., 500, 2000, -500., 500);
+	gammaSide_ID = man->CreateH2(name+"_PhotonPosSide","PhotonPositionSide", 2000, -500., 500, 2000, -500., 500);
+	gammaTop_ID = man->CreateH2(name+"_PhotonPosTop","PhotonPositionTop", 2000, -500., 500, 2000, -500., 500);
+
 
 }
 
@@ -40,8 +48,6 @@ fDown(0), fUp(0), fBack(0), fFront(0), fSiPM(0), fDecayTime(-1){
 	G4cout<<"Create a tmp ScintSD to fill the Ntupla"<<G4endl;
 
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
-
-
 
 	// Ntuple for the Scintillator
 	man->CreateNtuple(name, name);
@@ -273,23 +279,30 @@ if(debug>0) G4cout<<"End of TrackID = 1"<<G4endl;
 			G4double dimensionY = boxSolid->GetYHalfLength();
 			G4double dimensionZ = boxSolid->GetZHalfLength();
 			
+			
+			G4AnalysisManager *man = G4AnalysisManager::Instance();
+			man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
+
 			if(std::fabs(localpos.x() + dimensionX) < kCarTolerance && postStep->GetMomentumDirection().getX() < 0){
 				fLeft += 1;
 			}
 			else if(std::fabs(localpos.x() - dimensionX) < kCarTolerance && postStep->GetMomentumDirection().getX() > 0){
 				fRight += 1;
+				man->FillH2(gammaSide_ID, localpos.z(),localpos.y());
 			}
 			else if(std::fabs(localpos.y() + dimensionY) < kCarTolerance && postStep->GetMomentumDirection().getY() < 0){
 				fDown += 1;
 			}
 			else if(std::fabs(localpos.y() - dimensionY) < kCarTolerance && postStep->GetMomentumDirection().getY() > 0){
 				fUp += 1;
+				man->FillH2(gammaTop_ID, localpos.x(),localpos.z());
 			}
 			else if(std::fabs(localpos.z() + dimensionZ) < kCarTolerance && postStep->GetMomentumDirection().getZ() < 0) {
 				fBack += 1; 
 			}
 			else if(std::fabs(localpos.z() - dimensionZ) < kCarTolerance && postStep->GetMomentumDirection().getZ() > 0){
 				fFront += 1;
+				man->FillH2(gammaFront_ID, localpos.x(),localpos.y());
 			}
 			aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 		}

@@ -64,6 +64,8 @@ class ScintSD : public G4VSensitiveDetector{
 		G4int fNgamma, fNgammaSec, fNCer;
 		G4int fNgamma_ID, fNgammaSec_ID, fNCer_ID;
 
+		G4int gammaTime_ID, gammaFront_ID, gammaSide_ID, gammaTop_ID;
+
 		G4double fDecayTime;
 		G4int fDecayTime_ID;
 
