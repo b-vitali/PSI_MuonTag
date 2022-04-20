@@ -36,9 +36,9 @@ int my_colors[] = {30, 40, 31, 41, 32, 42, 33, 43, 34, 44, 35, 45, 36, 46, 37, 4
 
 TString path="/home/bastiano/Documents/Geant4/PSI/insertion/data/";
 
-TString folder="128MeV_10k2";
+TString folder="28MeV_10k2";
 
-TString energy = "128MeV";
+TString energy = "28MeV";
 
 int skim = 3;
 
@@ -80,19 +80,19 @@ std::vector<double_t> thickness{
 // these are the commands you would give to TTree->Draw() with the branch names
 // Choose *variable* *some cut* *histogram range*
 std::vector< std::tuple<char*, char*, char*> > plots {
-        {   (char*)"fEin",          (char*)"",  (char*)"(300,59,60.5)"    }
-    ,   {   (char*)"fEout",         (char*)"",  (char*)"(300,59,60.5)"    }
-    ,   {   (char*)"fEdep",         (char*)"",  (char*)"(1000,0,1)"      }
-    ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(160,0,1.6)"      }
-    ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(1000,0,1.2)"   }
-    ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,10000)" }
-
-        // {   (char*)"fEin",          (char*)"",  (char*)"(250,0,5)"      }
-    // ,   {   (char*)"fEout",         (char*)"",  (char*)"(250,0,5)"      }
-    // ,   {   (char*)"fEdep",         (char*)"",  (char*)"(250,0,5)"      }
-    // ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(300,0,30)"     }
+        // {   (char*)"fEin",          (char*)"",  (char*)"(300,59,60.5)"    }
+    // ,   {   (char*)"fEout",         (char*)"",  (char*)"(300,59,60.5)"    }
+    // ,   {   (char*)"fEdep",         (char*)"",  (char*)"(1000,0,1)"      }
+    // ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(160,0,1.6)"      }
     // ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(1000,0,1.2)"   }
-    // ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,30000)" }
+    // ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,10000)" }
+
+        {   (char*)"fEin",          (char*)"",  (char*)"(250,0,5)"      }
+    ,   {   (char*)"fEout",         (char*)"",  (char*)"(250,0,5)"      }
+    ,   {   (char*)"fEdep",         (char*)"",  (char*)"(250,0,5)"      }
+    ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(300,0,30)"     }
+    ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(1000,0,1.2)"   }
+    ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,30000)" }
 };
 
 /*
@@ -100,6 +100,31 @@ std::vector< std::tuple<char*, char*, char*> > plots {
 ------------------ From here on everything should be automatic -----------------------
 --------------------------------------------------------------------------------------
 */
+
+double_t MultipleScattering(Double_t *x, Double_t *par){
+    double_t p = par[0];
+    double_t m = par[1];
+    double_t z = par[2];
+    double_t X0 = par[3];
+    
+    double_t beta = p / sqrt(p*p + m*m);
+
+    double_t theta_plane;
+    theta_plane = 13.6 / (beta*p) * z * sqrt(x[0] / X0) * (1 + 0.038 * TMath::Log (x[0] * z*z /(X0 * beta*beta)));
+    return theta_plane * sqrt(2); // from theta_plane to theta_space
+}
+
+void make_pool(TF1 *f, TGraphErrors * gr){
+    TGraph * gr_pool = new TGraph();
+    gr_pool->SetMarkerStyle(20);
+    double_t pool;
+    for(int i = 0; i< gr->GetN(); i++){
+        pool = ( gr->GetPointY(i)-f->Eval(gr->GetPointX(i)) )/gr->GetErrorY(i);
+        gr_pool->SetPoint(i,gr->GetPointX(i),pool);
+    }
+    new TCanvas;
+    gr_pool->Draw("AP0");
+}
 
 // creates legend given a vector of histograms
 void fai_legenda(TLegend *legendina, std::vector<TH1F *> h){
@@ -213,6 +238,23 @@ void test(){
 
         new TCanvas("",folder);
         gr_v[j]->Draw("AP0");
+
+        if(!strcmp(std::get<0>(plots[j]), "fThetaOut")){      
+            for(int i = 0; i< gr_v[j]->GetN(); i++){
+                gr_v[j]->SetPoint(i,thickness[i],gr_v[j]->GetPointY(i)*TMath::Pi()/180.);
+                gr_v[j]->SetPointError(i,0,gr_v[j]->GetErrorY(i)*TMath::Pi()/180.); //
+            }
+            TF1 *f = new TF1("MultipleScattering",MultipleScattering,0,0.5,4);
+            f->SetParNames("momentum","mass","z","X0");
+            f->SetParameters(28,105.6583755,1,0.4);
+            f->FixParameter(0,28);
+            f->FixParameter(1,105.6583755);
+            f->FixParameter(2,1);
+            gr_v[j]->Fit("MultipleScattering","REp");
+            f->Draw("same");
+
+            make_pool(f,gr_v[j]);
+        }
     }
 
     TFile * output_file = new TFile(path+folder+"_graphs.root", "recreate");

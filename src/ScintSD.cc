@@ -32,12 +32,13 @@ hitsCID = -1;
 	
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 
+//! want to use createH3 to have the ScintNo in the histogram?
 	gammaTime_ID = man->CreateH1(name+"_PhotonTime","PhotonTime", 2000, 0., 200);
 	gammaFront_ID = man->CreateH2(name+"_PhotonPosFront","PhotonPositionFront", 2000, -500., 500, 2000, -500., 500);
 	gammaSide_ID = man->CreateH2(name+"_PhotonPosSide","PhotonPositionSide", 2000, -500., 500, 2000, -500., 500);
 	gammaTop_ID = man->CreateH2(name+"_PhotonPosTop","PhotonPositionTop", 2000, -500., 500, 2000, -500., 500);
 
-
+G4cout<<"create ScintSD: "<<name<<G4endl;
 }
 
 ScintSD::ScintSD(G4String name, G4int ntuple):
@@ -107,9 +108,34 @@ void ScintSD::Initialize(G4HCofThisEvent* hitsCE){
 }
 int t = 0;
 
+
+/*
+	I want a Hit every time the primary enters in the scintillator
+	This means that I need to find a way to check when all the secondary 
+	particles have been analyzed and Hit has been filled.
+	Use G4bool to tag the last track in the volume to be processed
+	Geant starts from TrkID==1 then N, N-1, N-2 ... 2
+	At this point we are out of the first scint and we enter the second
+	Again TrkID == 1 then N+M, N+M-1, N+M-2 ... N+1
+*/
+
+//variables to track the muber of tracks
+G4int 	Tprev 	= 0;
+G4int 	Tnow 	= 1;
+G4bool	Last 	= false;
+
 G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){	
 // no printout == 0 ; 
-int debug	=	3;
+int debug	=	0;
+
+if(debug>5)G4cout<<"ev "<<G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()<<" track id "<< aStep->GetTrack()->GetTrackID()<< G4endl; 
+// save the number of traks in the last scint to reference it in this one
+if(aStep->GetTrack()->GetTrackID() == 1) {Tprev = Tnow; Last = false;}
+// update the number of traks in this scint
+if(Tnow < aStep->GetTrack()->GetTrackID()) Tnow = aStep->GetTrack()->GetTrackID();
+// if  we are at TrkID 2 or N+1 the bool is ste to true
+if( aStep->GetTrack()->GetTrackID() == Tprev + 1) {G4cout<<"END?"<<G4endl; Last = true;}
+if(debug>5)G4cout<<Tprev<<" "<<Tnow<<G4endl;
 
 	//? Take start and end of the G4Step
 	G4StepPoint* preStep = aStep->GetPreStepPoint();
@@ -165,6 +191,7 @@ if(debug>5)G4cout<< "fStopAndKill"<<G4endl;
 				}
 			}
 		}
+if(debug>0)G4cout<<"fNgamma " <<fNgamma<<G4endl;	
 
 		//? Saving incoming primary characteristics	
 		if(aStep->IsFirstStepInVolume() && fEin == 0){	
@@ -173,7 +200,7 @@ if(debug>5)G4cout<< "fStopAndKill"<<G4endl;
 			G4Track * track = aStep->GetTrack();
     		fParticleID = track->GetParticleDefinition()->GetPDGEncoding();
     		fEvent = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-    		fScintNo = thePrePV->GetCopyNo();
+				fScintNo = thePrePV->GetCopyNo();
 			ein = preStep->GetKineticEnergy();
 			fEin = ein;
 			fMomIn = preStep->GetMomentum();
@@ -222,8 +249,7 @@ if(debug>0) G4cout<<"Particle stopped!"<<G4endl;
 			
 			//? Should I kill the track?
 			//aStep->Getrack()->SetTrackStatus(fStopAndKill);
-			FillHit();
-			return true;
+			// return true;
 		}
 
 		//? Exiting particle
@@ -258,55 +284,84 @@ if(debug>0) G4cout<<"cos(fThetaOut) = "<<fThetaOut<<" and fThetaOut [deg] = "<<s
 			
 			//? Should I kill the track?
 			//aStep->GetTrack()->SetTrackStatus(fStopAndKill);
-			FillHit();
-			return true;
+			// FillHit();
+			// return true;
 		}
 if(debug>0) G4cout<<"End of TrackID = 1"<<G4endl;
-		return false;
+		// return false;
 	}
 
 	//? If it is an G4OpticalPhoton
-	//! CHECK REQUIREMENTS ON THE MOMENTUMDIRECTION()
+	//! fDirOut_trans = momentumTransform.TransformPoint(postStep->GetMomentumDirection());
 	else if(aStep->GetTrack()->GetDynamicParticle()->GetParticleDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()){
 		G4VSolid* solid = thePrePV->GetLogicalVolume()->GetSolid();
 
 		G4Box* boxSolid = (G4Box*)(solid);
+		//if it is at the border
 		if(postStep->GetStepStatus() == fGeomBoundary){
 			G4double kCarTolerance = G4GeometryTolerance::GetInstance()->GetSurfaceTolerance();
-			G4ThreeVector stppos = postStep->GetPosition();
-			G4ThreeVector localpos = thePreTouchable->GetHistory()->GetTopTransform().TransformPoint(stppos);
+			G4ThreeVector worldPos = postStep->GetPosition();
+			G4ThreeVector localpos = thePreTouchable->GetHistory()->GetTopTransform().TransformPoint(worldPos);
 			G4double dimensionX = boxSolid->GetXHalfLength();
 			G4double dimensionY = boxSolid->GetYHalfLength();
 			G4double dimensionZ = boxSolid->GetZHalfLength();
 			
-			
-			G4AnalysisManager *man = G4AnalysisManager::Instance();
-			man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
+			//transform the direction to match the rotation of the faces
+			G4AffineTransform momentumTransform = thePreTouchable->GetHistory()->GetTopTransform();
+			momentumTransform.SetNetTranslation(G4ThreeVector(0,0,0));
+			fDirOut_trans = momentumTransform.TransformPoint(postStep->GetMomentumDirection());
+if(debug>4)G4cout<<"track id "<< aStep->GetTrack()->GetTrackID()<< G4endl;		
+if(debug>4)G4cout<<"pos: "<<localpos.x()<<" "<<localpos.y()<<" "<<localpos.z()<<G4endl;
+if(debug>4)G4cout<<"dir: "<<fDirOut_trans.x()<<" "<<fDirOut_trans.y()<<" "<<fDirOut_trans.z()<<G4endl;
 
-			if(std::fabs(localpos.x() + dimensionX) < kCarTolerance && postStep->GetMomentumDirection().getX() < 0){
+
+			G4AnalysisManager *man = G4AnalysisManager::Instance();
+			// this checks if the photon GOES OUT from the scint
+			if(std::fabs(localpos.x() + dimensionX) < kCarTolerance && fDirOut_trans.getX() < 0){
+if(debug>4)G4cout<<"Left"<<G4endl;
 				fLeft += 1;
+				man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
+
+				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
-			else if(std::fabs(localpos.x() - dimensionX) < kCarTolerance && postStep->GetMomentumDirection().getX() > 0){
+			else if(std::fabs(localpos.x() - dimensionX) < kCarTolerance && fDirOut_trans.getX() > 0){
+if(debug>4)G4cout<<"Right"<<G4endl;
 				fRight += 1;
+				man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
 				man->FillH2(gammaSide_ID, localpos.z(),localpos.y());
+				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
-			else if(std::fabs(localpos.y() + dimensionY) < kCarTolerance && postStep->GetMomentumDirection().getY() < 0){
+			else if(std::fabs(localpos.y() + dimensionY) < kCarTolerance && fDirOut_trans.getY() < 0){
+if(debug>4)G4cout<<"Down"<<G4endl;
 				fDown += 1;
+				man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
+				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
-			else if(std::fabs(localpos.y() - dimensionY) < kCarTolerance && postStep->GetMomentumDirection().getY() > 0){
+			else if(std::fabs(localpos.y() - dimensionY) < kCarTolerance && fDirOut_trans.getY() > 0){
+if(debug>4)G4cout<<"Up"<<G4endl;
 				fUp += 1;
+				man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
 				man->FillH2(gammaTop_ID, localpos.x(),localpos.z());
+				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
-			else if(std::fabs(localpos.z() + dimensionZ) < kCarTolerance && postStep->GetMomentumDirection().getZ() < 0) {
+			else if(std::fabs(localpos.z() + dimensionZ) < kCarTolerance && fDirOut_trans.getZ() < 0) {
+if(debug>4)G4cout<<"Back"<<G4endl;
 				fBack += 1; 
+				man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
+				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
-			else if(std::fabs(localpos.z() - dimensionZ) < kCarTolerance && postStep->GetMomentumDirection().getZ() > 0){
+			else if(std::fabs(localpos.z() - dimensionZ) < kCarTolerance && fDirOut_trans.getZ() > 0){
+if(debug>4)G4cout<<"Front"<<G4endl;
 				fFront += 1;
+				man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
 				man->FillH2(gammaFront_ID, localpos.x(),localpos.y());
+				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
-			aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+			else {
+if(debug>4)G4cout<<"Reflect"<<G4endl;
+			}
+		// return false;
 		}
-		return false;
 	}
 
 	//? Everything else: ionization, decay etc
@@ -331,13 +386,14 @@ if(debug>4) G4cout<<secondaries->at(i)->GetDynamicParticle()->GetParticleDefinit
 				}
 			}
 		}
-		return false;
+		// return false;
 	}
+	if(Last) {FillHit(); Last = false;}
 }
 
 void ScintSD::FillHit(){
 	ScintHit* Hit = new ScintHit();
-	
+
 	Hit->SetEvent(fEvent);
 	Hit->SetScintNo(fScintNo);
 	Hit->SetParticleID(fParticleID);
@@ -406,7 +462,10 @@ void ScintSD::FillHit(){
 }
 
 void ScintSD::EndOfEvent(G4HCofThisEvent* hitsCE){
-
+	//reset the values for the number of tracks.
+	Tprev= 0; 
+	Tnow = 1; 
+	Last = false; 
 }
 
 void ScintSD::clear(){}
