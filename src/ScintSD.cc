@@ -32,11 +32,11 @@ hitsCID = -1;
 	
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 
-//! want to use createH3 to have the ScintNo in the histogram?
-	gammaTime_ID = man->CreateH1(name+"_PhotonTime","PhotonTime", 2000, 0., 200);
-	gammaFront_ID = man->CreateH2(name+"_PhotonPosFront","PhotonPositionFront", 2000, -500., 500, 2000, -500., 500);
-	gammaSide_ID = man->CreateH2(name+"_PhotonPosSide","PhotonPositionSide", 2000, -500., 500, 2000, -500., 500);
-	gammaTop_ID = man->CreateH2(name+"_PhotonPosTop","PhotonPositionTop", 2000, -500., 500, 2000, -500., 500);
+//? The histogram are +1D to have the ScintNo as the additional axis. Use GetZaxis()->SetRange(0,1)
+	gammaTime_ID = man->CreateH2(name+"_PhotonTime","PhotonTime", 200, 0., 200, 100, 0,100);
+	gammaSide_ID = man->CreateH3(name+"_PhotonPosSide","PhotonPositionSide", 200, -50., 50, 200, -50., 50, 100, 0,100);
+	gammaTop_ID = man->CreateH3(name+"_PhotonPosTop","PhotonPositionTop",200, -50., 50, 200, -50., 50, 100, 0,100);
+	gammaFront_ID = man->CreateH3(name+"_PhotonPosFront","PhotonPositionFront",200, -50., 50, 200, -50., 50, 100, 0,100);
 
 G4cout<<"create ScintSD: "<<name<<G4endl;
 }
@@ -320,41 +320,41 @@ if(debug>4)G4cout<<"dir: "<<fDirOut_trans.x()<<" "<<fDirOut_trans.y()<<" "<<fDir
 			if(std::fabs(localpos.x() + dimensionX) < kCarTolerance && fDirOut_trans.getX() < 0){
 if(debug>4)G4cout<<"Left"<<G4endl;
 				fLeft += 1;
-				man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
+				man->FillH2(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime(),fScintNo);
 
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.x() - dimensionX) < kCarTolerance && fDirOut_trans.getX() > 0){
 if(debug>4)G4cout<<"Right"<<G4endl;
 				fRight += 1;
-				man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
-				man->FillH2(gammaSide_ID, localpos.z(),localpos.y());
+				man->FillH2(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime(),fScintNo);
+				man->FillH3(gammaSide_ID, localpos.z(),localpos.y(),fScintNo);
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.y() + dimensionY) < kCarTolerance && fDirOut_trans.getY() < 0){
 if(debug>4)G4cout<<"Down"<<G4endl;
 				fDown += 1;
-				man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
+				man->FillH2(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime(),fScintNo);
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.y() - dimensionY) < kCarTolerance && fDirOut_trans.getY() > 0){
 if(debug>4)G4cout<<"Up"<<G4endl;
 				fUp += 1;
-				man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
-				man->FillH2(gammaTop_ID, localpos.x(),localpos.z());
+				man->FillH2(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime(),fScintNo);
+				man->FillH3(gammaTop_ID, localpos.x(),localpos.z(),fScintNo);
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.z() + dimensionZ) < kCarTolerance && fDirOut_trans.getZ() < 0) {
 if(debug>4)G4cout<<"Back"<<G4endl;
 				fBack += 1; 
-				man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
+				man->FillH2(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime(),fScintNo);
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.z() - dimensionZ) < kCarTolerance && fDirOut_trans.getZ() > 0){
 if(debug>4)G4cout<<"Front"<<G4endl;
 				fFront += 1;
-				man->FillH1(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime());
-				man->FillH2(gammaFront_ID, localpos.x(),localpos.y());
+				man->FillH2(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime(),fScintNo);
+				man->FillH3(gammaFront_ID, localpos.x(),localpos.y(), fScintNo);
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else {
