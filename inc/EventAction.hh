@@ -24,8 +24,10 @@ class EventAction : public G4UserEventAction{
 		RunAction* fRunAction;
 		
 		ScintSD * tmp_scint;
+		ScintSD * tmp_scint2;
 
 		G4int fCollIDScint;
+		G4int fCollIDScint2;
 		
 		G4int fEvID; // to register each event just once
 };

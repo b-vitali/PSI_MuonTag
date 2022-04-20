@@ -16,6 +16,9 @@
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 
+#include "G4OpticalSurface.hh"
+#include "G4LogicalSkinSurface.hh"
+
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 
@@ -92,6 +95,10 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4Box* fSolidScint;
 		G4LogicalVolume* fLogicScint;
 		G4PVPlacement* fPhysScint;
+
+		G4Box* fSolidScint2;
+		G4LogicalVolume* fLogicScint2;
+		G4PVPlacement* fPhysScint2;
 
 		// VD
 		G4Box* fSolidVD;

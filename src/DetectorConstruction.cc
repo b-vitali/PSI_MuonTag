@@ -21,24 +21,27 @@ G4int 		N;
 DetectorConstruction::DetectorConstruction()
 {
 	fVDOn = true;
-	fmuEDM= true;
-	if(fmuEDM)fVDOn = false;
+	fmuEDM= false;
+	if(fmuEDM){
+		fVDOn = false;
+		G4cout<<"fmuEDM ON. do the same in the EventAction.cc"<<G4endl;
+	}
 
 	// Scintillator dimensions
-    fScintSizeX = 2*cm;
-    fScintSizeY = 5*cm;
-    fScintSizeZ = 0.05*mm;
-
-	// World dimentions
-    fWorldSizeX = 10*std::max(fScintSizeX,fScintSizeY);
-    fWorldSizeY = 10*std::max(fScintSizeX,fScintSizeY);
-    fWorldSizeZ = 10*std::max(fScintSizeX,fScintSizeY);
+    fScintSizeX = 5*mm;
+    fScintSizeY = 5*mm;
+    fScintSizeZ = 0.005*mm;
 
 	// VirtualDetector dimensions
     fVDSizeX = 20*cm;
     fVDSizeY = 20*cm;
     fVDSizeZ = 10*mm;
 
+	// World dimentions
+    fWorldSizeX = 3*std::max(fScintSizeX,fVDSizeX);
+    fWorldSizeY = 3*std::max(fScintSizeY,fVDSizeY);
+    fWorldSizeZ = 20*std::max(fScintSizeZ,fVDSizeZ);
+	
 	// At creation it calls for the function creating the materials 
 	fDetectorMessenger = new DetectorMessenger(this);
 	DefineMaterials();
@@ -227,7 +230,7 @@ void DetectorConstruction::DefineOpticalProperties()
 	// ----------------------------------------------------------	
 	// Vacuum & Air
 	// ----------------------------------------------------------	
-	fPhotonWorldPropagation = false;
+	fPhotonWorldPropagation = true;
 	if(fPhotonWorldPropagation){
 		G4double vacuum_Energy[] = {1.5*eV, 4.*eV};
 		const G4int vacnum = sizeof(vacuum_Energy) / sizeof(G4double);
@@ -250,7 +253,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	if(fmuEDM){
 	fScintSizeX = 2*cm;
     fScintSizeY = 8*cm;
-    fScintSizeZ = 2*mm;
+    fScintSizeZ = 0.05*mm;
 
 	r 	= 8*cm; 		// actual path of the particle
 	N	= 18;
@@ -293,15 +296,35 @@ G4cout<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<t
 	}
 
 	else {
-		fPhysScint		= new G4PVPlacement(transform , fLogicScint, "Scint", fLogicWorld, false, 0, fCheckOverlaps);
+		fSolidScint2	= new G4Box("Scint2", 0.7*fScintSizeX, 0.7*fScintSizeY, 0.7*fScintSizeZ);
+    	fLogicScint2 = new G4LogicalVolume(fSolidScint2, fScintMaterial, "Scint2");
+
+
+		fPhysScint		= new G4PVPlacement(transform , fLogicScint, "Scint", fLogicWorld, true, 0, fCheckOverlaps);
 		transform = translate*translate*rotation*rotation;
-		fPhysScint		= new G4PVPlacement(transform , fLogicScint, "Scint", fLogicWorld, false, 1, fCheckOverlaps);
+		fPhysScint		= new G4PVPlacement(transform , fLogicScint, "Scint", fLogicWorld, true, 1, fCheckOverlaps);
+		transform = translate*transform;
+		fPhysScint2		= new G4PVPlacement(transform , fLogicScint2, "Scint2", fLogicWorld, false, 0, fCheckOverlaps);
 	}
-//	else    fPhysScint		= new G4PVPlacement(0, G4ThreeVector(0., 0., 3*cm), fLogicScint, "Scint", fLogicWorld, false, 0, fCheckOverlaps);
+
+	// Scintillator glisur
+	G4double fGround;
+	fGround =  0.8;
+	if(fGround < 1){
+		G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
+		OpScintSurface->SetModel(glisur);
+		OpScintSurface->SetType(dielectric_dielectric);
+		OpScintSurface->SetFinish(groundair); //ground polished
+		OpScintSurface->SetPolish(fGround);
+
+		new G4LogicalSkinSurface("ScintSurface", fLogicScint, OpScintSurface);	
+		if(!fmuEDM) new G4LogicalSkinSurface("ScintSurface", fLogicScint2, OpScintSurface);	
+	}
 
 	// Set how the volumes are visualized
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
     fLogicScint	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.5));
+    if(!fmuEDM) fLogicScint2	->SetVisAttributes(G4Colour(0.8, 0.8, 0.34, 0.5));
 
 	if(fVDOn){
 		// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
@@ -328,6 +351,12 @@ void DetectorConstruction::ConstructSDandField()
 	ScintSD* scint_SD = new ScintSD("Scint");
   	sdManager->AddNewDetector(scint_SD);
 	fLogicScint->SetSensitiveDetector(scint_SD);
+
+	if(!fmuEDM){
+		ScintSD* scint_SD2 = new ScintSD("Scint2");
+  		sdManager->AddNewDetector(scint_SD2);
+		fLogicScint2->SetSensitiveDetector(scint_SD2);
+	}	
 
 	if(fmuEDM)
 	{
