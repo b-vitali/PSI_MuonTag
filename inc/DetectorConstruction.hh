@@ -18,6 +18,7 @@
 
 #include "G4OpticalSurface.hh"
 #include "G4LogicalSkinSurface.hh"
+#include "G4LogicalBorderSurface.hh"
 
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
@@ -80,6 +81,16 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     	G4double fScintSizeY;
     	G4double fScintSizeZ;
 
+		// Read dimensions
+    	G4double fReadSizeX;
+    	G4double fReadSizeY;
+    	G4double fReadSizeZ;
+
+		// Element dimensions
+    	G4double fElementSizeX;
+    	G4double fElementSizeY;
+    	G4double fElementSizeZ;
+
 		// VirtualDetector dimensions
     	G4double fVDSizeX;
     	G4double fVDSizeY;
@@ -99,6 +110,16 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4Box* fSolidScint2;
 		G4LogicalVolume* fLogicScint2;
 		G4PVPlacement* fPhysScint2;
+
+		// Readout
+		G4Box* fSolidRead;
+		G4LogicalVolume* fLogicRead;
+		G4PVPlacement* fPhysRead;
+
+		// Element
+		G4Box* fSolidElement;
+		G4LogicalVolume* fLogicElement;
+		G4PVPlacement* fPhysElement;
 
 		// VD
 		G4Box* fSolidVD;

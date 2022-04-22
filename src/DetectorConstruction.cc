@@ -276,9 +276,23 @@ G4cout<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<t
     fLogicWorld = new G4LogicalVolume(fSolidWorld, fVacuum, "World");
     fPhysWorld	= new G4PVPlacement(0, G4ThreeVector(), fLogicWorld, "World", 0, false, 0, fCheckOverlaps);
 
+	// Read Solid and Phys. 
+	fReadSizeX = 0.5*fScintSizeX;
+	fReadSizeY = fScintSizeY;
+	fReadSizeZ = fScintSizeZ;
+
+	fSolidRead	= new G4Box("Read", 0.5*fReadSizeX,0.5*fReadSizeY, 0.5*fReadSizeZ);
+    fLogicRead = new G4LogicalVolume(fSolidRead, fVacuum, "Read");
+	fLogicRead->SetVisAttributes(G4Colour(1,0,0, 0.7));
+
 	// Scintillator Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidScint	= new G4Box("Scint", 0.5*fScintSizeX, 0.5*fScintSizeY, 0.5*fScintSizeZ);
     fLogicScint = new G4LogicalVolume(fSolidScint, fScintMaterial, "Scint");
+
+	// Element
+	fSolidElement = new G4Box("Element", 0.5*(fScintSizeX+fReadSizeX+1*mm),0.5*(fScintSizeY+1*mm), 0.5*(fScintSizeZ+1*mm));
+    fLogicElement = new G4LogicalVolume(fSolidElement, fVacuum, "Element");
+	fLogicElement->SetVisAttributes(G4Colour(0, 1, 0, 0.2));
 
 	G4Rotate3D 	rotation =  G4Rotate3D(30*deg, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
 	G4Translate3D 	translate =  G4Translate3D(G4ThreeVector(0., 0., 3*cm));
@@ -295,31 +309,63 @@ G4cout<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<t
 		}
 	}
 
-	else {
+	// else {
+	// 	fSolidScint2	= new G4Box("Scint2", 0.7*fScintSizeX, 0.7*fScintSizeY, 0.7*fScintSizeZ);
+    // 	fLogicScint2 = new G4LogicalVolume(fSolidScint2, fScintMaterial, "Scint2");
+
+
+	// 	fPhysScint		= new G4PVPlacement(transform , fLogicScint, "Scint", fLogicWorld, true, 0, fCheckOverlaps);
+	// 	transform = translate*translate*rotation*rotation;
+	// 	fPhysScint		= new G4PVPlacement(transform , fLogicScint, "Scint", fLogicWorld, true, 1, fCheckOverlaps);
+	// 	transform = translate*transform;
+	// 	fPhysScint2		= new G4PVPlacement(transform , fLogicScint2, "Scint2", fLogicWorld, false, 0, fCheckOverlaps);
+	// }
+
+	else{
 		fSolidScint2	= new G4Box("Scint2", 0.7*fScintSizeX, 0.7*fScintSizeY, 0.7*fScintSizeZ);
     	fLogicScint2 = new G4LogicalVolume(fSolidScint2, fScintMaterial, "Scint2");
 
-
-		fPhysScint		= new G4PVPlacement(transform , fLogicScint, "Scint", fLogicWorld, true, 0, fCheckOverlaps);
+		// Put Scint and Read in element
+		fPhysElement 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicElement, "Element", fLogicWorld, true, 0, fCheckOverlaps);
+		// fPhysRead		= new G4PVPlacement(0, G4ThreeVector((fScintSizeX+fReadSizeX)*0.5, 0., 0), fLogicRead, "read", fLogicElement, true, fCheckOverlaps);
+		fPhysRead		= new G4PVPlacement(0, G4ThreeVector((fScintSizeX)*0.5, 0.,(fScintSizeZ+fReadSizeZ)*0.5 ), fLogicRead, "read", fLogicElement, true, fCheckOverlaps);
+		fPhysScint		= new G4PVPlacement(0, G4ThreeVector(0., 0., 0), fLogicScint, "Scint", fLogicElement, true, fCheckOverlaps);
+		
+		transform = translate*rotation;
+		fPhysElement 	= new G4PVPlacement(transform , fLogicElement, "Element", fLogicWorld, true, 1, fCheckOverlaps);
 		transform = translate*translate*rotation*rotation;
-		fPhysScint		= new G4PVPlacement(transform , fLogicScint, "Scint", fLogicWorld, true, 1, fCheckOverlaps);
-		transform = translate*transform;
-		fPhysScint2		= new G4PVPlacement(transform , fLogicScint2, "Scint2", fLogicWorld, false, 0, fCheckOverlaps);
+		fPhysElement 	= new G4PVPlacement(transform , fLogicElement, "Element", fLogicWorld, true, 2, fCheckOverlaps);
+
 	}
 
 	// Scintillator glisur
-	G4double fGround;
-	fGround =  0.8;
-	if(fGround < 1){
-		G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
-		OpScintSurface->SetModel(glisur);
-		OpScintSurface->SetType(dielectric_dielectric);
-		OpScintSurface->SetFinish(groundair); //ground polished
-		OpScintSurface->SetPolish(fGround);
+	// G4double fGround;
+	// fGround =  0.8;
+	// if(fGround < 1){
+	// 	G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
+	// 	OpScintSurface->SetModel(glisur);
+	// 	OpScintSurface->SetType(dielectric_dielectric);
+	// 	OpScintSurface->SetFinish(groundair); //ground polished
+	// 	OpScintSurface->SetPolish(fGround);
 
-		new G4LogicalSkinSurface("ScintSurface", fLogicScint, OpScintSurface);	
-		if(!fmuEDM) new G4LogicalSkinSurface("ScintSurface", fLogicScint2, OpScintSurface);	
-	}
+	// 	new G4LogicalSkinSurface("ScintSurface", fLogicScint, OpScintSurface);	
+	// 	if(!fmuEDM) new G4LogicalSkinSurface("ScintSurface", fLogicScint2, OpScintSurface);	
+	// }
+
+	G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
+	OpScintSurface->SetModel(glisur);
+	OpScintSurface->SetType(dielectric_dielectric);
+	OpScintSurface->SetFinish(polished); //ground polished
+	OpScintSurface->SetPolish(0.9);
+
+	G4OpticalSurface* OpScintSurface_Read = new G4OpticalSurface("OpScintSurface_Read");
+	OpScintSurface_Read->SetModel(glisur);
+	OpScintSurface_Read->SetType(dielectric_dielectric);
+	OpScintSurface_Read->SetFinish(ground);
+	OpScintSurface_Read->SetPolish(0.02);
+
+	new G4LogicalBorderSurface("BorderSurface", fPhysElement, fPhysScint, OpScintSurface);
+	new G4LogicalBorderSurface("BorderSurface_Read", fPhysRead, fPhysScint, OpScintSurface_Read);
 
 	// Set how the volumes are visualized
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
@@ -336,8 +382,8 @@ G4cout<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<t
 		fSolidVD_2	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
     	fLogicVD_2 	= new G4LogicalVolume(fSolidVD_2, fVacuum, "VD");
     	fPhysVD_2	= new G4PVPlacement(0, G4ThreeVector(0., 0., 1*cm), fLogicVD_2, "VD", fLogicWorld, false, 1, fCheckOverlaps);
-    	fLogicVD	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.2));
-    	fLogicVD_2	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.2));
+    	fLogicVD	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.05));
+    	fLogicVD_2	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.05));
 	}
 	
     return fPhysWorld;

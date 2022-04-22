@@ -28,17 +28,8 @@ fDirOut(G4ThreeVector()), fNgamma(0), fNgammaSec(0), fNCer(0), fRight(0), fLeft(
 fDown(0), fUp(0), fBack(0), fFront(0), fSiPM(0), fDecayTime(-1){
 	fScintCollection = nullptr;
 	collectionName.insert("scintCollection");
-hitsCID = -1;
-	
-	G4AnalysisManager *man = G4AnalysisManager::Instance();
-
-//? The histogram are +1D to have the ScintNo as the additional axis. Use GetZaxis()->SetRange(0,1)
-	gammaTime_ID = man->CreateH2(name+"_PhotonTime","PhotonTime", 200, 0., 200, 100, 0,100);
-	gammaSide_ID = man->CreateH3(name+"_PhotonPosSide","PhotonPositionSide", 200, -50., 50, 200, -50., 50, 100, 0,100);
-	gammaTop_ID = man->CreateH3(name+"_PhotonPosTop","PhotonPositionTop",200, -50., 50, 200, -50., 50, 100, 0,100);
-	gammaFront_ID = man->CreateH3(name+"_PhotonPosFront","PhotonPositionFront",200, -50., 50, 200, -50., 50, 100, 0,100);
-
-G4cout<<"create ScintSD: "<<name<<G4endl;
+	hitsCID = -1;
+	G4cout<<"create ScintSD: "<<name<<G4endl;
 }
 
 ScintSD::ScintSD(G4String name, G4int ntuple):
@@ -108,35 +99,9 @@ void ScintSD::Initialize(G4HCofThisEvent* hitsCE){
 }
 int t = 0;
 
-
-/*
-	I want a Hit every time the primary enters in the scintillator
-	This means that I need to find a way to check when all the secondary 
-	particles have been analyzed and Hit has been filled.
-	Use G4bool to tag the last track in the volume to be processed
-	Geant starts from TrkID==1 then N, N-1, N-2 ... 2
-	At this point we are out of the first scint and we enter the second
-	Again TrkID == 1 then N+M, N+M-1, N+M-2 ... N+1
-*/
-
-//variables to track the muber of tracks
-G4int 	Tprev 	= 0;
-G4int 	Tnow 	= 1;
-G4bool	Last 	= false;
-
 G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){	
 // no printout == 0 ; 
 int debug	=	0;
-
-if(debug>5)G4cout<<"ev "<<G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()<<" track id "<< aStep->GetTrack()->GetTrackID()<< G4endl; 
-// save the number of traks in the last scint to reference it in this one
-if(aStep->GetTrack()->GetTrackID() == 1) {Tprev = Tnow; Last = false;}
-// update the number of traks in this scint
-if(Tnow < aStep->GetTrack()->GetTrackID()) Tnow = aStep->GetTrack()->GetTrackID();
-// if  we are at TrkID 2 or N+1 the bool is ste to true
-if( aStep->GetTrack()->GetTrackID() == Tprev + 1) {G4cout<<"END?"<<G4endl; Last = true;}
-if(debug>5)G4cout<<Tprev<<" "<<Tnow<<G4endl;
-
 	//? Take start and end of the G4Step
 	G4StepPoint* preStep = aStep->GetPreStepPoint();
 	G4StepPoint* postStep = aStep->GetPostStepPoint();
@@ -200,7 +165,7 @@ if(debug>0)G4cout<<"fNgamma " <<fNgamma<<G4endl;
 			G4Track * track = aStep->GetTrack();
     		fParticleID = track->GetParticleDefinition()->GetPDGEncoding();
     		fEvent = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-				fScintNo = thePrePV->GetCopyNo();
+			fScintNo = preStep->GetTouchable()->GetCopyNumber(1)+1;
 			ein = preStep->GetKineticEnergy();
 			fEin = ein;
 			fMomIn = preStep->GetMomentum();
@@ -320,41 +285,31 @@ if(debug>4)G4cout<<"dir: "<<fDirOut_trans.x()<<" "<<fDirOut_trans.y()<<" "<<fDir
 			if(std::fabs(localpos.x() + dimensionX) < kCarTolerance && fDirOut_trans.getX() < 0){
 if(debug>4)G4cout<<"Left"<<G4endl;
 				fLeft += 1;
-				man->FillH2(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime(),fScintNo);
-
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.x() - dimensionX) < kCarTolerance && fDirOut_trans.getX() > 0){
 if(debug>4)G4cout<<"Right"<<G4endl;
 				fRight += 1;
-				man->FillH2(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime(),fScintNo);
-				man->FillH3(gammaSide_ID, localpos.z(),localpos.y(),fScintNo);
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.y() + dimensionY) < kCarTolerance && fDirOut_trans.getY() < 0){
 if(debug>4)G4cout<<"Down"<<G4endl;
 				fDown += 1;
-				man->FillH2(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime(),fScintNo);
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.y() - dimensionY) < kCarTolerance && fDirOut_trans.getY() > 0){
 if(debug>4)G4cout<<"Up"<<G4endl;
 				fUp += 1;
-				man->FillH2(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime(),fScintNo);
-				man->FillH3(gammaTop_ID, localpos.x(),localpos.z(),fScintNo);
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.z() + dimensionZ) < kCarTolerance && fDirOut_trans.getZ() < 0) {
 if(debug>4)G4cout<<"Back"<<G4endl;
 				fBack += 1; 
-				man->FillH2(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime(),fScintNo);
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.z() - dimensionZ) < kCarTolerance && fDirOut_trans.getZ() > 0){
 if(debug>4)G4cout<<"Front"<<G4endl;
 				fFront += 1;
-				man->FillH2(gammaTime_ID, aStep->GetPostStepPoint()->GetGlobalTime(),fScintNo);
-				man->FillH3(gammaFront_ID, localpos.x(),localpos.y(), fScintNo);
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else {
@@ -388,7 +343,6 @@ if(debug>4) G4cout<<secondaries->at(i)->GetDynamicParticle()->GetParticleDefinit
 		}
 		// return false;
 	}
-	if(Last) {FillHit(); Last = false;}
 }
 
 void ScintSD::FillHit(){
