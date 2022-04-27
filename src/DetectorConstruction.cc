@@ -20,7 +20,7 @@ G4int 		N;
 
 DetectorConstruction::DetectorConstruction()
 {
-	fVDOn = true;
+	fVDOn = false;
 	fmuEDM= false;
 	if(fmuEDM){
 		fVDOn = false;
@@ -30,7 +30,7 @@ DetectorConstruction::DetectorConstruction()
 	// Scintillator dimensions
     fScintSizeX = 5*mm;
     fScintSizeY = 5*mm;
-    fScintSizeZ = 0.005*mm;
+    fScintSizeZ = 0.5*mm;
 
 	// VirtualDetector dimensions
     fVDSizeX = 20*cm;
@@ -279,7 +279,7 @@ G4cout<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<t
 	// Read Solid and Phys. 
 	fReadSizeX = 0.5*fScintSizeX;
 	fReadSizeY = fScintSizeY;
-	fReadSizeZ = fScintSizeZ;
+	fReadSizeZ = 0.5*fScintSizeZ;
 
 	fSolidRead	= new G4Box("Read", 0.5*fReadSizeX,0.5*fReadSizeY, 0.5*fReadSizeZ);
     fLogicRead = new G4LogicalVolume(fSolidRead, fVacuum, "Read");
@@ -290,7 +290,11 @@ G4cout<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<t
     fLogicScint = new G4LogicalVolume(fSolidScint, fScintMaterial, "Scint");
 
 	// Element
-	fSolidElement = new G4Box("Element", 0.5*(fScintSizeX+fReadSizeX+1*mm),0.5*(fScintSizeY+1*mm), 0.5*(fScintSizeZ+1*mm));
+	fElementSizeX = fScintSizeX + 1*mm;
+	fElementSizeY = fScintSizeY + 1*mm;
+	fElementSizeZ = fScintSizeZ+fReadSizeZ+1*mm;
+
+	fSolidElement = new G4Box("Element", 0.5*(fScintSizeX+1*mm),0.5*(fScintSizeY+1*mm), 0.5*(fScintSizeZ+fReadSizeZ+1*mm));
     fLogicElement = new G4LogicalVolume(fSolidElement, fVacuum, "Element");
 	fLogicElement->SetVisAttributes(G4Colour(0, 1, 0, 0.2));
 
@@ -325,15 +329,17 @@ G4cout<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<t
 		fSolidScint2	= new G4Box("Scint2", 0.7*fScintSizeX, 0.7*fScintSizeY, 0.7*fScintSizeZ);
     	fLogicScint2 = new G4LogicalVolume(fSolidScint2, fScintMaterial, "Scint2");
 
+    	G4ThreeVector Scint_pos = G4ThreeVector(0, 0, -0.5*fReadSizeZ); 
+    	G4ThreeVector Read_pos = G4ThreeVector(0.5*fReadSizeX, 0, +0.5*fScintSizeZ); //0.5*fReadSizeX
+
 		// Put Scint and Read in element
 		fPhysElement 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicElement, "Element", fLogicWorld, true, 0, fCheckOverlaps);
-		// fPhysRead		= new G4PVPlacement(0, G4ThreeVector((fScintSizeX+fReadSizeX)*0.5, 0., 0), fLogicRead, "read", fLogicElement, true, fCheckOverlaps);
-		fPhysRead		= new G4PVPlacement(0, G4ThreeVector((fScintSizeX)*0.5, 0.,(fScintSizeZ+fReadSizeZ)*0.5 ), fLogicRead, "read", fLogicElement, true, fCheckOverlaps);
-		fPhysScint		= new G4PVPlacement(0, G4ThreeVector(0., 0., 0), fLogicScint, "Scint", fLogicElement, true, fCheckOverlaps);
+		fPhysRead		= new G4PVPlacement(0, Read_pos, fLogicRead, "Read", fLogicElement, true, fCheckOverlaps);
+		fPhysScint		= new G4PVPlacement(0, Scint_pos, fLogicScint, "Scint", fLogicElement, true, fCheckOverlaps);
 		
-		transform = translate*rotation;
+		transform = translate*rotation; //*rotation
 		fPhysElement 	= new G4PVPlacement(transform , fLogicElement, "Element", fLogicWorld, true, 1, fCheckOverlaps);
-		transform = translate*translate*rotation*rotation;
+		transform = translate*translate*rotation*rotation; //rotation*rotation
 		fPhysElement 	= new G4PVPlacement(transform , fLogicElement, "Element", fLogicWorld, true, 2, fCheckOverlaps);
 
 	}
@@ -355,13 +361,13 @@ G4cout<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<t
 	G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
 	OpScintSurface->SetModel(glisur);
 	OpScintSurface->SetType(dielectric_dielectric);
-	OpScintSurface->SetFinish(polished); //ground polished
+	OpScintSurface->SetFinish(ground); //ground polished
 	OpScintSurface->SetPolish(0.9);
 
 	G4OpticalSurface* OpScintSurface_Read = new G4OpticalSurface("OpScintSurface_Read");
 	OpScintSurface_Read->SetModel(glisur);
 	OpScintSurface_Read->SetType(dielectric_dielectric);
-	OpScintSurface_Read->SetFinish(ground);
+	OpScintSurface_Read->SetFinish(polished);
 	OpScintSurface_Read->SetPolish(0.02);
 
 	new G4LogicalBorderSurface("BorderSurface", fPhysElement, fPhysScint, OpScintSurface);
@@ -398,11 +404,11 @@ void DetectorConstruction::ConstructSDandField()
   	sdManager->AddNewDetector(scint_SD);
 	fLogicScint->SetSensitiveDetector(scint_SD);
 
-	if(!fmuEDM){
-		ScintSD* scint_SD2 = new ScintSD("Scint2");
-  		sdManager->AddNewDetector(scint_SD2);
-		fLogicScint2->SetSensitiveDetector(scint_SD2);
-	}	
+	// if(!fmuEDM){
+		// ScintSD* scint_SD2 = new ScintSD("Scint2");
+  		// sdManager->AddNewDetector(scint_SD2);
+		// fLogicScint2->SetSensitiveDetector(scint_SD2);
+	// }	
 
 	if(fmuEDM)
 	{

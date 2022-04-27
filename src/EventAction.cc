@@ -55,23 +55,23 @@ void EventAction::EndOfEventAction(const G4Event* event){
 		scintHit->Clear();
 	}
 
-	if(!fmuEDM){ 
-		G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-		fCollIDScint2 = SDMan->GetCollectionID("Scint2/scintCollection");
-		ScintHitsCollection* ScintHitCollection2 = (ScintHitsCollection*) (HCE->GetHC(fCollIDScint2));
-		G4int M = ScintHitCollection2->entries();
-		G4cout<<"N "<<N<<" M "<<M<<G4endl;
+	// if(!fmuEDM){ 
+		// G4SDManager* SDMan = G4SDManager::GetSDMpointer();
+		// fCollIDScint2 = SDMan->GetCollectionID("Scint2/scintCollection");
+		// ScintHitsCollection* ScintHitCollection2 = (ScintHitsCollection*) (HCE->GetHC(fCollIDScint2));
+		// G4int M = ScintHitCollection2->entries();
+		// G4cout<<"N "<<N<<" M "<<M<<G4endl;
 
-		for(int i = 0; i < M; i++){
-			scintHit = (*ScintHitCollection2)[i];
+		// for(int i = 0; i < M; i++){
+			// scintHit = (*ScintHitCollection2)[i];
 
-			fEvID = event->GetEventID();
+			// fEvID = event->GetEventID();
 
-			tmp_scint2->FillNtupla(man, scintHit,2);
+			// tmp_scint2->FillNtupla(man, scintHit,2);
 
-			scintHit->Clear();
-		}
-	}
+			// scintHit->Clear();
+		// }
+	// }
 	if(fEvID % 100 == 0 || (fEvID & (fEvID - 1)) == 0 ) 
 	std::cout << "Event n. " << fEvID << std::endl;
 }
