@@ -334,8 +334,8 @@ G4cout<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<t
 
 		// Put Scint and Read in element
 		fPhysElement 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicElement, "Element", fLogicWorld, true, 0, fCheckOverlaps);
-		fPhysRead		= new G4PVPlacement(0, Read_pos, fLogicRead, "Read", fLogicElement, true, fCheckOverlaps);
-		fPhysScint		= new G4PVPlacement(0, Scint_pos, fLogicScint, "Scint", fLogicElement, true, fCheckOverlaps);
+		// fPhysRead		= new G4PVPlacement(0, Read_pos, fLogicRead, "Read", fLogicElement, true, fCheckOverlaps);
+		fPhysScint		= new G4PVPlacement(0, Scint_pos, fLogicScint, "Scint", fLogicElement, false, fCheckOverlaps);
 		
 		transform = translate*rotation; //*rotation
 		fPhysElement 	= new G4PVPlacement(transform , fLogicElement, "Element", fLogicWorld, true, 1, fCheckOverlaps);
@@ -358,20 +358,33 @@ G4cout<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<t
 	// 	if(!fmuEDM) new G4LogicalSkinSurface("ScintSurface", fLogicScint2, OpScintSurface);	
 	// }
 
-	G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
-	OpScintSurface->SetModel(glisur);
-	OpScintSurface->SetType(dielectric_dielectric);
-	OpScintSurface->SetFinish(ground); //ground polished
-	OpScintSurface->SetPolish(0.9);
+	// G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
+	// OpScintSurface->SetModel(glisur);
+	// OpScintSurface->SetType(dielectric_dielectric);
+	// OpScintSurface->SetFinish(ground); //ground polished
+	// OpScintSurface->SetPolish(0.999);
 
-	G4OpticalSurface* OpScintSurface_Read = new G4OpticalSurface("OpScintSurface_Read");
-	OpScintSurface_Read->SetModel(glisur);
-	OpScintSurface_Read->SetType(dielectric_dielectric);
-	OpScintSurface_Read->SetFinish(polished);
-	OpScintSurface_Read->SetPolish(0.02);
+	// G4OpticalSurface* OpScintSurface_Read = new G4OpticalSurface("OpScintSurface_Read");
+	// OpScintSurface_Read->SetModel(glisur);
+	// OpScintSurface_Read->SetType(dielectric_dielectric);
+	// OpScintSurface_Read->SetFinish(polished);
+	// OpScintSurface_Read->SetPolish(0.02);
 
-	new G4LogicalBorderSurface("BorderSurface", fPhysElement, fPhysScint, OpScintSurface);
-	new G4LogicalBorderSurface("BorderSurface_Read", fPhysRead, fPhysScint, OpScintSurface_Read);
+	// new G4LogicalBorderSurface("BorderSurface", fPhysElement, fPhysScint, OpScintSurface);
+	// new G4LogicalBorderSurface("BorderSurface_Read", fPhysRead, fPhysScint, OpScintSurface_Read);
+
+	G4double fGround;
+	fGround =  0.8;
+	if(fGround < 1){
+		G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
+		OpScintSurface->SetModel(glisur);
+		OpScintSurface->SetType(dielectric_dielectric);
+		OpScintSurface->SetFinish(groundair); //ground polished
+		OpScintSurface->SetPolish(fGround);
+
+		new G4LogicalSkinSurface("ScintSurface", fLogicScint, OpScintSurface);	
+		if(!fmuEDM) new G4LogicalSkinSurface("ScintSurface", fLogicScint2, OpScintSurface);	
+	}
 
 	// Set how the volumes are visualized
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));

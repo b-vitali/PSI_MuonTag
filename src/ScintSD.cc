@@ -130,13 +130,18 @@ void ScintSD::Initialize(G4HCofThisEvent* hitsCE){
 }
 int t = 0;
 G4int nReflection;
+G4int nAbsorption=0;
+G4int Trk=0;
+G4bool TrackOneIn = false;
 G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){	
 // no printout == ""; p = pre-info, i = in, o = out, g = gamma, e = else; 
-G4String debug	= "p1 i o n e";
+// G4String debug	= "p1 i o n g e";
+G4String debug	= "";
+	G4cout<<"Ev : "<<G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()<<G4endl;
 
 if(aStep->GetStepLength() == 0 && aStep->GetTotalEnergyDeposit() == 0) {G4cout<<"step of lenght 0 and edep 0"<<G4endl; return false;}
 // if(nReflection%100000==0)G4cout<<"nReflection "<<nReflection<<G4endl;
-G4bool TrackOneIn = false; 
+
 	//? Take start and end of the G4Step
 	G4StepPoint* preStep = aStep->GetPreStepPoint();
 	G4StepPoint* postStep = aStep->GetPostStepPoint();
@@ -147,13 +152,22 @@ G4bool TrackOneIn = false;
     G4TouchableHistory* thePostTouchable = (G4TouchableHistory*)(postStep->GetTouchable());
     G4VPhysicalVolume* thePostPV = thePostTouchable->GetVolume();
 
+if(aStep->GetTrack()->GetTrackID() != Trk) {
+	Trk = aStep->GetTrack()->GetTrackID();
+	G4cout<<"new Trk : "<< Trk <<G4endl;
+	}
 if(debug.contains("p ")) G4cout<<thePrePV->GetName()<<" "<<thePostPV->GetName()<< G4endl;
 if(debug.contains("p ")) G4cout<<"track id "<< aStep->GetTrack()->GetTrackID()<< G4endl;
 	
+	const G4VProcess* pds = postStep->GetProcessDefinedStep();
+    G4String procname     = pds->GetProcessName();
+    if(procname.compare("Transportation") != 0) {	G4cout<<procname<<G4endl;}
+    if(procname.compare("OpAbsorption") == 0) {	nAbsorption += 1; }
+
+
 	//? If it is the particle I generated
 	if(aStep->GetTrack()->GetTrackID() == 1){
 nReflection = 0;
-TrackOneIn = true;
 		//? Debug on StepProcess and TrackStatus
 		if (preStep->GetProcessDefinedStep()){
 			G4String StepProcessName = preStep->GetProcessDefinedStep()->GetProcessName();
@@ -163,8 +177,20 @@ if(debug.contains("p1"))G4cout<<"StepProcessName " <<StepProcessName<<G4endl;
 if(debug.contains("p1"))G4cout<< "fStopAndKill"<<G4endl;
 		}
 
-		//? Saving incoming primary characteristics	
-		if(aStep->IsFirstStepInVolume()){	
+		if(aStep->IsFirstStepInVolume() && !TrackOneIn){	
+			//? create the entry in the arrays to be filled;
+			fEdep.push_back(0);
+			fDelta.push_back(0);
+			fTrackLength.push_back(0);
+			fNgamma.push_back(0);
+			fNgammaSec.push_back(0);
+			fNCer.push_back(0);
+			fRight.push_back(0);
+			fLeft.push_back(0);
+			fDown.push_back(0);
+			fUp.push_back(0);
+			fBack.push_back(0);
+			fFront.push_back(0);
 
 			//? Track, pdgID, event number, which scintillator, energy, momentum
 			G4Track * track = aStep->GetTrack();
@@ -181,6 +207,7 @@ if(debug.contains("p1"))G4cout<< "fStopAndKill"<<G4endl;
 			fPosInY.push_back(aStep->GetPreStepPoint()->GetPosition().getY());
 			fPosInZ.push_back(aStep->GetPreStepPoint()->GetPosition().getZ());
 			fTimeIn.push_back(aStep->GetPreStepPoint()->GetGlobalTime());
+
 
 			//? Angle (transform the momentum direction to the volume's reference system)
 			// G4double kCarTolerance = G4GeometryTolerance::GetInstance()->GetSurfaceTolerance();
@@ -201,31 +228,45 @@ if(debug.contains("i+")) G4cout<<"fDirIn [Volume's reference] :"<<fDirIn_trans.x
 if(debug.contains("i+")) G4cout<<"norm: "<<norm.x()<<" "<<norm.y()<<" "<<norm.z()<<G4endl;
 if(debug.contains("i")) G4cout<<"cos(fThetaIn) = "<<norm.dot(fDirIn_trans)<<" and fThetaIn [deg] = "<<std::acos(norm.dot(fDirIn_trans)) * 180/CLHEP::pi<<G4endl;
 
-			//? create the entry in the arrays to be filled;
-			fEdep.push_back(0);
-			fDelta.push_back(0);
-			fTrackLength.push_back(0);
-			fNgamma.push_back(0);
-			fNgammaSec.push_back(0);
-			fNCer.push_back(0);
-			fRight.push_back(0);
-			fLeft.push_back(0);
-			fDown.push_back(0);
-			fUp.push_back(0);
-			fBack.push_back(0);
-			fFront.push_back(0);
+
+			TrackOneIn = true;
+
+		}
+
+				//? Counting and classifying photons
+		const std::vector<const G4Track*>* secondaries = aStep->GetSecondaryInCurrentStep();
+		if(secondaries->size() > 0){
+			for(unsigned int i = 0; i < secondaries->size(); i++){
+				if(secondaries->at(i)->GetParentID() > 0){
+					if(secondaries->at(i)->GetDynamicParticle()->GetParticleDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()){
+						fNgamma.at(fNgamma.size()-1)  += 1;
+						fNgammaSec.at(fNgammaSec.size()-1)  += 1;
+					}
+
+					//! Better definition for the decay to keep it general purpose
+					else if(secondaries->at(i)->GetParticleDefinition()->GetParticleName() == "e+"){
+						if(secondaries->at(i)->GetCreatorProcess()->GetProcessName() == "Decay"){
+							fDecayTime.push_back(aStep->GetTrack()->GetGlobalTime());
+						}
+					}
+				}
+			}
+		}
+
+		//? Saving incoming primary characteristics	
+		if(aStep->IsFirstStepInVolume() && TrackOneIn){	
 
 			//? return only if it is NOT also the last step
-			// if (!aStep->IsLastStepInVolume()) return false;
+			if (!aStep->IsLastStepInVolume()) return false;
 		}
 		
 		//? Deposited energy, delta and lenght of the track
 		G4double edep = aStep->GetTotalEnergyDeposit();
 		G4double delta = aStep->GetPostStepPoint()->GetKineticEnergy() - aStep->GetPreStepPoint()->GetKineticEnergy() + edep;
 		
-		fEdep[fEdep.size()-1] += edep;
-		fDelta[fDelta.size()-1] -= delta;
-		fTrackLength[fTrackLength.size()-1] += aStep->GetStepLength();
+		fEdep.at(fEdep.size()-1) += edep;
+		fDelta.at(fDelta.size()-1) -= delta;
+		fTrackLength.at(fTrackLength.size()-1) += aStep->GetStepLength();
 				
 		G4double eout = 0;
 
@@ -253,7 +294,7 @@ if(debug.contains("o")) G4cout<<"Particle stopped!"<<G4endl;
 			
 			//? Should I kill the track?
 			//aStep->Getrack()->SetTrackStatus(fStopAndKill);
-			// return true;
+			return true;
 		}
 
 		//? Exiting particle
@@ -285,9 +326,9 @@ if(debug.contains("o+")) G4cout<<"fDirOut [Volume's reference] :"<<fDirOut_trans
 			//? If it is the first step filp the norm got from thePreTouchable 
 			G4ThreeVector norm = thePreTouchable->GetVolume(0)->GetLogicalVolume()->GetSolid()->SurfaceNormal(localPos);
 			fThetaOut.push_back(norm.dot(fDirOut_trans));
-			if(fThetaOut[fThetaOut.size()-1]<0){
+			if(fThetaOut.at(fThetaOut.size()-1)<0){
 				if(aStep->IsFirstStepInVolume()) norm = - norm;
-				fThetaOut[fThetaOut.size()-1] = norm.dot(fDirOut_trans);
+				fThetaOut.at(fThetaOut.size()-1) = norm.dot(fDirOut_trans);
 			}
 if(debug.contains("o+")) G4cout<<"norm: "<<norm.x()<<" "<<norm.y()<<" "<<norm.z()<<G4endl;
 if(debug.contains("o")) G4cout<<"cos(fThetaOut) = "<<norm.dot(fDirOut_trans)<<" and fThetaOut [deg] = "<<std::acos(norm.dot(fDirOut_trans)) * 180/CLHEP::pi<<G4endl;
@@ -296,29 +337,10 @@ if(debug.contains("o")) G4cout<<"cos(fThetaOut) = "<<norm.dot(fDirOut_trans)<<" 
 			//? Should I kill the track?
 			// aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			// FillHit();
-			// return true;
+			return true;
 		}
 
-		//? Counting and classifying photons
-		const std::vector<const G4Track*>* secondaries = aStep->GetSecondaryInCurrentStep();
-		if(secondaries->size() > 0){
-			for(unsigned int i = 0; i < secondaries->size(); i++){
-				if(secondaries->at(i)->GetParentID() > 0){
-					if(secondaries->at(i)->GetDynamicParticle()->GetParticleDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()){
-						fNgamma[fNgamma.size()-1]  += 1;
-						fNgammaSec[fNgammaSec.size()-1]  += 1;
-					}
-
-					//! Better definition for the decay to keep it general purpose
-					else if(secondaries->at(i)->GetParticleDefinition()->GetParticleName() == "e+"){
-						if(secondaries->at(i)->GetCreatorProcess()->GetProcessName() == "Decay"){
-							fDecayTime.push_back(aStep->GetTrack()->GetGlobalTime());
-						}
-					}
-				}
-			}
-		}
-if(debug.contains("p"))G4cout<<"fNgamma " <<fNgamma[fNgamma.size()-1]<<G4endl;	
+if(debug.contains("p"))G4cout<<"fNgamma " <<fNgamma.at(fNgamma.size()-1)<<G4endl;	
 
 if(debug.contains("p")) G4cout<<"End of TrackID = 1"<<G4endl;
 		return false;
@@ -329,6 +351,7 @@ if(debug.contains("p")) G4cout<<"End of TrackID = 1"<<G4endl;
 	else if(aStep->GetTrack()->GetDynamicParticle()->GetParticleDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()){
 		G4VSolid* solid = thePrePV->GetLogicalVolume()->GetSolid();
 
+		// if(postStep->GetPhysicalVolume()->GetName() != "Element") {return false;}
 		G4Box* boxSolid = (G4Box*)(solid);
 		//if it is at the border
 		if(postStep->GetStepStatus() == fGeomBoundary){
@@ -343,58 +366,59 @@ if(debug.contains("p")) G4cout<<"End of TrackID = 1"<<G4endl;
 			G4AffineTransform momentumTransform = thePreTouchable->GetHistory()->GetTopTransform();
 			momentumTransform.SetNetTranslation(G4ThreeVector(0,0,0));
 			fDirOut_trans = momentumTransform.TransformPoint(postStep->GetMomentumDirection());
-if(debug.contains("g"))G4cout<<"track id "<< aStep->GetTrack()->GetTrackID()<< G4endl;		
-if(debug.contains("g"))G4cout<<"pos: "<<localpos.x()<<" "<<localpos.y()<<" "<<localpos.z()<<G4endl;
-if(debug.contains("g"))G4cout<<"dir: "<<fDirOut_trans.x()<<" "<<fDirOut_trans.y()<<" "<<fDirOut_trans.z()<<G4endl;
+if(debug.contains("g+"))G4cout<<"track id "<< aStep->GetTrack()->GetTrackID()<< G4endl;		
+if(debug.contains("g+"))G4cout<<"pos: "<<localpos.x()<<" "<<localpos.y()<<" "<<localpos.z()<<G4endl;
+if(debug.contains("g+"))G4cout<<"dir: "<<fDirOut_trans.x()<<" "<<fDirOut_trans.y()<<" "<<fDirOut_trans.z()<<G4endl;
+if(debug.contains("g+"))G4cout<<"dir: "<<aStep->GetPostStepPoint()->GetKineticEnergy()<<G4endl;
 
 
 			G4AnalysisManager *man = G4AnalysisManager::Instance();
 			// this checks if the photon GOES OUT from the scint
 			if(std::fabs(localpos.x() + dimensionX) < kCarTolerance && fDirOut_trans.getX() < 0){
 if(debug.contains("g"))G4cout<<"Left"<<G4endl;
-				fLeft[fLeft.size()-1]  += 1;
-				man->FillH2(0, postStep->GetGlobalTime(), fScintNo[fScintNo.size()-1]);
-				man->FillH3(2, localpos.z(), localpos.y(), fScintNo[fScintNo.size()-1]);
+				fLeft.at(fLeft.size()-1)  += 1;
+				man->FillH2(0, postStep->GetGlobalTime(), fScintNo.at(fScintNo.size()-1));
+				man->FillH3(2, localpos.z(), localpos.y(), fScintNo.at(fScintNo.size()-1));
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.x() - dimensionX) < kCarTolerance && fDirOut_trans.getX() > 0){
 if(debug.contains("g"))G4cout<<"Right"<<G4endl;
-				fRight[fRight.size()-1]  += 1;
-				man->FillH2(0, postStep->GetGlobalTime(), fScintNo[fScintNo.size()-1]);
-				man->FillH3(3, localpos.z(), localpos.y(), fScintNo[fScintNo.size()-1]);
+				fRight.at(fRight.size()-1)  += 1;
+				man->FillH2(0, postStep->GetGlobalTime(), fScintNo.at(fScintNo.size()-1));
+				man->FillH3(3, localpos.z(), localpos.y(), fScintNo.at(fScintNo.size()-1));
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.y() + dimensionY) < kCarTolerance && fDirOut_trans.getY() < 0){
 if(debug.contains("g"))G4cout<<"Down"<<G4endl;
-				fDown[fDown.size()-1]  += 1;
-				man->FillH2(0, postStep->GetGlobalTime(), fScintNo[fScintNo.size()-1]);
-				man->FillH3(5, localpos.z(), localpos.x(), fScintNo[fScintNo.size()-1]);
+				fDown.at(fDown.size()-1)  += 1;
+				man->FillH2(0, postStep->GetGlobalTime(), fScintNo.at(fScintNo.size()-1));
+				man->FillH3(5, localpos.z(), localpos.x(), fScintNo.at(fScintNo.size()-1));
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.y() - dimensionY) < kCarTolerance && fDirOut_trans.getY() > 0){
 if(debug.contains("g"))G4cout<<"Up"<<G4endl;
-				fUp[fUp.size()-1]  += 1;
-				man->FillH2(0, postStep->GetGlobalTime(), fScintNo[fScintNo.size()-1]);
-				man->FillH3(4, localpos.z(), localpos.x(), fScintNo[fScintNo.size()-1]);
+				fUp.at(fUp.size()-1)  += 1;
+				man->FillH2(0, postStep->GetGlobalTime(), fScintNo.at(fScintNo.size()-1));
+				man->FillH3(4, localpos.z(), localpos.x(), fScintNo.at(fScintNo.size()-1));
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.z() + dimensionZ) < kCarTolerance && fDirOut_trans.getZ() < 0) {
 if(debug.contains("g"))G4cout<<"Back"<<G4endl;
-				fBack[fBack.size()-1]  += 1;
-				man->FillH2(0, postStep->GetGlobalTime(), fScintNo[fScintNo.size()-1]);
-				man->FillH3(1, localpos.x(),localpos.y(), fScintNo[fScintNo.size()-1]);
+				fBack.at(fBack.size()-1)  += 1;
+				man->FillH2(0, postStep->GetGlobalTime(), fScintNo.at(fScintNo.size()-1));
+				man->FillH3(1, localpos.x(),localpos.y(), fScintNo.at(fScintNo.size()-1));
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.z() - dimensionZ) < kCarTolerance && fDirOut_trans.getZ() > 0){
 if(debug.contains("g"))G4cout<<"Front"<<G4endl;
-				fFront[fFront.size()-1]  += 1;
-				man->FillH2(0, postStep->GetGlobalTime(), fScintNo[fScintNo.size()-1]);
-				man->FillH3(0, localpos.x(),localpos.y(), fScintNo[fScintNo.size()-1]);
+				fFront.at(fFront.size()-1)  += 1;
+				man->FillH2(0, postStep->GetGlobalTime(), fScintNo.at(fScintNo.size()-1));
+				man->FillH3(0, localpos.x(),localpos.y(), fScintNo.at(fScintNo.size()-1));
 				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else {
 				nReflection += 1; 
-if(debug.contains("g"))G4cout<<"Reflect"<<G4endl;
+if(debug.contains("g") && nReflection%1000 == 0)G4cout<<"1k Reflect"<<G4endl;
 			}
 		// return false;
 		}
@@ -414,15 +438,15 @@ if(debug.contains("e"))G4cout<<"StepProcessName " <<StepProcessName<<G4endl;
 if(debug.contains("e")) G4cout<<secondaries->at(i)->GetDynamicParticle()->GetParticleDefinition()->GetPDGEncoding()<<G4endl;
 				if(secondaries->at(i)->GetParentID() > 0){
 					if(secondaries->at(i)->GetDynamicParticle()->GetParticleDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()){
-						fNgammaSec[fNgammaSec.size()-1]  += 1;
+						fNgammaSec.at(fNgammaSec.size()-1)  += 1;
 						if(secondaries->at(i)->GetCreatorProcess()->GetProcessName() == "Cerenkov"){
-							fNCer[fNCer.size()-1]  += 1;
+							fNCer.at(fNCer.size()-1)  += 1;
 						}
 					}
 				}
 			}
 		}
-		// return false;
+		return true;
 	}
 }
 
@@ -517,6 +541,8 @@ void ScintSD::FillHit(){
 }
 
 void ScintSD::EndOfEvent(G4HCofThisEvent* hitsCE){
+	G4cout<<G4endl<<"End of event n: "<<G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()<<G4endl;
+	G4cout<<"Number of absorption "<<nAbsorption<<G4endl;
 	G4cout<<"number of sub hits "<<fEvent.size()<<G4endl;
 	FillHit();
 }
