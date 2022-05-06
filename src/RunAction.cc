@@ -32,13 +32,13 @@ void RunAction::BeginOfRunAction(const G4Run* run)
 	strRunID << runID;
 	man->OpenFile("output_"+strRunID.str()+".root");
 
-	man->CreateH2("Scint_PhotonTime","PhotonTime", 200, 0., 200, 5, 0,5);
-	man->CreateH3("Scint_PhotonPos_Front","PhotonPositionFront",200, -50., 50, 200, -50., 50, 5, 0,5);
-	man->CreateH3("Scint_PhotonPos_Back","PhotonPositionBack",200, -50., 50, 200, -50., 50, 5, 0,5);
-	man->CreateH3("Scint_PhotonPos_Left","PhotonPositionLeft",200, -5., 5, 200, -50., 50, 5, 0,5);
-	man->CreateH3("Scint_PhotonPos_Right","PhotonPositionRight",200, -5., 5, 200, -50., 50, 5, 0,5);
-	man->CreateH3("Scint_PhotonPos_Up","PhotonPositionUp",200, -50., 50, 200, -50., 50, 5, 0,5);
-	man->CreateH3("Scint_PhotonPos_Down","PhotonPositionDown",200, -50., 50, 200, -50., 50, 5, 0,5);
+	// man->CreateH2("Scint_PhotonTime","PhotonTime", 200, 0., 200, 5, 0,5);
+	// man->CreateH3("Scint_PhotonPos_Front","PhotonPositionFront",200, -50., 50, 200, -50., 50, 5, 0,5);
+	// man->CreateH3("Scint_PhotonPos_Back","PhotonPositionBack",200, -50., 50, 200, -50., 50, 5, 0,5);
+	// man->CreateH3("Scint_PhotonPos_Left","PhotonPositionLeft",200, -5., 5, 200, -50., 50, 5, 0,5);
+	// man->CreateH3("Scint_PhotonPos_Right","PhotonPositionRight",200, -5., 5, 200, -50., 50, 5, 0,5);
+	// man->CreateH3("Scint_PhotonPos_Up","PhotonPositionUp",200, -50., 50, 200, -50., 50, 5, 0,5);
+	// man->CreateH3("Scint_PhotonPos_Down","PhotonPositionDown",200, -50., 50, 200, -50., 50, 5, 0,5);
 
 
 	/*

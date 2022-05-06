@@ -45,25 +45,19 @@ class ScintSD : public G4VSensitiveDetector{
  		std::vector<G4int> fRight, fLeft, fDown, fUp, fBack, fFront;
 		std::vector<G4double> fEin, fEdep, fEout, fDelta, fThetaIn, fTrackLength, fThetaOut, fDecayTime;
 
+		std::vector<G4int> fAbsorption, fReflection;
+
 		std::vector<G4double> fPosInX, fPosInY, fPosInZ; 
 		std::vector<G4double> fPosOutX, fPosOutY, fPosOutZ; 
 		std::vector<G4double> fMomInX, fMomInY, fMomInZ; 
 		std::vector<G4double> fMomOutX, fMomOutY, fMomOutZ; 
 		std::vector<G4double> fTimeIn, fTimeOut;
 		
-		G4int fEvent_ID;
-		G4int fScintNo_ID, fParticleID_ID, fNgamma_ID, fNgammaSec_ID, fNCer_ID;
-		G4int fRight_ID, fLeft_ID, fDown_ID, fUp_ID, fBack_ID, fFront_ID;
-		G4int fEin_ID, fEdep_ID, fEout_ID, fDelta_ID, fThetaIn_ID, fTrackLength_ID, fThetaOut_ID, fDecayTime_ID;
-
-		G4int fPosInX_ID, fPosInY_ID, fPosInZ_ID, fPosOutX_ID, fPosOutY_ID, fPosOutZ_ID;
-		G4int fMomInX_ID, fMomInY_ID, fMomInZ_ID, fMomOutX_ID, fMomOutY_ID, fMomOutZ_ID;
-		G4int fTimeIn_ID, fTimeOut_ID;
-
 		G4ThreeVector fDirIn_trans, fDirOut_trans;
 		G4ThreeVector fDirIn, fDirOut;
 
-		G4int gammaTime_ID, gammaFront_ID, gammaSide_ID, gammaTop_ID;
+		G4int PhotonTime_ID, PhotonPositionFront_ID, PhotonPositionBack_ID, PhotonPositionLeft_ID;
+		G4int PhotonPositionRight_ID, PhotonPositionUp_ID, PhotonPositionDown_ID;
 
 		G4int hitsCID;
 };

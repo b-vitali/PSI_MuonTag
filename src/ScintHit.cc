@@ -46,6 +46,9 @@ ScintHit::ScintHit(const ScintHit &hit) : G4VHit(){
 	fNgamma = hit.fNgamma;
 	fNgammaSec = hit.fNgammaSec;
 	fNCer = hit.fNCer;
+	fReflection = hit.fReflection;
+	fAbsorption = hit.fAbsorption;
+
 	fRight = hit.fRight;
 	fLeft = hit.fLeft;
 	fDown = hit.fDown;
@@ -87,6 +90,9 @@ const ScintHit& ScintHit::operator=(const ScintHit &hit){
 	fNgamma = hit.fNgamma;
 	fNgammaSec = hit.fNgammaSec;
 	fNCer = hit.fNCer;
+	fReflection = hit.fReflection;
+	fAbsorption = hit.fAbsorption;
+	
 	fRight = hit.fRight;
 	fLeft = hit.fLeft;
 	fDown = hit.fDown;

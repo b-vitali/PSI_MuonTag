@@ -143,6 +143,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4Material* fVacuum;
 		G4Material* fBC400;
 		G4Material* fLYSO;
+		G4Material* fOG; // optical grease BC 631 index saint gobain
 
 		G4Element* fH;
 		G4Element* fC;

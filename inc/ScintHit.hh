@@ -98,7 +98,13 @@ class ScintHit : public G4VHit{
 		inline std::vector<G4int> GetNgammaSec(){return fNgammaSec;}
 
 		inline void SetNCer(std::vector<G4int> ncer){fNCer = ncer;}
-		inline std::vector<G4int> GetNCer(){return fNCer;}
+		inline std::vector<G4int> GetNCer(){return fNCer;}		
+		
+		inline void SetNAbsorption(std::vector<G4int> fabsorption){fAbsorption = fabsorption;}
+		inline std::vector<G4int> GetNAbsorption(){return fAbsorption;}
+			
+		inline void SetNReflection(std::vector<G4int> freflection){fReflection = freflection;}
+		inline std::vector<G4int> GetNReflection(){return fReflection;}
 
 		inline void SetCurrentRight(std::vector<G4int> right){fRight = right;}
 		inline std::vector<G4int> GetCurrentRight(){return fRight;}
@@ -126,6 +132,8 @@ class ScintHit : public G4VHit{
 		std::vector<G4int> fEvent, fScintNo, fParticleID, fNgamma, fNgammaSec, fNCer;
  		std::vector<G4int> fRight, fLeft, fDown, fUp, fBack, fFront;
 		std::vector<G4double> fEin, fEdep, fEout, fDelta, fThetaIn, fTrackLength, fThetaOut, fDecayTime;
+
+		std::vector<G4int> fAbsorption, fReflection;
 
 		std::vector<G4double> fPosInX, fPosInY, fPosInZ; 
 		std::vector<G4double> fPosOutX, fPosOutY, fPosOutZ; 
