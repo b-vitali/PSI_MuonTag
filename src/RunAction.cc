@@ -3,7 +3,7 @@
 
 #include "RunAction.hh"
 
-RunAction::RunAction()
+RunAction::RunAction():fName("data")
 {
 	//DefineCommands();
 	
@@ -23,10 +23,14 @@ RunAction::RunAction()
 	man->CreateNtupleDColumn("fMomY");
 	man->CreateNtupleDColumn("fMomZ");
 	man->FinishNtuple(0);
+		
+	fMessenger = new RunActionMessenger(this);
 }
 
 RunAction::~RunAction()
-{}
+{
+	delete fMessenger;	
+}
 
 void RunAction::BeginOfRunAction(const G4Run* run)
 {
@@ -35,7 +39,7 @@ void RunAction::BeginOfRunAction(const G4Run* run)
 	G4int runID = run->GetRunID();
 	std::stringstream strRunID;
 	strRunID << runID;
-	man->OpenFile("output_"+strRunID.str()+".root");
+	man->OpenFile(fName);
 
 	/*
 	fData = TFile::Open(fName, "RECREATE");

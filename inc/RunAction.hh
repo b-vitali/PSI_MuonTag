@@ -8,15 +8,22 @@
 #include "G4Run.hh"				// to have the run number in the file name
 #include "g4root.hh"			// to access root stuff
 
+#include "RunActionMessenger.hh"
+
 /// Run action class
 ///
 /// It prints out the data Tree
+
+class RunActionMessenger;
 
 class RunAction : public G4UserRunAction 
 {
 	public:
 		RunAction();
 		virtual ~RunAction();
+
+		void SetFileName(G4String name){fName = name;}
+		void SetFolderName(G4String name){fFolder = name;}
 
         // Needed minimal functions from G4UserRunAction
         //virtual G4Run* GenerateRun();
@@ -27,6 +34,8 @@ class RunAction : public G4UserRunAction
 		//inline TTree* GetTreePtr(){return fTree;}
 
 	private:
+		G4String fFolder, fName;
+		RunActionMessenger* fMessenger;
 
 };
 

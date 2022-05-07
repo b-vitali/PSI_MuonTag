@@ -64,6 +64,7 @@ set(ELEMENT_SCRIPTS
     run.mac
     run-mt.mac
     run-mtloop.mac
+    run-loop.mac
     thickness.loop
     )
 

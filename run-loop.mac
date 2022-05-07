@@ -1,0 +1,7 @@
+/run/initialize
+/run/verbose 1
+/random/setSeeds 299792458 662607015
+
+#/control/foreach loop.mac thickness "0.1 0.2"
+/control/loop thickness.loop thickness 0.01 0.2 0.01 
+/control/loop thickness.loop thickness 0.2 1 0.1 
