@@ -33,121 +33,114 @@ class ScintHit : public G4VHit{
 		virtual void Draw();
 		virtual void Print();
 
-		inline void SetEvent(G4int val){fEvent = val;}
-		inline void SetScintNo(G4int val){fScintNo = val;}
-		inline void SetParticleID(G4int val){fParticleID = val;}
+		inline void SetEvent(std::vector<G4int> val){fEvent = val;}
+		inline void SetScintNo(std::vector<G4int> val){fScintNo = val;}
+		inline void SetParticleID(std::vector<G4int> val){fParticleID = val;}
 
-		inline void SetEin (G4double val){fEin  = val;}
-		inline void SetEdep(G4double val){fEdep = val;}
-		inline void SetEout(G4double val){fEout = val;}
-		inline void SetEdelta(G4double val){fDelta = val;}
-		inline void SetThetaIn(G4double val){fThetaIn = val;}
-		inline void SetTrackLength(G4double val){fTrackLength = val;}
-		inline void SetThetaOut(G4double val){fThetaOut = val;}
-		inline void SetBounce(G4int val){fBounce = val;}
-		inline void SetDecayTime(G4double val){fDecayTime = val;}
+		inline void SetEin (std::vector<G4double> val){fEin  = val;}
+		inline void SetEdep(std::vector<G4double> val){fEdep = val;}
+		inline void SetEout(std::vector<G4double> val){fEout = val;}
+		inline void SetEdelta(std::vector<G4double> val){fDelta = val;}
+		inline void SetThetaIn(std::vector<G4double> val){fThetaIn = val;}
+		inline void SetTrackLength(std::vector<G4double> val){fTrackLength = val;}
+		inline void SetThetaOut(std::vector<G4double> val){fThetaOut = val;}
+		// inline void SetBounce(G4int val){fBounce = val;}
+		inline void SetDecayTime(std::vector<G4double> val){fDecayTime = val;}
 
-		inline G4int GetEvent(){return fEvent;}
-		inline G4int GetScintNo(){return fScintNo;}
-		inline G4int GetParticleID(){return fParticleID;}
+		inline std::vector<G4int> GetEvent(){return fEvent;}
+		inline std::vector<G4int> GetScintNo(){return fScintNo;}
+		inline std::vector<G4int> GetParticleID(){return fParticleID;}
 
-		inline G4double GetEin (){return fEin;}
-		inline G4double GetEdep(){return fEdep;}
-		inline G4double GetEout(){return fEout;}
-		inline G4double GetEdelta(){return fDelta;}
-		inline G4double GetThetaIn(){return fThetaIn;}
-		inline G4double GetTrackLength(){return fTrackLength;}
-		inline G4double GetThetaOut(){return fThetaOut;}
-		inline G4int GetBounce(){return fBounce;}
-		inline G4double GetDecayTime(){return fDecayTime;}
+		inline std::vector<G4double> GetEin (){return fEin;}
+		inline std::vector<G4double> GetEdep(){return fEdep;}
+		inline std::vector<G4double> GetEout(){return fEout;}
+		inline std::vector<G4double> GetEdelta(){return fDelta;}
+		inline std::vector<G4double> GetThetaIn(){return fThetaIn;}
+		inline std::vector<G4double> GetTrackLength(){return fTrackLength;}
+		inline std::vector<G4double> GetThetaOut(){return fThetaOut;}
+		// inline G4int GetBounce(){return fBounce;}
+		inline std::vector<G4double> GetDecayTime(){return fDecayTime;}
 
-		inline void SetPosIn(G4ThreeVector pos){fPosIn = pos;}
-		inline void SetMomIn(G4ThreeVector mom){fMomIn = mom;}
-		inline void SetTimeIn(G4double time){fTimeIn = time;}
-		inline G4ThreeVector GetPosIn(){return fPosIn;}
-		inline G4ThreeVector GetMomIn(){return fMomIn;}
-		inline G4double GetTimeIn(){return fTimeIn;}
+		inline void SetPosInX(std::vector<G4double> posX){fPosInX = posX;}
+		inline void SetPosInY(std::vector<G4double> posY){fPosInY = posY;}
+		inline void SetPosInZ(std::vector<G4double> posZ){fPosInZ = posZ;}
+		inline void SetMomInX(std::vector<G4double> momX){fMomInX = momX;}
+		inline void SetMomInY(std::vector<G4double> momY){fMomInY = momY;}
+		inline void SetMomInZ(std::vector<G4double> momZ){fMomInZ = momZ;}
+		inline void SetTimeIn(std::vector<G4double> time){fTimeIn = time;}
+		inline std::vector<G4double> GetPosInX(){return fPosInX;}
+		inline std::vector<G4double> GetPosInY(){return fPosInY;}
+		inline std::vector<G4double> GetPosInZ(){return fPosInZ;}
+		inline std::vector<G4double> GetMomInX(){return fMomInX;}
+		inline std::vector<G4double> GetMomInY(){return fMomInY;}
+		inline std::vector<G4double> GetMomInZ(){return fMomInZ;}
+		inline std::vector<G4double> GetTimeIn(){return fTimeIn;}
 
-		inline void SetPosOut(G4ThreeVector pos){fPosOut = pos;}
-		inline void SetMomOut(G4ThreeVector mom){fMomOut = mom;}
-		inline void SetTimeOut(G4double time){fTimeOut = time;}
-		inline G4ThreeVector GetPosOut(){return fPosOut;}
-		inline G4ThreeVector GetMomOut(){return fMomOut;}
-		inline G4double GetTimeOut(){return fTimeOut;}
+		inline void SetPosOutX(std::vector<G4double> posX){fPosOutX = posX;}
+		inline void SetPosOutY(std::vector<G4double> posY){fPosOutY = posY;}
+		inline void SetPosOutZ(std::vector<G4double> posZ){fPosOutZ = posZ;}
+		inline void SetMomOutX(std::vector<G4double> momX){fMomOutX = momX;}
+		inline void SetMomOutY(std::vector<G4double> momY){fMomOutY = momY;}
+		inline void SetMomOutZ(std::vector<G4double> momZ){fMomOutZ = momZ;}
+		inline void SetTimeOut(std::vector<G4double> time){fTimeOut = time;}
+		inline std::vector<G4double> GetPosOutX(){return fPosOutX;}
+		inline std::vector<G4double> GetPosOutY(){return fPosOutY;}
+		inline std::vector<G4double> GetPosOutZ(){return fPosOutZ;}
+		inline std::vector<G4double> GetMomOutX(){return fMomOutX;}
+		inline std::vector<G4double> GetMomOutY(){return fMomOutY;}
+		inline std::vector<G4double> GetMomOutZ(){return fMomOutZ;}
+		inline std::vector<G4double> GetTimeOut(){return fTimeOut;}
 
-		inline void SetNgamma(G4int ngamma){fNgamma = ngamma;}
-		inline G4int GetNgamma(){return fNgamma;}
+		inline void SetNgamma(std::vector<G4int> ngamma){fNgamma = ngamma;}
+		inline std::vector<G4int> GetNgamma(){return fNgamma;}
 
-		inline void SetNgammaSec(G4int ngammasec){fNgammaSec = ngammasec;}
-		inline G4int GetNgammaSec(){return fNgammaSec;}
+		inline void SetNgammaSec(std::vector<G4int> ngammasec){fNgammaSec = ngammasec;}
+		inline std::vector<G4int> GetNgammaSec(){return fNgammaSec;}
 
-		inline void SetCer(std::vector<G4int> cer){fCer = cer;}
-		inline std::vector<G4int> GetCer(){return fCer;}
-
-		inline void SetThetaGamma(std::vector<G4double> thetagamma){fThetaGamma = thetagamma;}
-		inline std::vector<G4double> GetThetaGamma(){return fThetaGamma;}
-
-		inline void SetTimeGamma(std::vector<G4double> timegamma){fTimeGamma = timegamma;}
-		inline std::vector<G4double> GetTimeGamma(){return fTimeGamma;}
-
-		inline void SetEGamma(std::vector<G4double> egamma){fEGamma = egamma;}
-		inline std::vector<G4double> GetEGamma(){return fEGamma;}
-
-		inline void SetNCer(G4int ncer){fNCer = ncer;}
-		inline G4int GetNCer(){return fNCer;}
-
-		inline void SetCurrentRight(G4int right){fRight = right;}
-		inline G4int GetCurrentRight(){return fRight;}
-
-		inline void SetCurrentLeft(G4int left){fLeft = left;}
-		inline G4int GetCurrentLeft(){return fLeft;}
+		inline void SetNCer(std::vector<G4int> ncer){fNCer = ncer;}
+		inline std::vector<G4int> GetNCer(){return fNCer;}		
 		
-		inline void SetCurrentDown(G4int down){fDown = down;}
-		inline G4int GetCurrentDown(){return fDown;}
+		inline void SetNAbsorption(std::vector<G4int> fabsorption){fAbsorption = fabsorption;}
+		inline std::vector<G4int> GetNAbsorption(){return fAbsorption;}
+			
+		inline void SetNReflection(std::vector<G4int> freflection){fReflection = freflection;}
+		inline std::vector<G4int> GetNReflection(){return fReflection;}
 
-		inline void SetCurrentUp(G4int up){fUp = up;}
-		inline G4int GetCurrentUp(){return fUp;}
+		inline void SetCurrentRight(std::vector<G4int> right){fRight = right;}
+		inline std::vector<G4int> GetCurrentRight(){return fRight;}
 
-		inline void SetCurrentBack(G4int back){fBack = back;}
-		inline G4int GetCurrentBack(){return fBack;}
+		inline void SetCurrentLeft(std::vector<G4int> left){fLeft = left;}
+		inline std::vector<G4int> GetCurrentLeft(){return fLeft;}
+		
+		inline void SetCurrentDown(std::vector<G4int>  down){fDown = down;}
+		inline std::vector<G4int> GetCurrentDown(){return fDown;}
 
-		inline void SetCurrentFront(G4int front){fFront = front;}
-		inline G4int GetCurrentFront(){return fFront;}
+		inline void SetCurrentUp(std::vector<G4int> up){fUp = up;}
+		inline std::vector<G4int> GetCurrentUp(){return fUp;}
 
-		inline void SetSiPM(G4int sipm){fSiPM = sipm;}
-		inline G4int GetSiPM(){return fSiPM;}
+		inline void SetCurrentBack(std::vector<G4int> back){fBack = back;}
+		inline std::vector<G4int> GetCurrentBack(){return fBack;}
 
-		inline void Clear(){fEin = 0; fEdep = 0; fEout = 0; fDelta = 0; 
-		fThetaIn = 0; fTrackLength = 0; fThetaOut = 0; fBounce = 0; 
-		fPosIn = CLHEP::Hep3Vector(); fMomIn = CLHEP::Hep3Vector(); fTimeIn = 0; 
-		fPosOut = CLHEP::Hep3Vector(); fMomOut = CLHEP::Hep3Vector(); fTimeOut = 0; 
-		fNgamma = 0; fNgammaSec = 0; fNCer = 0; fCer.clear(); fThetaGamma.clear(); fTimeGamma.clear(); fEGamma.clear(); fRight = 0; fLeft = 0; fDown = 0; fUp = 0; fBack = 0; fFront = 0; fSiPM = 0; fDecayTime = -1;}
+		inline void SetCurrentFront(std::vector<G4int> front){fFront = front;}
+		inline std::vector<G4int> GetCurrentFront(){return fFront;}
+
+		inline void Clear(){}
 		inline const G4VPhysicalVolume* GetPhysV(){return fPhysVol;}
 
 	private:
-		G4int fEvent, fScintNo, fParticleID;
-		G4double fEin, fEdep, fEout, fDelta, fThetaIn, fTrackLength, fThetaOut;
-		G4int fBounce;
+		// G4int fBounce; 
+		std::vector<G4int> fEvent, fScintNo, fParticleID, fNgamma, fNgammaSec, fNCer;
+ 		std::vector<G4int> fRight, fLeft, fDown, fUp, fBack, fFront;
+		std::vector<G4double> fEin, fEdep, fEout, fDelta, fThetaIn, fTrackLength, fThetaOut, fDecayTime;
 
-		G4ThreeVector fPosIn, fPosOut;
-		G4ThreeVector fMomIn, fMomOut;
-		G4double fTimeIn, fTimeOut;
+		std::vector<G4int> fAbsorption, fReflection;
 
-		G4int fNgamma;
-		G4int fNgammaSec;
-		std::vector<G4int> fCer;
-		std::vector<G4double> fThetaGamma;
-		std::vector<G4double> fTimeGamma;
-		std::vector<G4double> fEGamma;
-		G4int fNCer;
-		G4int fRight;
-		G4int fLeft;
-		G4int fDown;
-		G4int fUp;
-		G4int fBack;
-		G4int fFront;
-		G4int fSiPM;
-		G4double fDecayTime;
+		std::vector<G4double> fPosInX, fPosInY, fPosInZ; 
+		std::vector<G4double> fPosOutX, fPosOutY, fPosOutZ; 
+		std::vector<G4double> fMomInX, fMomInY, fMomInZ; 
+		std::vector<G4double> fMomOutX, fMomOutY, fMomOutZ; 
+		std::vector<G4double> fTimeIn, fTimeOut;
+
 		const G4VPhysicalVolume* fPhysVol;
 };
 

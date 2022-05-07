@@ -9,9 +9,7 @@
 G4ThreadLocal G4Allocator<ScintHit>* ScintHitAllocator = nullptr;
 
 ScintHit::ScintHit() : 
-	fEvent(-1), fScintNo(-1), fParticleID(0), fEin(0.), fEdep(0.), fEout(0.), fDelta(0), fThetaOut(0), fBounce(0), 
-	fNgamma(0), fNgammaSec(0), fNCer(0), fRight(0), fLeft(0), 
-	fDown(0), fUp(0), fBack(0), fFront(0), fDecayTime(-1), fPhysVol(nullptr){}
+	fPhysVol(nullptr){}
 
 ScintHit::ScintHit(G4VPhysicalVolume* pVol) : fPhysVol(pVol){}
 
@@ -29,28 +27,34 @@ ScintHit::ScintHit(const ScintHit &hit) : G4VHit(){
 	fThetaIn = hit.fThetaIn;
 	fTrackLength = hit.fTrackLength;
 	fThetaOut = hit.fThetaOut;
-	fBounce = hit.fBounce;
-	fPosIn = hit.fPosIn;
-	fMomIn = hit.fMomIn;
+	// fBounce = hit.fBounce;
+	fPosInX = hit.fPosInX;
+	fPosInY = hit.fPosInY;
+	fPosInZ = hit.fPosInZ;
+	fMomInX = hit.fMomInX;
+	fMomInY = hit.fMomInY;
+	fMomInZ = hit.fMomInZ;
 	fTimeIn = hit.fTimeIn;
-	fPosOut = hit.fPosOut;
-	fMomOut = hit.fMomOut;
+	fPosOutX = hit.fPosOutX;
+	fPosOutY = hit.fPosOutY;
+	fPosOutZ = hit.fPosOutZ;
+	fMomOutX = hit.fMomOutX;
+	fMomOutY = hit.fMomOutY;
+	fMomOutZ = hit.fMomOutZ;
 	fTimeOut = hit.fTimeOut;
 
 	fNgamma = hit.fNgamma;
 	fNgammaSec = hit.fNgammaSec;
-	fCer = hit.fCer;
-	fThetaGamma = hit.fThetaGamma;
-	fTimeGamma = hit.fTimeGamma;
-	fEGamma = hit.fEGamma;
 	fNCer = hit.fNCer;
+	fReflection = hit.fReflection;
+	fAbsorption = hit.fAbsorption;
+
 	fRight = hit.fRight;
 	fLeft = hit.fLeft;
 	fDown = hit.fDown;
 	fUp = hit.fUp;
 	fBack = hit.fBack;
 	fFront = hit.fFront;
-	fSiPM = hit.fSiPM;
 	fDecayTime = hit.fDecayTime;
 	fPhysVol = hit.fPhysVol;
 }
@@ -67,27 +71,34 @@ const ScintHit& ScintHit::operator=(const ScintHit &hit){
 	fThetaIn = hit.fThetaIn;
 	fTrackLength = hit.fTrackLength;
 	fThetaOut = hit.fThetaOut;
-	fBounce = hit.fBounce;
-	fPosIn = hit.fPosIn;
-	fMomIn = hit.fMomIn;
+	// fBounce = hit.fBounce;
+	fPosInX = hit.fPosInX;
+	fPosInY = hit.fPosInY;
+	fPosInZ = hit.fPosInZ;
+	fMomInX = hit.fMomInX;
+	fMomInY = hit.fMomInY;
+	fMomInZ = hit.fMomInZ;
 	fTimeIn = hit.fTimeIn;
-	fPosOut = hit.fPosOut;
-	fMomOut = hit.fMomOut;
+	fPosOutX = hit.fPosOutX;
+	fPosOutY = hit.fPosOutY;
+	fPosOutZ = hit.fPosOutZ;
+	fMomOutX = hit.fMomOutX;
+	fMomOutY = hit.fMomOutY;
+	fMomOutZ = hit.fMomOutZ;
 	fTimeOut = hit.fTimeOut;
+
 	fNgamma = hit.fNgamma;
 	fNgammaSec = hit.fNgammaSec;
-	fCer = hit.fCer;
-	fThetaGamma = hit.fThetaGamma;
-	fTimeGamma = hit.fTimeGamma;
-	fEGamma = hit.fEGamma;
 	fNCer = hit.fNCer;
+	fReflection = hit.fReflection;
+	fAbsorption = hit.fAbsorption;
+	
 	fRight = hit.fRight;
 	fLeft = hit.fLeft;
 	fDown = hit.fDown;
 	fUp = hit.fUp;
 	fBack = hit.fBack;
 	fFront = hit.fFront;
-	fSiPM = hit.fSiPM;
 	fDecayTime = hit.fDecayTime;
 	fPhysVol = hit.fPhysVol;
 	return* this;

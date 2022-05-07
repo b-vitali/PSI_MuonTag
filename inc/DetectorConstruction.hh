@@ -16,6 +16,10 @@
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 
+#include "G4OpticalSurface.hh"
+#include "G4LogicalSkinSurface.hh"
+#include "G4LogicalBorderSurface.hh"
+
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 
@@ -73,18 +77,44 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     	G4double fWorldSizeZ;
 
 		// Scintillator Gate dimensions
-    	G4double fScintGateSizeX;
-    	G4double fScintGateSizeY;
-    	G4double fScintGateSizeZ;
+    	G4double fScintSizeX_gate;
+    	G4double fScintSizeY_gate;
+    	G4double fScintSizeZ_gate;
 
 		// Scintillator Telescope dimensions
-    	G4double fScintTelescopeSizeX;
-    	G4double fScintTelescopeSizeY;
-    	G4double fScintTelescopeSizeZ;
+    	G4double fScintSizeX_telescope;
+    	G4double fScintSizeY_telescope;
+    	G4double fScintSizeZ_telescope;
 
-		G4double fScintTelescopeSizeX2;
-    	G4double fScintTelescopeSizeY2;
-    	G4double fScintTelescopeSizeZ2;
+		G4double fScintSizeX_telescope2;
+    	G4double fScintSizeY_telescope2;
+    	G4double fScintSizeZ_telescope2;
+
+		// Reads dimensions
+    	G4double fReadSizeX_gate;
+    	G4double fReadSizeY_gate;
+    	G4double fReadSizeZ_gate;
+    	
+		G4double fReadSizeX_telescope;
+    	G4double fReadSizeY_telescope;
+    	G4double fReadSizeZ_telescope;
+    	
+		G4double fReadSizeX_telescope2;
+    	G4double fReadSizeY_telescope2;
+    	G4double fReadSizeZ_telescope2;
+
+		// Elements dimensions
+    	G4double fElementSizeX_gate;
+    	G4double fElementSizeY_gate;
+    	G4double fElementSizeZ_gate;
+    	
+		G4double fElementSizeX_telescope;
+    	G4double fElementSizeY_telescope;
+    	G4double fElementSizeZ_telescope;
+    	
+		G4double fElementSizeX_telescope2;
+    	G4double fElementSizeY_telescope2;
+    	G4double fElementSizeZ_telescope2;
 
 		// VirtualDetector dimensions
     	G4double fVDSizeX;
@@ -110,6 +140,32 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4LogicalVolume* fLogicScint_telescope2;
 		G4PVPlacement* fPhysScint_telescope2;
 
+		// Readouts
+		G4Box* fSolidRead_gate;
+		G4LogicalVolume* fLogicRead_gate;
+		G4PVPlacement* fPhysRead_gate;
+
+		G4Box* fSolidRead_telescope;
+		G4LogicalVolume* fLogicRead_telescope;
+		G4PVPlacement* fPhysRead_telescope;
+		
+		G4Box* fSolidRead_telescope2;
+		G4LogicalVolume* fLogicRead_telescope2;
+		G4PVPlacement* fPhysRead_telescope2;
+		
+		// Elements
+		G4Box* fSolidElement_gate;
+		G4LogicalVolume* fLogicElement_gate;
+		G4PVPlacement* fPhysElement_gate;
+
+		G4Box* fSolidElement_telescope;
+		G4LogicalVolume* fLogicElement_telescope;
+		G4PVPlacement* fPhysElement_telescope;
+
+		G4Box* fSolidElement_telescope2;
+		G4LogicalVolume* fLogicElement_telescope2;
+		G4PVPlacement* fPhysElement_telescope2;
+
 		// VD
 		G4Box* fSolidVD;
 		G4LogicalVolume* fLogicVD;
@@ -132,6 +188,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4Material* fVacuum;
 		G4Material* fBC400;
 		G4Material* fLYSO;
+		G4Material* fOG; // optical grease BC 631 index saint gobain
 
 		G4Element* fH;
 		G4Element* fC;

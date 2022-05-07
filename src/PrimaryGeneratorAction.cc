@@ -13,7 +13,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
     G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
     G4ParticleDefinition * particle = particleTable->FindParticle("mu+");
 
-    G4ThreeVector pos(0.,0.,0.);
+    G4ThreeVector pos(0.,0.,-15*cm);
     G4ThreeVector mom(0.,0.,1.);
 
     if(flat_angle) pos = G4ThreeVector(0.,0.,5.*cm);

@@ -53,24 +53,24 @@ std::vector<double_t> thickness{
     ,   0.08
     ,   0.09
     ,   0.10
-    ,   0.11
-    ,   0.12
-    ,   0.13
-    ,   0.14
-    ,   0.15
-    ,   0.16
-    ,   0.17
-    ,   0.18
-    ,   0.19
-    ,   0.20
-    ,   0.30
-    ,   0.40
-    ,   0.50
-    ,   0.60
-    ,   0.70
-    ,   0.80
-    ,   0.90
-    ,   1.00
+    // ,   0.11
+    // ,   0.12
+    // ,   0.13
+    // ,   0.14
+    // ,   0.15
+    // ,   0.16
+    // ,   0.17
+    // ,   0.18
+    // ,   0.19
+    // ,   0.20
+    // ,   0.30
+    // ,   0.40
+    // ,   0.50
+    // ,   0.60
+    // ,   0.70
+    // ,   0.80
+    // ,   0.90
+    // ,   1.00
 };
 
 // these are the commands you would give to TTree->Draw() with the branch names
@@ -82,6 +82,8 @@ std::vector< std::tuple<char*, char*, char*> > plots {
     ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(250,0,100)"    }
     ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(600,0,1.2)"    }
     ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,100000)"}
+    ,   {   (char*)"fFront",        (char*)"",  (char*)"(1000,0,100000)"}
+
 };
 
 /*

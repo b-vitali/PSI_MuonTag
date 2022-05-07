@@ -23,27 +23,27 @@ DetectorConstruction::DetectorConstruction()
 	fVDOn = true;
 
 	// Scintillator dimensions
-    fScintTelescopeSizeX = 3*cm;
-    fScintTelescopeSizeY = 1*cm;
-    fScintTelescopeSizeZ = 20*cm;
+    fScintSizeX_telescope = 3*cm;
+    fScintSizeY_telescope = 1*cm;
+    fScintSizeZ_telescope = 20*cm;
 
-    fScintTelescopeSizeX2 = 1*cm;
-    fScintTelescopeSizeY2 = 1*cm;
-    fScintTelescopeSizeZ2 = 20*cm;
+    fScintSizeX_telescope2 = 1*cm;
+    fScintSizeY_telescope2 = 1*cm;
+    fScintSizeZ_telescope2 = 20*cm;
 
-    fScintGateSizeX = 5*cm;
-    fScintGateSizeY = 5*cm;
-    fScintGateSizeZ = 1*mm;
+    fScintSizeX_gate = 2*cm;
+    fScintSizeY_gate = 2*cm;
+    fScintSizeZ_gate = 0.01*mm;
 
 	// VirtualDetector dimensions
-    fVDSizeX = 20*cm;
-    fVDSizeY = 20*cm;
-    fVDSizeZ = 10*mm;
+    fVDSizeX = 5*cm;
+    fVDSizeY = 5*cm;
+    fVDSizeZ = 5*mm;
 
 	// World dimentions
-    fWorldSizeX = 3*std::max({fScintTelescopeSizeX,fScintTelescopeSizeX,fVDSizeX});
-    fWorldSizeY = 3*std::max({fScintTelescopeSizeY,fScintTelescopeSizeY,fVDSizeY});
-    fWorldSizeZ = 3*std::max({fScintTelescopeSizeZ,fScintTelescopeSizeZ,fVDSizeZ});
+    fWorldSizeX = 3*std::max({fScintSizeX_telescope,fScintSizeX_telescope2,fVDSizeX});
+    fWorldSizeY = 3*std::max({fScintSizeY_telescope,fScintSizeY_telescope2,fVDSizeY});
+    fWorldSizeZ = 2*std::max({fScintSizeZ_telescope,fScintSizeZ_telescope2,fVDSizeZ});
 
 	// At creation it calls for the function creating the materials 
 	fDetectorMessenger = new DetectorMessenger(this);
@@ -105,6 +105,11 @@ void DetectorConstruction::DefineMaterials()
 	fAir = new G4Material("Air", density = 0.0010*g/cm3, 2);
 	fAir->AddElement(fN, 70 * perCent);
 	fAir->AddElement(fO, 30 * perCent);
+
+	// Optical grease
+	fOG = new G4Material("OpticalGrease",z=1.,a=1.01*g/mole, 
+		     		 density = universe_mean_density, kStateGas,
+				 0.1 * kelvin, 1.e-19 * pascal);
 
 	// Assign default materials
 	fScintMaterial = fBC400;
@@ -233,8 +238,8 @@ void DetectorConstruction::DefineOpticalProperties()
 	// ----------------------------------------------------------	
 	// Vacuum & Air
 	// ----------------------------------------------------------	
-	fPhotonWorldPropagation = false;
-	if(fPhotonWorldPropagation){
+	fPhotonWorldPropagation = true;
+	// if(fPhotonWorldPropagation){
 		G4double vacuum_Energy[] = {1.5*eV, 4.*eV};
 		const G4int vacnum = sizeof(vacuum_Energy) / sizeof(G4double);
 
@@ -246,7 +251,21 @@ void DetectorConstruction::DefineOpticalProperties()
 		vacuum_mt->AddProperty("RINDEX", vacuum_Energy, vacuum_RIND, vacnum);
 		fVacuum->SetMaterialPropertiesTable(vacuum_mt);
 		fAir   ->SetMaterialPropertiesTable(vacuum_mt);
-	}
+	// }
+
+	// Silicium
+	G4double Si_Energy[] = {.5*eV, 9.*eV};
+	const G4int Sinum = sizeof(vacuum_Energy) / sizeof(G4double);
+
+	// ----------------------------------------------------------	
+	// Optical grease
+	// ----------------------------------------------------------	
+	G4double OG_RIND[] = {1.465, 1.465};
+	assert(sizeof(OG_RIND) == sizeof(Si_Energy));
+		
+	G4MaterialPropertiesTable* OG_mt = new G4MaterialPropertiesTable();
+	OG_mt->AddProperty("RINDEX", Si_Energy, OG_RIND, Sinum);
+	fOG->SetMaterialPropertiesTable(OG_mt);
 }
 
 
@@ -256,55 +275,145 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	// World Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidWorld	= new G4Box("World", 0.5*fWorldSizeX, 0.5*fWorldSizeY, 0.5*fWorldSizeZ);
     fLogicWorld = new G4LogicalVolume(fSolidWorld, fVacuum, "World");
-    fPhysWorld	= new G4PVPlacement(0, G4ThreeVector(0,0,0), fLogicWorld, "World", 0, false, 0, fCheckOverlaps);
-
-	// Scintillator Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
-	fSolidScint_telescope	= new G4Box("fSolidScint_telescope", 0.5*fScintTelescopeSizeX, 0.5*fScintTelescopeSizeY, 0.5*fScintTelescopeSizeZ);
-    fLogicScint_telescope = new G4LogicalVolume(fSolidScint_telescope, fScintMaterial, "fLogicScint_telescope");
-
-	fSolidScint_telescope2	= new G4Box("fSolidScint_telescope2", 0.5*fScintTelescopeSizeX2, 0.5*fScintTelescopeSizeY2, 0.5*fScintTelescopeSizeZ2);
-    fLogicScint_telescope2 = new G4LogicalVolume(fSolidScint_telescope2, fScintMaterial, "fLogicScint_telescope2");
-
-	G4double shift=5*cm;
-
-   	for(int i=0; i<4; i=i+1)
-	{
-		if(i == 0 || i == 2){
-		G4Rotate3D 	rotation =  G4Rotate3D(i*90*deg, G4ThreeVector(0, 0, 1)); //i*theta*deg std::cos(theta*i)
-		G4Translate3D 	translate =  G4Translate3D(G4ThreeVector(0,fScintTelescopeSizeY, fScintTelescopeSizeZ/2));
-		G4Transform3D transform = G4Translate3D(0,0,shift)*rotation*translate;
-		fPhysScint_telescope	= new G4PVPlacement(transform, fLogicScint_telescope, "Scint_telescope", fLogicWorld, false, i, fCheckOverlaps);
-		}
-		else{
-		G4Rotate3D 	rotation =  G4Rotate3D(i*90*deg, G4ThreeVector(0, 0, 1)); //i*theta*deg std::cos(theta*i)
-		G4Translate3D 	translate =  G4Translate3D(G4ThreeVector(0,fScintTelescopeSizeY2, fScintTelescopeSizeZ/2));
-		G4Transform3D transform = G4Translate3D(0,0,shift)*rotation*translate;
-		fPhysScint_telescope2	= new G4PVPlacement(transform, fLogicScint_telescope2, "Scint_telescope2", fLogicWorld, false, i, fCheckOverlaps);
-		}
-	}
-
-
-	fSolidScint_gate 	= new G4Box("fSolidScint_gate", 0.5*fScintGateSizeX, 0.5*fScintGateSizeY, 0.5*fScintGateSizeZ);
-    fLogicScint_gate 	= new G4LogicalVolume(fSolidScint_gate, fScintMaterial, "fLogicScint_gate");
-	fPhysScint_gate	= new G4PVPlacement(0, G4ThreeVector(0,0,shift-2*cm), fLogicScint_gate, "Scint_gate", fLogicWorld, false, 4, fCheckOverlaps);
-
-
-	// Set how the volumes are visualized
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
+	fPhysWorld	= new G4PVPlacement(0, G4ThreeVector(0,0,0), fLogicWorld, "World", 0, false, 0, fCheckOverlaps);
+
+
+	/*
+		Telescope Scintillator, Element and Read
+	*/
+	
+	// Scintillator
+	fSolidScint_telescope	= new G4Box("fSolidScint_telescope", 0.5*fScintSizeX_telescope, 0.5*fScintSizeY_telescope, 0.5*fScintSizeZ_telescope);
+    fLogicScint_telescope = new G4LogicalVolume(fSolidScint_telescope, fScintMaterial, "fLogicScint_telescope");
     fLogicScint_telescope	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.5));
+
+	fSolidScint_telescope2	= new G4Box("fSolidScint_telescope2", 0.5*fScintSizeX_telescope2, 0.5*fScintSizeY_telescope2, 0.5*fScintSizeZ_telescope2);
+    fLogicScint_telescope2 = new G4LogicalVolume(fSolidScint_telescope2, fScintMaterial, "fLogicScint_telescope2");
     fLogicScint_telescope2	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.5));
+
+	// Element telescope
+	fElementSizeX_telescope = fScintSizeX_telescope + 0*mm;
+	fElementSizeY_telescope = fScintSizeY_telescope + 0*mm;
+	fElementSizeZ_telescope = fScintSizeZ_telescope + 1*mm;
+
+	fElementSizeX_telescope2 = fScintSizeX_telescope2 + 0*mm;
+	fElementSizeY_telescope2 = fScintSizeY_telescope2 + 0*mm;
+	fElementSizeZ_telescope2 = fScintSizeZ_telescope2 + 1*mm;	
+
+	fSolidElement_telescope = new G4Box("Element_telescope", 0.5*(fElementSizeX_telescope),0.5*(fElementSizeY_telescope), 0.5*(fElementSizeZ_telescope));
+    fLogicElement_telescope = new G4LogicalVolume(fSolidElement_telescope, fVacuum, "fSolidElement_telescope");
+	fLogicElement_telescope->SetVisAttributes(G4Colour(0, 1, 0, 0.2));
+
+	fSolidElement_telescope2 = new G4Box("Element_telescope2", 0.5*(fElementSizeX_telescope2),0.5*(fElementSizeY_telescope2), 0.5*(fElementSizeZ_telescope2));
+    fLogicElement_telescope2 = new G4LogicalVolume(fSolidElement_telescope2, fVacuum, "fSolidElement_telescope2");
+	fLogicElement_telescope2->SetVisAttributes(G4Colour(0, 1, 0, 0.2));
+
+	// Read telescope
+	fReadSizeX_telescope = fScintSizeX_telescope;
+	fReadSizeY_telescope = fScintSizeY_telescope;
+	fReadSizeZ_telescope = 0.5*mm;
+
+	fSolidRead_telescope	= new G4Box("fSolidRead_telescope", 0.5*fReadSizeX_telescope,0.5*fReadSizeY_telescope, 0.5*fReadSizeZ_telescope);
+    fLogicRead_telescope = new G4LogicalVolume(fSolidRead_telescope, fOG, "fSolidRead_telescope");
+	fLogicRead_telescope->SetVisAttributes(G4Colour(1,0,0, 0.3));
+
+	fReadSizeX_telescope2 = fScintSizeX_telescope2;
+	fReadSizeY_telescope2 = fScintSizeY_telescope2;
+	fReadSizeZ_telescope2 = 0.5*mm;
+
+	fSolidRead_telescope2	= new G4Box("fSolidRead_telescope2", 0.5*fReadSizeX_telescope2,0.5*fReadSizeY_telescope2, 0.5*fReadSizeZ_telescope2);
+    fLogicRead_telescope2 = new G4LogicalVolume(fSolidRead_telescope2, fOG, "fSolidRead_telescope2");
+	fLogicRead_telescope2->SetVisAttributes(G4Colour(1,0,0, 0.3));
+
+	G4double shift= - fScintSizeZ_telescope*0.5;
+
+	// Position the Element and the Scint and Read inside
+	// Up
+	G4Rotate3D 	  rotation  = G4Rotate3D(0*90*deg, G4ThreeVector(0, 0, 1)); //i*theta*deg std::cos(theta*i)
+	G4Translate3D translate = G4Translate3D(G4ThreeVector(0,fScintSizeY_telescope/2.+5*mm, fScintSizeZ_telescope/2));
+	G4Transform3D transform = G4Translate3D(0,0,shift)*rotation*translate;
+	fPhysElement_telescope  = new G4PVPlacement(transform, fLogicElement_telescope, "Element_telescope", fLogicWorld, false, fCheckOverlaps);
+	fPhysScint_telescope	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicScint_telescope, "Scint_telescope", fLogicElement_telescope, false, fCheckOverlaps);
+	fPhysRead_telescope	    = new G4PVPlacement(0, G4ThreeVector(0, 0, 0.5*fScintSizeZ_telescope+0.5*fReadSizeZ_telescope), fLogicRead_telescope, "Read_telescope", fLogicElement_telescope, false, fCheckOverlaps);
+	fPhysRead_telescope	    = new G4PVPlacement(0, G4ThreeVector(0, 0, -0.5*fScintSizeZ_telescope+-0.5*fReadSizeZ_telescope), fLogicRead_telescope, "Read_telescope", fLogicElement_telescope, false, fCheckOverlaps);
+	// Down
+	rotation  = G4Rotate3D(2*90*deg, G4ThreeVector(0, 0, 1));
+	transform = G4Translate3D(0,0,shift)*rotation*translate;
+   	fPhysElement_telescope  = new G4PVPlacement(transform, fLogicElement_telescope, "Element_telescope", fLogicWorld, true, 2, fCheckOverlaps);
+	// Right
+	rotation  = G4Rotate3D(1*90*deg, G4ThreeVector(0, 0, 1)); //i*theta*deg std::cos(theta*i)
+	translate = G4Translate3D(G4ThreeVector(0,fScintSizeY_telescope2/2.+5*mm, fScintSizeZ_telescope2/2));
+	transform = G4Translate3D(0,0,shift)*rotation*translate;
+	fPhysElement_telescope2  = new G4PVPlacement(transform, fLogicElement_telescope2, "Element_telescope2", fLogicWorld, false, fCheckOverlaps);
+	fPhysScint_telescope2	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicScint_telescope2, "Scint_telescope2", fLogicElement_telescope2, false, fCheckOverlaps);
+	fPhysRead_telescope2	    = new G4PVPlacement(0, G4ThreeVector(0, 0, 0.5*fScintSizeZ_telescope2+0.5*fReadSizeZ_telescope2), fLogicRead_telescope2, "Read_telescope2", fLogicElement_telescope2, false, fCheckOverlaps);
+	fPhysRead_telescope2	    = new G4PVPlacement(0, G4ThreeVector(0, 0, -0.5*fScintSizeZ_telescope2+-0.5*fReadSizeZ_telescope2), fLogicRead_telescope2, "Read_telescope2", fLogicElement_telescope2, false, fCheckOverlaps);
+	// Left
+	rotation  = G4Rotate3D(3*90*deg, G4ThreeVector(0, 0, 1));
+	transform = G4Translate3D(0,0,shift)*rotation*translate;
+   	fPhysElement_telescope2  = new G4PVPlacement(transform, fLogicElement_telescope2, "Element_telescope2", fLogicWorld, true, 2, fCheckOverlaps);
+
+	/*
+		Gate Scintillator, Element and Read
+	*/
+
+	// Scint gate
+	fSolidScint_gate 	= new G4Box("fSolidScint_gate", 0.5*fScintSizeX_gate, 0.5*fScintSizeY_gate, 0.5*fScintSizeZ_gate);
+    fLogicScint_gate 	= new G4LogicalVolume(fSolidScint_gate, fScintMaterial, "fLogicScint_gate");
 	fLogicScint_gate->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.5));
+
+	// Element gate
+	fElementSizeX_gate = fScintSizeX_gate + 1*mm;
+	fElementSizeY_gate = fScintSizeY_gate + 1*mm;
+	fElementSizeZ_gate = fScintSizeZ_gate + 1*mm;
+
+	fSolidElement_gate = new G4Box("Element_gate", 0.5*(fElementSizeX_gate),0.5*(fElementSizeY_gate), 0.5*(fElementSizeZ_gate));
+    fLogicElement_gate = new G4LogicalVolume(fSolidElement_gate, fVacuum, "fSolidElement_gate");
+	fLogicElement_gate->SetVisAttributes(G4Colour(0, 1, 0, 0.2));
+
+	// Read gate
+	fReadSizeX_gate = 0.5*mm;
+	fReadSizeY_gate = fScintSizeY_gate;
+	fReadSizeZ_gate = fScintSizeZ_gate;
+
+	fSolidRead_gate	= new G4Box("fSolidRead_gate", 0.5*fReadSizeX_gate,0.5*fReadSizeY_gate, 0.5*fReadSizeZ_gate);
+    fLogicRead_gate = new G4LogicalVolume(fSolidRead_gate, fOG, "fSolidRead_gate");
+	fLogicRead_gate->SetVisAttributes(G4Colour(1,0,0, 0.5));
+
+	// Position the Element and the Scint and Read inside
+	fPhysElement_gate  = new G4PVPlacement(0, G4ThreeVector(0, 0, shift-7.5*mm), fLogicElement_gate, "Element_gate", fLogicWorld, false, fCheckOverlaps);
+	fPhysScint_gate	   = new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicScint_gate, "Scint_gate", fLogicElement_gate, false, fCheckOverlaps);
+	// Right
+	fPhysRead_gate	   = new G4PVPlacement(0, G4ThreeVector(0.5*fScintSizeX_gate+0.5*fReadSizeX_gate, 0, 0), fLogicRead_gate, "Read_gate", fLogicElement_gate, false, fCheckOverlaps);
+	// Up
+	// rotation  = G4Rotate3D(1*90*deg, G4ThreeVector(0, 0, 1)); //i*theta*deg std::cos(theta*i)
+	// translate = G4Translate3D(G4ThreeVector(0.5*fScintSizeX_gate+0.5*fReadSizeX_gate, 0, 0));
+	// transform = rotation*translate;
+	// fPhysRead_gate	   = new G4PVPlacement(transform, fLogicRead_gate, "Read_gate", fLogicElement_gate, false, fCheckOverlaps);
+	// Left
+	rotation  = G4Rotate3D(2*90*deg, G4ThreeVector(0, 0, 1)); //i*theta*deg std::cos(theta*i)
+	translate = G4Translate3D(G4ThreeVector(0.5*fScintSizeX_gate+0.5*fReadSizeX_gate, 0, 0));
+	transform = rotation*translate;
+	fPhysRead_gate	   = new G4PVPlacement(transform, fLogicRead_gate, "Read_gate", fLogicElement_gate, false, fCheckOverlaps);
+	// Down
+	// rotation  = G4Rotate3D(3*90*deg, G4ThreeVector(0, 0, 1)); //i*theta*deg std::cos(theta*i)
+	// translate = G4Translate3D(G4ThreeVector(0.5*fScintSizeX_gate+0.5*fReadSizeX_gate, 0, 0));
+	// transform = rotation*translate;
+	// fPhysRead_gate	   = new G4PVPlacement(transform, fLogicRead_gate, "Read_gate", fLogicElement_gate, false, fCheckOverlaps);
 	
 	if(fVDOn){
+		// Add 0.5mm space in z to account for Element_telescope 
+
 		// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 		fSolidVD	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
     	fLogicVD 	= new G4LogicalVolume(fSolidVD, fVacuum, "VD");
-    	fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., shift-fVDSizeZ*0.5), fLogicVD, "VD", fLogicWorld, false, 0, fCheckOverlaps);
+    	fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., shift-fVDSizeZ*0.5-0.5*mm), fLogicVD, "VD", fLogicWorld, false, 0, fCheckOverlaps);
 
 		// 2_VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 		fSolidVD_2	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
     	fLogicVD_2 	= new G4LogicalVolume(fSolidVD_2, fVacuum, "VD");
-    	fPhysVD_2	= new G4PVPlacement(0, G4ThreeVector(0., 0., shift+fVDSizeZ*0.5+fScintTelescopeSizeZ), fLogicVD_2, "VD", fLogicWorld, false, 1, fCheckOverlaps);
+    	fPhysVD_2	= new G4PVPlacement(0, G4ThreeVector(0., 0., shift+fVDSizeZ*0.5+fScintSizeZ_telescope+0.5*mm), fLogicVD_2, "VD", fLogicWorld, false, 1, fCheckOverlaps);
     	fLogicVD	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.1));
     	fLogicVD_2	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.1));
 	}
@@ -344,9 +453,9 @@ void DetectorConstruction::ConstructSDandField()
 */
 
 void DetectorConstruction :: SetScintSize(G4double size){
-	fScintGateSizeX = size;
-	fScintGateSizeY = size;
-	fScintGateSizeZ = size;
+	fScintSizeX_gate = size;
+	fScintSizeY_gate = size;
+	fScintSizeZ_gate = size;
 
 	fSolidScint_gate->SetXHalfLength(size*0.5);
 	fSolidScint_gate->SetYHalfLength(size*0.5);
@@ -357,13 +466,23 @@ void DetectorConstruction :: SetScintSize(G4double size){
 }
 
 void DetectorConstruction :: SetScintSize(G4ThreeVector size){
-	fScintGateSizeX = size.getX();
-	fScintGateSizeY = size.getY();
-	fScintGateSizeZ = size.getZ();
+	fScintSizeX_gate = size.getX();
+	fScintSizeY_gate = size.getY();
+	fScintSizeZ_gate = size.getZ();
 
 	fSolidScint_gate->SetXHalfLength(size.getX()*0.5);
 	fSolidScint_gate->SetYHalfLength(size.getY()*0.5);
 	fSolidScint_gate->SetZHalfLength(size.getZ()*0.5);
+
+	// Element gate
+	fSolidElement_gate->SetXHalfLength((size.getX()+1*mm)*0.5);
+	fSolidElement_gate->SetYHalfLength((size.getY()+1*mm)*0.5);
+	fSolidElement_gate->SetZHalfLength((size.getZ()+1*mm)*0.5);
+
+	// Read gate
+	fSolidRead_gate->SetXHalfLength((0.5*mm)*0.5);
+	fSolidRead_gate->SetYHalfLength((size.getY())*0.5);
+	fSolidRead_gate->SetZHalfLength((size.getZ())*0.5);
 
 	//fPhysScint->SetTranslation(G4ThreeVector(0, 0, 20*cm));
 	G4RunManager::GetRunManager()->GeometryHasBeenModified();
