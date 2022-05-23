@@ -36,11 +36,11 @@ int my_colors[] = {30, 40, 31, 41, 32, 42, 33, 43, 34, 44, 35, 45, 36, 46, 37, 4
 
 TString path="/home/bastiano/Documents/Geant4/PSI/insertion/data/";
 
-TString folder="test"; //128MeV_10k2
+TString folder="28MeV_10k2"; //128MeV_10k2
 
-TString energy = "28MeV";
+TString energy = "28MeV"; //125MeV
 
-int skim = 3;
+int skim = 1;
 
 bool debug = false;
 
@@ -57,46 +57,46 @@ std::vector<double_t> thickness{
     ,   0.08
     ,   0.09
     ,   0.10
-    // ,   0.11
-    // ,   0.12
-    // ,   0.13
-    // ,   0.14
-    // ,   0.15
-    // ,   0.16
-    // ,   0.17
-    // ,   0.18
-    // ,   0.19
-    // ,   0.20
-    // ,   0.30
-    // ,   0.40
-    // ,   0.50
-    // ,   0.60
-    // ,   0.70
-    // ,   0.80
-    // ,   0.90
-    // ,   1.00
+    ,   0.11
+    ,   0.12
+    ,   0.13
+    ,   0.14
+    ,   0.15
+    ,   0.16
+    ,   0.17
+    ,   0.18
+    ,   0.19
+    ,   0.20
+    ,   0.30
+    ,   0.40
+    ,   0.50
+    ,   0.60
+    ,   0.70
+    ,   0.80
+    ,   0.90
+    ,   1.00
 };
 
 // these are the commands you would give to TTree->Draw() with the branch names
 // Choose *variable* *some cut* *histogram range*
 std::vector< std::tuple<char*, char*, char*> > plots {
-        {   (char*)"fEin",          (char*)"",  (char*)"(300,59,60.5)"    }
-    ,   {   (char*)"fEout",         (char*)"",  (char*)"(300,59,60.5)"    }
-    ,   {   (char*)"fEdep",         (char*)"",  (char*)"(1000,0,1)"      }
-    ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(160,0,1.6)"      }
-    ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(1000,0,1.2)"   }
-    ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,10000)" }
-    ,   {   (char*)"fLeft",         (char*)"",  (char*)"(300,0,300)" }
-    ,   {   (char*)"fRight",        (char*)"",  (char*)"(300,0,300)" }
-
-        // {   (char*)"fEin",          (char*)"",  (char*)"(250,0,5)"      }
-    // ,   {   (char*)"fEout",         (char*)"",  (char*)"(250,0,5)"      }
-    // ,   {   (char*)"fEdep",         (char*)"",  (char*)"(250,0,5)"      }
-    // ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(300,0,30)"     }
+        // {   (char*)"fEin",          (char*)"",  (char*)"(300,59,60.5)"    }
+    // ,   {   (char*)"fEout",         (char*)"",  (char*)"(300,59,60.5)"    }
+    // ,   {   (char*)"fEdep",         (char*)"",  (char*)"(1000,0,1)"      }
+    // ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(160,0,1.6)"      }
     // ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(1000,0,1.2)"   }
-    // ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(10000,0,30000)" }
-    // ,   {   (char*)"fLeft",         (char*)"",  (char*)"(300,0,300)" }
-    // ,   {   (char*)"fRight",        (char*)"",  (char*)"(300,0,300)" }
+    // ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,10000)" }
+    // ,   {   (char*)"fLeft",         (char*)"",  (char*)"(1000,0,2500)" }
+    // ,   {   (char*)"fRight",        (char*)"",  (char*)"(1000,0,2500)" }
+
+        {   (char*)"fEin",          (char*)"",  (char*)"(250,0,5)"      }
+    ,   {   (char*)"fEout",         (char*)"",  (char*)"(250,0,5)"      }
+    ,   {   (char*)"fEdep",         (char*)"",  (char*)"(250,0,5)"      }
+    ,   {   (char*)"fThetaOut",     (char*)"",  (char*)"(300,0,30)"     }
+    ,   {   (char*)"fTrackLength",  (char*)"",  (char*)"(1000,0,1.2)"   }
+    ,   {   (char*)"fNgamma",       (char*)"",  (char*)"(1000,0,30000)" }
+    ,   {   (char*)"fLeft",         (char*)"",  (char*)"(500,0,10000)" }
+    ,   {   (char*)"fRight",        (char*)"",  (char*)"(500,0,10000)" }
 };
 
 /*
@@ -245,8 +245,8 @@ void test(){
 
         if(!strcmp(std::get<0>(plots[j]), "fThetaOut")){      
             for(int i = 0; i< gr_v[j]->GetN(); i++){
-                gr_v[j]->SetPoint(i,thickness[i],gr_v[j]->GetPointY(i)*TMath::Pi()/180.);
-                gr_v[j]->SetPointError(i,0,gr_v[j]->GetErrorY(i)*TMath::Pi()/180.); //
+                gr_v[j]->SetPoint(i,thickness[i],gr_v[j]->GetPointY(i)); //*TMath::Pi()/180.
+                gr_v[j]->SetPointError(i,0,gr_v[j]->GetErrorY(i)); //*TMath::Pi()/180
             }
             TF1 *f = new TF1("MultipleScattering",MultipleScattering,0,0.5,4);
             f->SetParNames("momentum","mass","z","X0");

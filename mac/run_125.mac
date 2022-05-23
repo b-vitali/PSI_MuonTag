@@ -1,0 +1,8 @@
+/run/initialize
+/run/verbose 1
+/random/setSeeds 299792458 662607015
+
+/Analysis/SetFileName 125MeV_1Sides_0.01.root
+/ScintSim/Scint/ScintSize3 20 20 0.01 mm
+/gun/momentumAmp 125 MeV
+/run/beamOn 100

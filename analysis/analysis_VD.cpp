@@ -36,11 +36,11 @@ int my_colors[] = {30, 40, 31, 41, 32, 42, 33, 43, 34, 44, 35, 45, 36, 46, 37, 4
 
 TString path="/home/bastiano/Documents/Geant4/PSI/insertion/data/";
 
-TString folder="28MeV_10k2";
+TString folder="28MeV_10k2"; //28MeV_10k2 new1k
 
-TString energy = "28MeV";
+TString energy = "28MeV"; //125MeV
 
-int skim = 3;
+int skim = 1;
 
 bool debug = false;
 
@@ -85,18 +85,21 @@ std::vector<double_t> thickness{
 // Choose *variable* *some cut* *histogram range*
 std::vector< std::tuple<char*, char*, char*> > plots {
         {   (char*)"fParticleID",   (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-100,+100)"}
-    ,   {   (char*)"fMom",          (char*)"fVDNo == 1",  (char*)"(1300,0, 130 )"   }
-    ,   {   (char*)"fPosX",         (char*)"fVDNo == 1",  (char*)"(880,-55,55)" }
-    ,   {   (char*)"fPosY",         (char*)"fVDNo == 1",  (char*)"(880,-55,55)" }
-    ,   {   (char*)"fMomX",         (char*)"fVDNo == 1",  (char*)"(200,-5,5)"     }
-    ,   {   (char*)"fMomY",         (char*)"fVDNo == 1",  (char*)"(200,-5,5)"     }
+    // ,   {   (char*)"fMom",          (char*)"fVDNo == 1",  (char*)"(1300,0, 130 )"   }
+    // ,   {   (char*)"fPosX",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(880,-55,55)" }
+    // ,   {   (char*)"fPosY",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(880,-55,55)" }
+    // ,   {   (char*)"fMomX",         (char*)"fVDNo == 1",  (char*)"(200,-5,5)"     }
+    // ,   {   (char*)"fMomY",         (char*)"fVDNo == 1",  (char*)"(200,-5,5)"     }
+    ,   {   (char*)"fMomZ",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(500,10,30)"     }
 
         // {   (char*)"fParticleID",   (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-100,+100)"    }
     // ,   {   (char*)"fMom",          (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(300,0, 30 )"    }
-    // ,   {   (char*)"fPosX",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(220,-110,110)"      }
-    // ,   {   (char*)"fPosY",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(220,-110,110)"      }
+    // ,   {   (char*)"fPosX",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(880,-55,55)"       }
+    // ,   {   (char*)"fPosY",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(880,-55,55)"       }
     // ,   {   (char*)"fMomX",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-5,5)"   }
     // ,   {   (char*)"fMomY",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(200,-5,5)" }
+    // ,   {   (char*)"fMomZ",         (char*)"fVDNo == 1 && fParticleID == -13",  (char*)"(300,126,129)"     }
+
 };
 
 //############################################################
@@ -167,6 +170,7 @@ void emittance(){
     }
 
     std::vector<TTree *> tree_v;
+    std::vector<TTree *> tree_telescope_v;
     TFile *file_tmp;
 
     TGraphErrors * grx = new TGraphErrors;
@@ -180,12 +184,16 @@ void emittance(){
     gry->SetName("#varepsilon_{y}");
     gry->SetTitle("#varepsilon_{y}");
 
-    double_t x_tmp, px_tmp, y_tmp, py_tmp;
-    int fVDNo, fParticleID;
+    double_t x_tmp, px_tmp, y_tmp, py_tmp, pz_tmp;
+    int fVDNo, fParticleID, fEvent;
+    int fEvent_telescope, fNgamma;
     std::vector <double_t> x;
     std::vector <double_t> px;
     std::vector <double_t> y;
     std::vector <double_t> py;
+
+    std::vector <double_t> pz;
+
 
     double_t emittance, q_var, p_var, co_var;
 
@@ -193,26 +201,47 @@ void emittance(){
     for(const TString &file_name : file_names){
         file_tmp =  TFile::Open(path+folder+"/"+file_name);
         tree_v.push_back(file_tmp->Get<TTree>("VD"));
+        tree_telescope_v.push_back(file_tmp->Get<TTree>("Scint_telescope"));
     }
 if(debug) std::cout<<"filled vector<ttree> : "<<tree_v.size()<<std::endl;
+    
+    bool telescope_hit = false;
     for (int i=0; i<tree_v.size();i++){
         tree_v[i]->SetBranchAddress("fPosX",&x_tmp);
         tree_v[i]->SetBranchAddress("fMomX",&px_tmp);
         tree_v[i]->SetBranchAddress("fPosY",&y_tmp);
         tree_v[i]->SetBranchAddress("fMomY",&py_tmp);
 
+        tree_v[i]->SetBranchAddress("fMomZ",&pz_tmp);
+
         tree_v[i]->SetBranchAddress("fVDNo",&fVDNo);
         tree_v[i]->SetBranchAddress("fParticleID",&fParticleID);
-        
+        tree_v[i]->SetBranchAddress("fEvent",&fEvent);
+
+        tree_telescope_v[i]->SetBranchAddress("fEvent",&fEvent_telescope);
+        tree_telescope_v[i]->SetBranchAddress("fNgamma",&fNgamma);
+
         for (int j=0; j<tree_v[i]->GetEntries(); j++){
             tree_v[i]->GetEntry(j);
+            
             if(fVDNo == 1 && fParticleID == -13){
-                x.push_back(x_tmp);
-                px.push_back(px_tmp);
-                y.push_back(y_tmp);
-                py.push_back(py_tmp);
+            
+                for(int k = 0; k<tree_telescope_v[i]->GetEntries(); k++){
+                    tree_telescope_v[i]->GetEntry(k);
+                    if(fEvent == fEvent_telescope && fNgamma>0){
+                        telescope_hit = true;
+                    }
+                }
+                if(!telescope_hit){
+                    x.push_back(x_tmp);
+                    px.push_back(px_tmp);
+                    y.push_back(y_tmp);
+                    py.push_back(py_tmp);
+                }
             }
+            telescope_hit = false;
         }
+        cout<<"i "<<i<<endl;
 if(debug) std::cout<<"filled vectors <double_t> : "<<x.size()<<std::endl;
 if(debug) std::cout<<"filled vectors <double_t> : "<<x[0]<<" "<<px[0]<<" "<<y[0]<<" "<<py[0]<<std::endl;
 
@@ -255,7 +284,7 @@ if(debug) std::cout<<"emittance : "<<emittance<<std::endl;
     gry->Draw("AP0");
 
     TMultiGraph *mgr = new TMultiGraph;
-    mgr->SetTitle("128 MeV : Emittance (x,px) and (y,py); Thickness [mm]; #varepsilon [mm*MeV/c]");
+    mgr->SetTitle("28 MeV : Emittance (x,px) and (y,py); Thickness [mm]; #varepsilon [mm*MeV/c]");
     mgr->Add(grx);
     mgr->Add(gry);
     TCanvas * c_mgr = new TCanvas;
@@ -353,15 +382,16 @@ void test(){
             */
 
             //new TCanvas("",file_names[i]);
-            tree_v[i]->Draw(TString::Format("%s>>h1_%d%d%s", std::get<0>(plots[j]) , j,i,std::get<2>(plots[j])),std::get<1>(plots[j]),"goff");
+            tree_v[i]->Draw(TString::Format("%s>>h1_%d%d%s", std::get<0>(plots[j]) , j,i,std::get<2>(plots[j])),std::get<1>(plots[j]),""); //goff
             h1_tmp = (TH1F*)gDirectory->Get(TString::Format("h1_%d%d",j,i));
-
+            
             v_tmp.push_back(h1_tmp);
             
             // make a tgrapherror
-            gr_v[j]->SetPoint(gr_v[j]->GetN(),thickness[i],h1_tmp->GetMean());
-            gr_v[j]->SetPointError(gr_v[j]->GetN()-1,0,h1_tmp->GetStdDev()/sqrt(h1_tmp->GetEntries())); //
-
+            if(thickness[i]<0.5) {
+            gr_v[j]->SetPoint(gr_v[j]->GetN(),thickness[i],h1_tmp->GetStdDev()/h1_tmp->GetMean()); //h1_tmp->GetStdDev() h1_tmp->Integral(0,350)/h1_tmp->Integral()
+            gr_v[j]->SetPointError(gr_v[j]->GetN()-1,0,0); ///sqrt(h1_tmp->GetEntries())
+            }
             // just a check on the lenght of the two arrays
             if(debug) {
                 std::cout<<"Histogram number: "<<v_tmp.size()<<std::endl;

@@ -1,0 +1,5 @@
+/Analysis/SetFileName 28MeV_{thickness}.root
+/ScintSim/Scint/ScintSize3 20 20 {thickness} mm
+/gun/momentumAmp 28 MeV
+/run/beamOn 1000
+
