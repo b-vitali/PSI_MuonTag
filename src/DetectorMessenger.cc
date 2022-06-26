@@ -12,25 +12,25 @@
 
 
 DetectorMessenger::DetectorMessenger(DetectorConstruction* Det) : G4UImessenger(), fDetectorConstruction(Det){
-	fScintSimDirectory = new G4UIdirectory("/ScintSim/");
-	fScintSimDirectory->SetGuidance("UI commands specific to this simulation.");
+	fMuEDMDirectory = new G4UIdirectory("/MuEDM/");
+	fMuEDMDirectory->SetGuidance("UI commands specific to this simulation.");
 	
-	fScintDirectory = new G4UIdirectory("/ScintSim/Scint/");
+	fScintDirectory = new G4UIdirectory("/MuEDM/Scint/");
 	fScintDirectory->SetGuidance("Scintillator construction control");
 	
-	fScintSizeCmd = new G4UIcmdWithADoubleAndUnit("/ScintSim/Scint/ScintSize", this);
+	fScintSizeCmd = new G4UIcmdWithADoubleAndUnit("/MuEDM/Scint/ScintSize", this);
 	fScintSizeCmd->SetGuidance("Define BC400 Scintillator size");
 	fScintSizeCmd->SetParameterName("ScintSize", false);
 	fScintSizeCmd->SetUnitCategory("Length");
 	fScintSizeCmd->AvailableForStates(G4State_Idle);
 	
-	fScintSizeCmd3 = new G4UIcmdWith3VectorAndUnit("/ScintSim/Scint/ScintSize3", this);
+	fScintSizeCmd3 = new G4UIcmdWith3VectorAndUnit("/MuEDM/Scint/ScintSize3", this);
 	fScintSizeCmd3->SetGuidance("Define BC400 Scintillator size");
 	fScintSizeCmd3->SetParameterName("ScintSizeX", "ScintSizeY", "ScintSizeZ", false);
 	fScintSizeCmd3->SetUnitCategory("Length");
 	fScintSizeCmd3->AvailableForStates(G4State_Idle);
 
-	fScintMaterialCmd = new G4UIcmdWithAString("/ScintSim/Scint/ScintMaterial", this);
+	fScintMaterialCmd = new G4UIcmdWithAString("/MuEDM/Scint/ScintMaterial", this);
 	fScintMaterialCmd->SetGuidance("Set scintillating material");
 	fScintMaterialCmd->SetParameterName("material", false);
 	fScintMaterialCmd->SetCandidates("BC400 || LYSO");
@@ -41,7 +41,7 @@ DetectorMessenger::~DetectorMessenger(){
 	delete fScintSizeCmd;
 	delete fScintSizeCmd3;
 	delete fScintMaterialCmd;
-	delete fScintSimDirectory;
+	delete fMuEDMDirectory;
 	delete fScintDirectory;
 }
 

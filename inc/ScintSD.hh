@@ -14,6 +14,14 @@
 
 #include "g4root.hh"			// to access root stuff
 
+#include "TFile.h"
+#include "TTree.h"
+#include "TDirectory.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
+#include "TVectorD.h"
+
 #include "G4SDManager.hh"
 
 class G4Step;
@@ -28,7 +36,9 @@ class ScintSD : public G4VSensitiveDetector{
 
 		virtual void Initialize(G4HCofThisEvent* hitsCE);
 		virtual G4bool ProcessHits(G4Step* aStep, G4TouchableHistory*ROhist);
-		
+
+		virtual void CreateEntry(G4Step *aStep);
+
 		virtual void FillHit();
 		virtual void FillNtupla(G4AnalysisManager *man, ScintHit* scintHit, G4int ntupla);
 
@@ -39,6 +49,16 @@ class ScintSD : public G4VSensitiveDetector{
 		
 	private:
 		ScintHitsCollection* fScintCollection;
+
+		G4String ScintName;
+
+		G4int Trk=0;
+		G4int TrkParent=0;
+		G4int EntryTrk=0;
+		G4int TrkDecay=0;
+		G4bool TrackOneIn = false;
+		G4bool EntryCreated = false;
+		G4String debug	= "";
 
 		//G4int fBounce; 
 		std::vector<G4int> fEvent, fScintNo, fParticleID, fNgamma, fNgammaSec, fNCer;

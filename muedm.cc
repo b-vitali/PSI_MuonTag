@@ -1,4 +1,4 @@
-/// \file  scintsim.cc
+/// \file  muedm.cc
 /// \brief Main of the scintillator simulation
 
 // Stuff needed to have some handle

@@ -28,7 +28,7 @@ class DetectorMessenger : public G4UImessenger{
 	private:
 		DetectorConstruction* fDetectorConstruction;
 
-		G4UIdirectory* fScintSimDirectory;
+		G4UIdirectory* fMuEDMDirectory;
 		
 		G4UIdirectory* fScintDirectory;
 
