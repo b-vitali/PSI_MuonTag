@@ -1,11 +1,27 @@
-MuonTag simulation (bvitali sett. 2021)
+--------------------------------------------------------------
+----------- Scintillor simulations for MuEDM@PSI -------------
+--------------------------------------- bvitali june 2022 ----
 
-It is a mix between the corde from the LXe example and Giovanni's code.
+The branches have different section of the simulations:
+------------------------ FromScratch -------------------------
+Simulation with just few scintillators and virtual detecotrs to try stuff out.
+It is used to test the ScintSD class, play with optics and different geometry.
 
------------------------Work in progress-----------------------
+--------------------------- MuEDM ----------------------------
+Simulation of the two cylinders of scintillators for positron detection.
+The cylinders are 'parametric': number and size of the scintillators plus the radius can be adjusted.
+The scintillator ScintSD class is the same as in 'FromScratch'.
 
+------------------------- Insertion --------------------------
+Simulation with thin scintillator gate and 4 scintillators to create a 'telescope'.
+Could be insertion and tagging system for the MuEDM experiment.
+The scintillator ScintSD class is the same as in 'FromScratch'.
 
+--------------------------------------------------------------
 ---------------------------History----------------------------
+--------------------------------------------------------------
+
+(It is a mix between the corde from the LXe example and Giovanni's code.)
 
 ----------02.10.2021----------
 - If i move the SiPM the simulation takes longer?
