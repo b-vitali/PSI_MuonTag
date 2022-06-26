@@ -11,21 +11,9 @@
 G4ThreadLocal 
 G4GlobalMagFieldMessenger* DetectorConstruction::fMagFieldMessenger = 0; 
 
-//defined here in order to have the bool muEDM
-G4double 	r;
-G4double	theta; 	
-G4double	theta_scint; 	
-G4int 		N;		
-
-
 DetectorConstruction::DetectorConstruction()
 {
 	fVDOn = false;
-	fmuEDM= false;
-	if(fmuEDM){
-		fVDOn = false;
-		G4cout<<"fmuEDM ON. do the same in the EventAction.cc"<<G4endl;
-	}
 
 	// Scintillator dimensions
     fScintSizeX = 20*mm;
@@ -269,25 +257,6 @@ void DetectorConstruction::DefineOpticalProperties()
 G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 {
 	fCheckOverlaps = true;
-	if(fmuEDM){
-		fScintSizeX = 2*mm;
-    	fScintSizeY = 5*cm;
-    	fScintSizeZ = 3*cm;
-	
-		r 	= 4*cm; 		// actual path of the particle
-		N	= 10;
-		theta 	= 2*M_PI / N; 
-		theta_scint = std::atan((fScintSizeZ/2) / (r - fScintSizeX/2)) *2;
-		G4cout<<theta<<G4endl;
-		G4cout<<N<<G4endl;
-	
-		if(N * theta >  2*M_PI) {N = N-1; theta = 2*M_PI / N;}
-		while(theta_scint > theta) {
-			G4cout<<"Too tight: "<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<theta_scint*180/M_PI<<G4endl;
-			N = N-1; theta = 2*M_PI / N;
-		}
-		G4cout<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<theta_scint*180/M_PI<<G4endl;
-	}
 
 	// World Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidWorld	= new G4Box("World", 0.5*fWorldSizeX, 0.5*fWorldSizeY, 0.5*fWorldSizeZ);
@@ -297,6 +266,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	// Scintillator Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidScint	= new G4Box("Scint", 0.5*fScintSizeX, 0.5*fScintSizeY, 0.5*fScintSizeZ);
     fLogicScint = new G4LogicalVolume(fSolidScint, fScintMaterial, "Scint");
+		G4cout<<"CACCA"<<G4endl;
 
 	// Element
 	fElementSizeX = fScintSizeX + 1*mm;
@@ -311,51 +281,8 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	G4Translate3D 	translate =  G4Translate3D(G4ThreeVector(0., 0., 3*cm));
 	G4Transform3D transform = translate*rotation;
 
-	if(fmuEDM)
-	{
-		// Read Solid and Phys. 
-		fReadSizeX = fScintSizeX;
-		fReadSizeY = 0.5*mm;
-		fReadSizeZ = fScintSizeZ;
 
-		fSolidRead	= new G4Box("Read", 0.5*fReadSizeX,0.5*fReadSizeY, 0.5*fReadSizeZ);
-    	fLogicRead = new G4LogicalVolume(fSolidRead, fOG, "Read");
-		fLogicRead->SetVisAttributes(G4Colour(1,0,0, 0.7));
 
-		G4ThreeVector Scint_pos = G4ThreeVector(0, 0, 0); 
-    	G4ThreeVector Read_pos = G4ThreeVector(0, 0.5*fReadSizeY+0.5*fScintSizeY, 0);
-    	
-		fPhysElement =  new G4PVPlacement(0, G4ThreeVector(-r, 0, 0), fLogicElement, "Element", fLogicWorld, true, 0, fCheckOverlaps);			
-		fPhysRead		= new G4PVPlacement(0, Read_pos, fLogicRead, "Read", fLogicElement, true,0, fCheckOverlaps);
-		fPhysRead		= new G4PVPlacement(0, -Read_pos, fLogicRead, "Read", fLogicElement, true,1, fCheckOverlaps);
-		fPhysScint		= new G4PVPlacement(0, Scint_pos, fLogicScint, "Scint", fLogicElement, false, fCheckOverlaps);
-	
-		for(int j=1; j<N; j += 1)
-		{
-			G4Rotate3D 	  rotation =  G4Rotate3D(j*theta*rad, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
-			G4Translate3D translate =  G4Translate3D(G4ThreeVector(-r, 0, 0));
-			G4Transform3D transform = rotation*translate;
-			fPhysElement = new G4PVPlacement(transform, fLogicElement, "Element", fLogicWorld, true, j, fCheckOverlaps);			
-		}
-	}
-
-	// else {
-		// fSolidScint2	= new G4Box("Scint2", 0.7*fScintSizeX, 0.7*fScintSizeY, 0.7*fScintSizeZ);
-    	// fLogicScint2 = new G4LogicalVolume(fSolidScint2, fScintMaterial, "Scint2");
-
-    	// G4ThreeVector Scint_pos = G4ThreeVector(0, 0, -0.5*fReadSizeZ); 
-    	// G4ThreeVector Read_pos = G4ThreeVector(0.5*fReadSizeX, 0, +0.5*fScintSizeZ); //0.5*fReadSizeX
-
-		// fPhysScint		= new G4PVPlacement(0, Scint_pos , fLogicScint, "Scint", fLogicWorld, true, 0, fCheckOverlaps);
-		// fPhysRead		= new G4PVPlacement(0, Read_pos, fLogicRead, "Read", fLogicWorld, false, fCheckOverlaps);
-
-		// transform = translate;
-		// fPhysScint		= new G4PVPlacement(transform , fLogicScint, "Scint", fLogicWorld, true, 1, fCheckOverlaps);
-		// transform = translate*transform;
-		// fPhysScint2		= new G4PVPlacement(transform , fLogicScint2, "Scint2", fLogicWorld, false, 0, fCheckOverlaps);
-	// }
-
-	else{
 		// Read Solid and Phys. 
 		fReadSizeX = 0.5*mm;
 		fReadSizeY = fScintSizeY;
@@ -383,7 +310,6 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 		transform = translate*translate*translate; //rotation*rotation
 		fPhysElement 	= new G4PVPlacement(transform , fLogicScint2, "Scint2", fLogicWorld, false, fCheckOverlaps);
 
-	}
 
 	// G4double fGround;
 	// fGround =  0.999;
@@ -395,7 +321,6 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	// 	OpScintSurface->SetPolish(fGround);
 
 	// 	new G4LogicalSkinSurface("ScintSurface", fLogicScint, OpScintSurface);	
-	// 	if(!fmuEDM) new G4LogicalSkinSurface("ScintSurface", fLogicScint2, OpScintSurface);	
 	// }
 
 	// G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
@@ -422,13 +347,12 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	// 	OpScintSurface->SetPolish(fGround);
 
 	// 	new G4LogicalSkinSurface("ScintSurface", fLogicScint, OpScintSurface);	
-	// 	if(!fmuEDM) new G4LogicalSkinSurface("ScintSurface", fLogicScint2, OpScintSurface);	
 	// }
 
 	// Set how the volumes are visualized
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
     fLogicScint	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.5));
-    if(!fmuEDM) fLogicScint2	->SetVisAttributes(G4Colour(0.8, 0.8, 0.34, 0.5));
+	fLogicScint2	->SetVisAttributes(G4Colour(0.8, 0.8, 0.34, 0.5));
 
 	if(fVDOn){
 		// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
@@ -452,25 +376,15 @@ void DetectorConstruction::ConstructSDandField()
 	auto sdManager = G4SDManager::GetSDMpointer();
    	G4String SDname;
 	
-	ScintSD* scint_SD = new ScintSD("Scint");
+	ScintSD* scint_SD = new ScintSD(SDname="Scint");
   	sdManager->AddNewDetector(scint_SD);
 	fLogicScint->SetSensitiveDetector(scint_SD);
 
-	if(!fmuEDM){
-		ScintSD* scint_SD2 = new ScintSD("Scint2");
-  		sdManager->AddNewDetector(scint_SD2);
-		fLogicScint2->SetSensitiveDetector(scint_SD2);
-	}	
 
-	if(fmuEDM)
-	{
-		G4ThreeVector fieldValue(0.,-3*tesla,0.);
-  		fMagFieldMessenger = new G4GlobalMagFieldMessenger(fieldValue);
-  		//fMagFieldMessenger->SetVerboseLevel(1);
-	
-  		// Register the field messenger for deleting
-  		G4AutoDelete::Register(fMagFieldMessenger);
-	}
+	ScintSD* scint_SD2 = new ScintSD(SDname="Scint2");
+  	sdManager->AddNewDetector(scint_SD2);
+	fLogicScint2->SetSensitiveDetector(scint_SD2);
+
 	
 	if(fVDOn){
 		// Create the Sensitive Detector defined in VirtualDetectorSD 
