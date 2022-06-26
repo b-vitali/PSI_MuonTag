@@ -23,11 +23,11 @@ class EventAction : public G4UserEventAction{
 	private:
 		RunAction* fRunAction;
 		
-		ScintSD * tmp_scint;
-		ScintSD * tmp_scint2;
+		ScintSD * tmp_scint_out;
+		ScintSD * tmp_scint_in;
 
-		G4int fCollIDScint;
-		G4int fCollIDScint2;
+		G4int fCollIDScint_out;
+		G4int fCollIDScint_in;
 		
 		G4int fEvID; // to register each event just once
 };

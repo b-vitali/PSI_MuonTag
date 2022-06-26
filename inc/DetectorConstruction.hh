@@ -76,31 +76,32 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     	G4double fWorldSizeY;
     	G4double fWorldSizeZ;
 
-		// Scintillator dimensions
-    	G4double fScintSizeX;
-    	G4double fScintSizeY;
-    	G4double fScintSizeZ;
+		// Scintillator dimensions out
+    	G4double fScintSizeX_out;
+    	G4double fScintSizeY_out;
+    	G4double fScintSizeZ_out;
 
 		// Scintillator dimensions in
     	G4double fScintSizeX_in;
     	G4double fScintSizeY_in;
     	G4double fScintSizeZ_in;
 
-		// Read dimensions
-    	G4double fReadSizeX;
-    	G4double fReadSizeY;
-    	G4double fReadSizeZ;
+		// Read dimensions out
+    	G4double fReadSizeX_out;
+    	G4double fReadSizeY_out;
+    	G4double fReadSizeZ_out;
 
 		// Read dimensions in
     	G4double fReadSizeX_in;
     	G4double fReadSizeY_in;
     	G4double fReadSizeZ_in;
 
-		// Element dimensions
-    	G4double fElementSizeX;
-    	G4double fElementSizeY;
-    	G4double fElementSizeZ;
+		// Element dimensions out
+    	G4double fElementSizeX_out;
+    	G4double fElementSizeY_out;
+    	G4double fElementSizeZ_out;
 
+		// Element dimensions in
     	G4double fElementSizeX_in;
     	G4double fElementSizeY_in;
     	G4double fElementSizeZ_in;
@@ -116,36 +117,32 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4LogicalVolume* fLogicWorld;
 		G4PVPlacement* fPhysWorld;
 
-		// Scint
-		G4Box* fSolidScint;
-		G4LogicalVolume* fLogicScint;
-		G4PVPlacement* fPhysScint;
+		// Scint Out
+		G4Box* fSolidScint_out;
+		G4LogicalVolume* fLogicScint_out;
+		G4PVPlacement* fPhysScint_out;
 		
-		// Scint
+		// Scint In
 		G4Box* fSolidScint_in;
 		G4LogicalVolume* fLogicScint_in;
 		G4PVPlacement* fPhysScint_in;
 
-		G4Box* fSolidScint2;
-		G4LogicalVolume* fLogicScint2;
-		G4PVPlacement* fPhysScint2;
+		// Readout out
+		G4Box* fSolidRead_out;
+		G4LogicalVolume* fLogicRead_out;
+		G4PVPlacement* fPhysRead_out;
 
-		// Readout
-		G4Box* fSolidRead;
-		G4LogicalVolume* fLogicRead;
-		G4PVPlacement* fPhysRead;
+		// Element out
+		G4Box* fSolidElement_out;
+		G4LogicalVolume* fLogicElement_out;
+		G4PVPlacement* fPhysElement_out;
 
-		// Element
-		G4Box* fSolidElement;
-		G4LogicalVolume* fLogicElement;
-		G4PVPlacement* fPhysElement;
-
-		// Readout
+		// Readout in
 		G4Box* fSolidRead_in;
 		G4LogicalVolume* fLogicRead_in;
 		G4PVPlacement* fPhysRead_in;
 
-		// Element
+		// Element in
 		G4Box* fSolidElement_in;
 		G4LogicalVolume* fLogicElement_in;
 		G4PVPlacement* fPhysElement_in;
@@ -161,7 +158,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4PVPlacement* fPhysVD_2;
 
 		G4bool fVDOn;
-		G4bool fmuEDM;
 		G4bool fCheckOverlaps;
 
 		//? Materials & Elements

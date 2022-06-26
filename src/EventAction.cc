@@ -17,10 +17,10 @@
 #include "G4SystemOfUnits.hh"
 
 EventAction::EventAction(RunAction* runAction) : 
-	G4UserEventAction(), fRunAction(runAction), fCollIDScint(-1)
+	G4UserEventAction(), fRunAction(runAction), fCollIDScint_out(-1), fCollIDScint_in(-1)
 	, fEvID(-1){
-		tmp_scint = new ScintSD("Scint",1);
-		tmp_scint2 = new ScintSD("Scint2",2);
+		tmp_scint_out = new ScintSD("Scint_out",1);
+		tmp_scint_in = new ScintSD("Scint_in",2);
 
 	}
 
@@ -29,49 +29,49 @@ EventAction::~EventAction(){}
 void EventAction::BeginOfEventAction(const G4Event*){}
 
 void EventAction::EndOfEventAction(const G4Event* event){
-	G4bool fmuEDM = false;
 	// Hits collections
 	G4HCofThisEvent*HCE = event->GetHCofThisEvent();
 	if(!HCE) return;
+
 	// Get hits collections IDs
-	if(fCollIDScint < 0){
+	if(fCollIDScint_out < 0 && fCollIDScint_in < 0 ){
 		G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-		fCollIDScint = SDMan->GetCollectionID("Scint/scintCollection");
+		fCollIDScint_out = SDMan->GetCollectionID("Scint_out/scintCollection");
+		fCollIDScint_in = SDMan->GetCollectionID("Scint_in/scintCollection");
+	}
+	else{
+		G4cout<<"Something is wrong with the hit collections"<<G4endl;
 	}
 	
-	ScintHitsCollection* ScintHitCollection = (ScintHitsCollection*) (HCE->GetHC(fCollIDScint));
+	ScintHitsCollection* ScintHitCollection_out = (ScintHitsCollection*) (HCE->GetHC(fCollIDScint_out));
+	ScintHitsCollection* ScintHitCollection_in = (ScintHitsCollection*) (HCE->GetHC(fCollIDScint_in));
 	
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 
-	ScintHit* scintHit;
-	G4int N = ScintHitCollection->entries();
-	for(int i = 0; i < N; i++){
-		scintHit = (*ScintHitCollection)[i];
+	ScintHit* scintHit_out;
+	G4int N_out = ScintHitCollection_out->entries();
+	for(int i = 0; i < N_out; i++){
+		scintHit_out = (*ScintHitCollection_out)[i];
 
 		fEvID = event->GetEventID();
 
-		tmp_scint->FillNtupla(man, scintHit,1);
+		tmp_scint_out->FillNtupla(man, scintHit_out,1);
 
-		scintHit->Clear();
+		scintHit_out->Clear();
 	}
 
-	if(!fmuEDM){ 
-		G4SDManager* SDMan = G4SDManager::GetSDMpointer();
-		fCollIDScint2 = SDMan->GetCollectionID("Scint2/scintCollection");
-		ScintHitsCollection* ScintHitCollection2 = (ScintHitsCollection*) (HCE->GetHC(fCollIDScint2));
-		G4int M = ScintHitCollection2->entries();
-		G4cout<<"N "<<N<<" M "<<M<<G4endl;
+	ScintHit* scintHit_in;
+	G4int N_in = ScintHitCollection_in->entries();
+	for(int i = 0; i < N_in; i++){
+		scintHit_in = (*ScintHitCollection_in)[i];
 
-		for(int i = 0; i < M; i++){
-			scintHit = (*ScintHitCollection2)[i];
+		fEvID = event->GetEventID();
 
-			fEvID = event->GetEventID();
+		tmp_scint_in->FillNtupla(man, scintHit_in,2);
 
-			tmp_scint2->FillNtupla(man, scintHit,2);
-
-			scintHit->Clear();
-		}
+		scintHit_in->Clear();
 	}
+
 	if(fEvID % 100 == 0 || (fEvID & (fEvID - 1)) == 0 ) 
 	std::cout << "Event n. " << fEvID << std::endl;
 }
