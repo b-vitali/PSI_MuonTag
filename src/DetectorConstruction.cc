@@ -13,7 +13,7 @@ G4GlobalMagFieldMessenger* DetectorConstruction::fMagFieldMessenger = 0;
 
 DetectorConstruction::DetectorConstruction()
 {
-	fVDOn = false;
+	//fVDOn = false;
 
 	// Scintillator dimensions
     fScintSizeX = 20*mm;
@@ -85,7 +85,9 @@ void DetectorConstruction::DefineMaterials()
 	fVacuum = new G4Material("Vacuum",z=1.,a=1.01*g/mole, 
 		density = universe_mean_density, 
 		kStateGas, 0.1 * kelvin, 1.e-19 * pascal);
-
+	fVacuum_nogamma = new G4Material("Vacuum_nogamma",z=1.,a=1.01*g/mole, 
+		density = universe_mean_density, 
+		kStateGas, 0.1 * kelvin, 1.e-19 * pascal);
 	// Air
 	fAir = new G4Material("Air", density = 0.0010*g/cm3, 2);
 	fAir->AddElement(fN, 70 * perCent);
@@ -260,13 +262,12 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 	// World Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidWorld	= new G4Box("World", 0.5*fWorldSizeX, 0.5*fWorldSizeY, 0.5*fWorldSizeZ);
-    fLogicWorld = new G4LogicalVolume(fSolidWorld, fVacuum, "World");
+    fLogicWorld = new G4LogicalVolume(fSolidWorld, fVacuum_nogamma, "World");
     fPhysWorld	= new G4PVPlacement(0, G4ThreeVector(), fLogicWorld, "World", 0, false, 0, fCheckOverlaps);
 
 	// Scintillator Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 	fSolidScint	= new G4Box("Scint", 0.5*fScintSizeX, 0.5*fScintSizeY, 0.5*fScintSizeZ);
     fLogicScint = new G4LogicalVolume(fSolidScint, fScintMaterial, "Scint");
-		G4cout<<"CACCA"<<G4endl;
 
 	// Element
 	fElementSizeX = fScintSizeX + 1*mm;
@@ -275,40 +276,104 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 	fSolidElement = new G4Box("Element", 0.5*(fElementSizeX),0.5*(fElementSizeY), 0.5*(fElementSizeZ));
     fLogicElement = new G4LogicalVolume(fSolidElement, fVacuum, "Element");
-	fLogicElement->SetVisAttributes(G4Colour(0, 1, 0, 0.2));
+	fLogicElement->SetVisAttributes(G4Colour(0, 1, 0, 0.1));
 
 	G4Rotate3D 	rotation =  G4Rotate3D(30*deg, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
 	G4Translate3D 	translate =  G4Translate3D(G4ThreeVector(0., 0., 3*cm));
 	G4Transform3D transform = translate*rotation;
 
-
-
-		// Read Solid and Phys. 
-		fReadSizeX = 0.5*mm;
-		fReadSizeY = fScintSizeY;
-		fReadSizeZ = fScintSizeZ;
+	// Read Solid and Phys. 
+	fReadSizeX = 0.4*mm;
+	fReadSizeY = 3*mm;
+	fReadSizeZ = fScintSizeZ;
 	
-		fSolidRead	= new G4Box("Read", 0.5*fReadSizeX,0.5*fReadSizeY, 0.5*fReadSizeZ);
-    	fLogicRead = new G4LogicalVolume(fSolidRead, fOG, "Read");
-		fLogicRead->SetVisAttributes(G4Colour(1,0,0, 0.7));
+	fSolidRead	= new G4Box("Read", 0.5*fReadSizeX,0.5*fReadSizeY, 0.5*fReadSizeZ);
+    fLogicRead = new G4LogicalVolume(fSolidRead, fVacuum, "Read");
+	fLogicRead->SetVisAttributes(G4Colour(0.0, 1.0, 1.0, 0.3));
+
+	// grease Solid and Phys. 
+	fSolidGrease = new G4Box("Read", 0.5*fReadSizeX*0.5,0.5*fReadSizeY, 0.5*fReadSizeZ);
+    fLogicGrease = new G4LogicalVolume(fSolidGrease, fOG, "Grease");
+	fLogicGrease->SetVisAttributes(G4Colour(1,0,0, 0.5));
+
+	// VirtualDetector/SiPM Solid and Phys. 
+	fSolidSiPM	= new G4Box("SiPM", 0.5*fReadSizeX*0.5, 0.5*fReadSizeY, 0.5*fReadSizeZ);
+    fLogicSiPM 	= new G4LogicalVolume(fSolidSiPM, fOG, "SiPM");
+    fLogicSiPM	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.5));
+
+	// Put Grease and SiPM in Read
+    G4ThreeVector Grease_pos = G4ThreeVector(-(0.5*fReadSizeX*0.5), 0, 0); 
+    G4ThreeVector SiPM_pos = G4ThreeVector(0.5*fReadSizeX*0.5, 0,0); //0.5*fReadSizeX
+		
+	//fPhysRead 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicRead, "Read", fLogicWorld, true, 0, fCheckOverlaps);
+	fPhysGrease	= new G4PVPlacement(0, Grease_pos, fLogicGrease, "Grease", fLogicRead, false, fCheckOverlaps);
+	fPhysSiPM		= new G4PVPlacement(0, SiPM_pos, fLogicSiPM, "SiPM", fLogicRead, false, fCheckOverlaps);
+
+	// Put Scint and Read in element
+	G4ThreeVector Scint_pos = G4ThreeVector(0, 0, 0); 
+   	G4ThreeVector Read_pos1 = G4ThreeVector(0.5*fReadSizeX+0.5*fScintSizeX, 0.2*fScintSizeY,0); //0.5*fReadSizeX
+   	G4ThreeVector Read_pos2 = G4ThreeVector(0.5*fReadSizeX+0.5*fScintSizeX, -0*fScintSizeY,0); //0.5*fReadSizeX
+   	G4ThreeVector Read_pos3 = G4ThreeVector(0.5*fReadSizeX+0.5*fScintSizeX, -0.2*fScintSizeY,0); //0.5*fReadSizeX
 
 		fSolidScint2	= new G4Box("Scint2", 0.7*fScintSizeX, 0.7*fScintSizeY, 0.7*fScintSizeZ);
     	fLogicScint2 = new G4LogicalVolume(fSolidScint2, fScintMaterial, "Scint2");
 
-    	G4ThreeVector Scint_pos = G4ThreeVector(0, 0, 0); 
-    	G4ThreeVector Read_pos = G4ThreeVector(0.5*fReadSizeX+0.5*fScintSizeX, 0,0); //0.5*fReadSizeX
-
 		// Put Scint and Read in element
 		fPhysElement 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicElement, "Element", fLogicWorld, true, 0, fCheckOverlaps);
-		fPhysRead		= new G4PVPlacement(0, Read_pos, fLogicRead, "Read", fLogicElement, false, fCheckOverlaps);
+		fPhysRead		= new G4PVPlacement(0, Read_pos1, fLogicRead, "Read0", fLogicElement, true, 0, fCheckOverlaps);
+		fPhysRead		= new G4PVPlacement(0, Read_pos2, fLogicRead, "Read1", fLogicElement, true, 1, fCheckOverlaps);
+		fPhysRead		= new G4PVPlacement(0, Read_pos3, fLogicRead, "Read2", fLogicElement, true, 2, fCheckOverlaps);
 		fPhysScint		= new G4PVPlacement(0, Scint_pos, fLogicScint, "Scint", fLogicElement, false, fCheckOverlaps);
-		
-		transform = translate; //*rotation
-		fPhysElement 	= new G4PVPlacement(transform , fLogicElement, "Element", fLogicWorld, true, 1, fCheckOverlaps);
-		transform = translate*translate; //rotation*rotation
-		fPhysElement 	= new G4PVPlacement(transform , fLogicElement, "Element", fLogicWorld, true, 2, fCheckOverlaps);
-		transform = translate*translate*translate; //rotation*rotation
-		fPhysElement 	= new G4PVPlacement(transform , fLogicScint2, "Scint2", fLogicWorld, false, fCheckOverlaps);
+
+	
+		//transform = translate; //*rotation
+		//fPhysElement 	= new G4PVPlacement(transform , fLogicElement, "Element", fLogicWorld, true, 1, fCheckOverlaps);
+		//transform = translate*translate; //rotation*rotation
+		//fPhysElement 	= new G4PVPlacement(transform , fLogicElement, "Element", fLogicWorld, true, 2, fCheckOverlaps);
+		//transform = translate*translate*translate; //rotation*rotation
+		//fPhysElement 	= new G4PVPlacement(transform , fLogicScint2, "Scint2", fLogicWorld, false, fCheckOverlaps);
+
+	if(fVDOn){
+		// 2_VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
+		fSolidVD_2	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
+    	fLogicVD_2 	= new G4LogicalVolume(fSolidVD_2, fVacuum, "VD");
+    	fPhysVD_2	= new G4PVPlacement(0, G4ThreeVector(0., 0., 1*cm), fLogicVD_2, "VD", fLogicWorld, false, 1, fCheckOverlaps);
+    	fLogicVD	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.05));
+    	fLogicVD_2	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.05));
+	}
+
+		fPhysElement 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 1*cm), fLogicElement, "Element1", fLogicWorld, true, 1, fCheckOverlaps);
+
+
+/*
+
+	// Scintillator with light guide
+	fSolidScint_guide	= new G4Box("Scint_guide", 0.5*fScintSizeX, 0.5*fScintSizeY, 0.5*fScintSizeZ);
+    fLogicScint_guide = new G4LogicalVolume(fSolidScint, fScintMaterial, "Scint");
+	
+	// Element for scintillator with light guide
+	// fElementSizeX = fScintSizeX + 5*mm;
+	// fElementSizeY = fScintSizeY + 5*mm;
+	// fElementSizeZ = fScintSizeZ + 5*mm;
+
+	// Guide
+	fGuideBorderX=5*mm;
+    fGuideBorderY=5*mm;
+    fGuideBorderZ=2.5*mm;
+	fGuideHoleSizeXY=15*mm;
+
+	G4double fGuideSizeX = fGuideBorderX + fScintSizeX;
+	G4double fGuideSizeY = fGuideBorderY + fScintSizeY;
+	G4double fGuideSizeZ = fGuideBorderZ + fScintSizeZ;
+
+	fSolidGuide_tmp	= new G4Box("Guide_tmp", 0.5*fGuideSizeX, 0.5*fGuideSizeY, 0.5*fGuideSizeZ);
+	fSolidGuide_hole =  new G4Box("Guide_hole",0.5*fGuideHoleSizeXY, 0.5*fGuideHoleSizeXY, 0.6*fGuideSizeZ);
+	fSolidGuide = new G4SubtractionSolid("Guide",fSolidGuide_tmp,fSolidScint_guide,0,G4ThreeVector(0,0,0.5*-(fGuideSizeZ-fScintSizeZ)));
+	fSolidGuide = new G4SubtractionSolid("Guide",fSolidGuide,fSolidGuide_hole,0,G4ThreeVector(0,0,0));
+    fLogicGuide = new G4LogicalVolume(fSolidGuide, fScintMaterial, "OpticalGrease");
+
+	fLogicGuide->SetVisAttributes(G4Colour(0, 0, 1, 0.2));
+	fPhysGuide 	= new G4PVPlacement(0, G4ThreeVector(0, 10*cm, 0), fLogicGuide, "Guide", fLogicWorld, true, 0, fCheckOverlaps);
 
 
 	// G4double fGround;
@@ -319,7 +384,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 		OpScintSurface->SetType(dielectric_dielectric);
 		OpScintSurface->SetFinish(polished); //ground polished
 	// 	OpScintSurface->SetPolish(fGround);
-
+*/
 	// 	new G4LogicalSkinSurface("ScintSurface", fLogicScint, OpScintSurface);	
 	// }
 
@@ -353,20 +418,6 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
     fLogicScint	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.5));
 	fLogicScint2	->SetVisAttributes(G4Colour(0.8, 0.8, 0.34, 0.5));
-
-	if(fVDOn){
-		// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
-		fSolidVD	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
-    	fLogicVD 	= new G4LogicalVolume(fSolidVD, fVacuum, "VD");
-    	fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., 5*cm), fLogicVD, "VD", fLogicWorld, false, 0, fCheckOverlaps);
-
-		// 2_VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
-		fSolidVD_2	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
-    	fLogicVD_2 	= new G4LogicalVolume(fSolidVD_2, fVacuum, "VD");
-    	fPhysVD_2	= new G4PVPlacement(0, G4ThreeVector(0., 0., 1*cm), fLogicVD_2, "VD", fLogicWorld, false, 1, fCheckOverlaps);
-    	fLogicVD	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.05));
-    	fLogicVD_2	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.05));
-	}
 	
     return fPhysWorld;
 }
@@ -384,15 +435,13 @@ void DetectorConstruction::ConstructSDandField()
 	ScintSD* scint_SD2 = new ScintSD(SDname="Scint2");
   	sdManager->AddNewDetector(scint_SD2);
 	fLogicScint2->SetSensitiveDetector(scint_SD2);
+		
 
-	
+	SiPMSD * SiPM_SD = new SiPMSD("SiPM");
+  	sdManager->AddNewDetector(SiPM_SD);
+	fLogicSiPM->SetSensitiveDetector(SiPM_SD);
+
 	if(fVDOn){
-		// Create the Sensitive Detector defined in VirtualDetectorSD 
-		VirtualDetectorSD * VD_SD = new VirtualDetectorSD("VirtualDetector");
-
-		// Assign the SD to the logial volume
-		fLogicVD->SetSensitiveDetector(VD_SD);
-
 		VirtualDetectorSD * VD_SD_2 = new VirtualDetectorSD("VirtualDetector2");
 		fLogicVD_2->SetSensitiveDetector(VD_SD_2);
 	}

@@ -13,6 +13,7 @@
 #include "G4PhysicalConstants.hh"
 
 #include "G4Box.hh"
+#include "G4SubtractionSolid.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 
@@ -25,6 +26,7 @@
 
 #include "VirtualDetectorSD.hh"
 #include "ScintSD.hh"
+#include "SiPMSD.hh"
 
 #include "DetectorMessenger.hh"
 
@@ -35,6 +37,8 @@
 
 
 class G4Box;
+class G4VSolid;
+class G4SubtractionSolid;
 class G4Material;
 class G4Element;
 
@@ -87,10 +91,21 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     	G4double fReadSizeZ;
 
 		// Element dimensions
+    	G4double fGreaseSizeX;
+    	G4double fGreaseSizeY;
+    	G4double fGreaseSizeZ;
+
+		// Element dimensions
     	G4double fElementSizeX;
     	G4double fElementSizeY;
     	G4double fElementSizeZ;
 
+		// Guide dimensions (Excess to Scint)
+    	G4double fGuideBorderX;
+    	G4double fGuideBorderY;
+    	G4double fGuideBorderZ;
+		G4double fGuideHoleSizeXY;
+		
 		// VirtualDetector dimensions
     	G4double fVDSizeX;
     	G4double fVDSizeY;
@@ -111,15 +126,47 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4LogicalVolume* fLogicScint2;
 		G4PVPlacement* fPhysScint2;
 
+		G4Box* fSolidScint_guide;
+		G4LogicalVolume* fLogicScint_guide;
+		G4PVPlacement* fPhysScint_guide;
+
+		// Guide
+		G4Box* fSolidGuide_tmp;
+		G4VSolid* fSolidGuide;
+		G4LogicalVolume* fLogicGuide;
+		G4PVPlacement* fPhysGuide;
+
+		// Guide-hole
+		G4Box* fSolidGuide_hole;
+		G4LogicalVolume* fLogicGuide_hole;
+		G4PVPlacement* fPhysGuide_hole;
+
 		// Readout
 		G4Box* fSolidRead;
 		G4LogicalVolume* fLogicRead;
 		G4PVPlacement* fPhysRead;
 
+		G4Box* fSolidGrease;
+		G4LogicalVolume* fLogicGrease;
+		G4PVPlacement* fPhysGrease;
+
+		// SiPM
+		G4Box* fSolidSiPM;
+		G4LogicalVolume* fLogicSiPM;
+		G4PVPlacement* fPhysSiPM;
+
+		G4Box* fSolidRead_guide;
+		G4LogicalVolume* fLogicRead_guide;
+		G4PVPlacement* fPhysRead_guide;
+
 		// Element
 		G4Box* fSolidElement;
 		G4LogicalVolume* fLogicElement;
 		G4PVPlacement* fPhysElement;
+
+		G4Box* fSolidElement_guide;
+		G4LogicalVolume* fLogicElement_guide;
+		G4PVPlacement* fPhysElement_guide;
 
 		// VD
 		G4Box* fSolidVD;
@@ -132,7 +179,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4PVPlacement* fPhysVD_2;
 
 		G4bool fVDOn;
-		G4bool fmuEDM;
 		G4bool fCheckOverlaps;
 
 		//? Materials & Elements
@@ -141,6 +187,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		//-----------------------------------
 		G4Material* fAir;
 		G4Material* fVacuum;
+		G4Material* fVacuum_nogamma;
 		G4Material* fBC400;
 		G4Material* fLYSO;
 		G4Material* fOG; // optical grease BC 631 index saint gobain
