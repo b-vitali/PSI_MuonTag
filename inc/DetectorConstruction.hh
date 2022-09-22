@@ -68,6 +68,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		void DefineOpticalProperties();	
 
 		G4VPhysicalVolume* DefineVolumes();
+		G4VPhysicalVolume* DefineVolumes_guide();
+		G4VPhysicalVolume* DefineVolumes_doubleguide();
 
 		DetectorMessenger* fDetectorMessenger;
 
@@ -99,6 +101,11 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     	G4double fElementSizeX;
     	G4double fElementSizeY;
     	G4double fElementSizeZ;
+
+		// Element dimensions
+    	G4double fElementSizeX_guide;
+    	G4double fElementSizeY_guide;
+    	G4double fElementSizeZ_guide;
 
 		// Guide dimensions (Excess to Scint)
     	G4double fGuideBorderX;
@@ -183,6 +190,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
 		//? Materials & Elements
 		G4Material* fScintMaterial;
+		G4Material* fSiPMMaterial;
 
 		//-----------------------------------
 		G4Material* fAir;
@@ -191,6 +199,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4Material* fBC400;
 		G4Material* fLYSO;
 		G4Material* fOG; // optical grease BC 631 index saint gobain
+		G4Material* fSi;
+		G4Material* fSiResin;
 
 		G4Element* fH;
 		G4Element* fC;

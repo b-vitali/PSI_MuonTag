@@ -1,6 +1,6 @@
 /// \file  scintsim.cc
 /// \brief Main of the scintillator simulation
-
+ #include <limits>
 // Stuff needed to have some handle
 #include <TTree.h>
 #include <iostream>
@@ -35,8 +35,9 @@ int main(int argc, char** argv){
 
 
     // Set mandatory initialization classes
+    MyPhysicsList * myphysicslist = new MyPhysicsList();
     runManager->SetUserInitialization(new DetectorConstruction());
-    runManager->SetUserInitialization(new MyPhysicsList());
+    runManager->SetUserInitialization(myphysicslist->GetPhysicsList());
     runManager->SetUserInitialization(new ActionInitialization());
 
     if(argc == 1){
