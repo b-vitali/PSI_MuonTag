@@ -70,6 +70,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4VPhysicalVolume* DefineVolumes();
 		G4VPhysicalVolume* DefineVolumes_guide();
 		G4VPhysicalVolume* DefineVolumes_doubleguide();
+		G4VPhysicalVolume* DefineVolumes_singlemuedm();
 
 		DetectorMessenger* fDetectorMessenger;
 

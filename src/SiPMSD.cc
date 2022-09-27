@@ -67,6 +67,9 @@ G4VSensitiveDetector("sipmtmp"){
 	man->CreateNtupleDColumn("fPosInX",fPosInX);
 	man->CreateNtupleDColumn("fPosInY",fPosInY);
 	man->CreateNtupleDColumn("fPosInZ",fPosInZ);
+	man->CreateNtupleDColumn("fPosSiPMInX",fPosSiPMInX);
+	man->CreateNtupleDColumn("fPosSiPMInY",fPosSiPMInY);
+	man->CreateNtupleDColumn("fPosSiPMInZ",fPosSiPMInZ);
 	man->CreateNtupleDColumn("fMomInX",fMomInX);
 	man->CreateNtupleDColumn("fMomInY",fMomInY);
 	man->CreateNtupleDColumn("fMomInZ",fMomInZ);	
@@ -107,7 +110,7 @@ void SiPMSD::Initialize(G4HCofThisEvent* hitsCE){
 
 
 void SiPMSD::CreateEntry(G4Step *aStep){
-	G4cout<<"CreateEntry SiPM trk : "<<aStep->GetTrack()->GetTrackID()<<" -> "<<Trk<<G4endl;
+	//G4cout<<"CreateEntry SiPM trk : "<<aStep->GetTrack()->GetTrackID()<<" -> "<<Trk<<G4endl;
 	fNgamma.push_back(0);
 	fNgammaSec.push_back(0);
 
@@ -132,10 +135,13 @@ void SiPMSD::CreateEntry(G4Step *aStep){
 	fMomInY.push_back(preStep->GetMomentum().getY());
 	fMomInZ.push_back(preStep->GetMomentum().getZ());
 
-	//? Position and time
+	//? Position and time SIPM OR PHOTON
 	fPosInX.push_back(aStep->GetPreStepPoint()->GetPosition().getX());
 	fPosInY.push_back(aStep->GetPreStepPoint()->GetPosition().getY());
 	fPosInZ.push_back(aStep->GetPreStepPoint()->GetPosition().getZ());
+	fPosSiPMInX.push_back(preStep->GetTouchable()->GetTranslation().getX());
+	fPosSiPMInY.push_back(preStep->GetTouchable()->GetTranslation().getY());
+	fPosSiPMInZ.push_back(preStep->GetTouchable()->GetTranslation().getZ());
 	fTimeIn.push_back(aStep->GetPreStepPoint()->GetGlobalTime());
 
 	//? Angle (transform the momentum direction to the volume's reference system)
@@ -187,7 +193,7 @@ G4bool SiPMSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
 	TrkParent = aStep->GetTrack()->GetParentID();
 
 	int pdgid = aStep->GetTrack()->GetDynamicParticle()->GetParticleDefinition()->GetPDGEncoding();
-	G4cout<<"pdgid : "<<pdgid<<G4endl;
+	//G4cout<<"pdgid : "<<pdgid<<G4endl;
 
 	//? A photon is the first entry? 
 	// if( pdgid == 22 || pdgid == -22 ){ //photon pdgid == 22 or -22
@@ -229,6 +235,9 @@ void SiPMSD::FillHit(){
 	Hit->SetPosInX(fPosInX);
 	Hit->SetPosInY(fPosInY);
 	Hit->SetPosInZ(fPosInZ);
+	Hit->SetPosSiPMInX(fPosSiPMInX);
+	Hit->SetPosSiPMInY(fPosSiPMInY);
+	Hit->SetPosSiPMInZ(fPosSiPMInZ);
 	Hit->SetMomInX(fMomInX);
 	Hit->SetMomInY(fMomInY);
 	Hit->SetMomInZ(fMomInZ);
@@ -255,6 +264,9 @@ void SiPMSD::FillHit(){
 	fPosInX.clear();
 	fPosInY.clear();
 	fPosInZ.clear();
+	fPosSiPMInX.clear();
+	fPosSiPMInY.clear();
+	fPosSiPMInZ.clear();
 	fMomInX.clear();
 	fMomInY.clear();
 	fMomInZ.clear();
@@ -303,6 +315,9 @@ void SiPMSD::FillNtupla(G4AnalysisManager *man, SiPMHit* SiPMHit, G4int ntupla){
 	fPosInX 	=  SiPMHit->GetPosInX();
 	fPosInY 	=  SiPMHit->GetPosInY();
 	fPosInZ 	=  SiPMHit->GetPosInZ();
+	fPosSiPMInX 	=  SiPMHit->GetPosSiPMInX();
+	fPosSiPMInY 	=  SiPMHit->GetPosSiPMInY();
+	fPosSiPMInZ 	=  SiPMHit->GetPosSiPMInZ();
 	fMomInX 	=  SiPMHit->GetMomInX();
 	fMomInY 	=  SiPMHit->GetMomInY();
 	fMomInZ 	=  SiPMHit->GetMomInZ();

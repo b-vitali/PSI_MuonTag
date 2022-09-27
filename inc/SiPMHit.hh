@@ -50,6 +50,9 @@ class SiPMHit : public G4VHit{
 		inline void SetPosInX(std::vector<G4double> posX){fPosInX = posX;}
 		inline void SetPosInY(std::vector<G4double> posY){fPosInY = posY;}
 		inline void SetPosInZ(std::vector<G4double> posZ){fPosInZ = posZ;}
+		inline void SetPosSiPMInX(std::vector<G4double> posX){fPosSiPMInX = posX;}
+		inline void SetPosSiPMInY(std::vector<G4double> posY){fPosSiPMInY = posY;}
+		inline void SetPosSiPMInZ(std::vector<G4double> posZ){fPosSiPMInZ = posZ;}
 		inline void SetMomInX(std::vector<G4double> momX){fMomInX = momX;}
 		inline void SetMomInY(std::vector<G4double> momY){fMomInY = momY;}
 		inline void SetMomInZ(std::vector<G4double> momZ){fMomInZ = momZ;}
@@ -57,6 +60,9 @@ class SiPMHit : public G4VHit{
 		inline std::vector<G4double> GetPosInX(){return fPosInX;}
 		inline std::vector<G4double> GetPosInY(){return fPosInY;}
 		inline std::vector<G4double> GetPosInZ(){return fPosInZ;}
+		inline std::vector<G4double> GetPosSiPMInX(){return fPosSiPMInX;}
+		inline std::vector<G4double> GetPosSiPMInY(){return fPosSiPMInY;}
+		inline std::vector<G4double> GetPosSiPMInZ(){return fPosSiPMInZ;}
 		inline std::vector<G4double> GetMomInX(){return fMomInX;}
 		inline std::vector<G4double> GetMomInY(){return fMomInY;}
 		inline std::vector<G4double> GetMomInZ(){return fMomInZ;}
@@ -97,6 +103,7 @@ class SiPMHit : public G4VHit{
 		std::vector<G4double> fEin, fThetaIn;
 
 		std::vector<G4double> fPosInX, fPosInY, fPosInZ; 
+		std::vector<G4double> fPosSiPMInX, fPosSiPMInY, fPosSiPMInZ; 
 		std::vector<G4double> fMomInX, fMomInY, fMomInZ; 
 		std::vector<G4double> fTimeIn;
 

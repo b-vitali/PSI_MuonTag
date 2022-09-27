@@ -1,0 +1,4 @@
+/gun/position {pos_x} 0 -10. mm
+/gun/momentumAmp 53 MeV
+/run/beamOn 100
+

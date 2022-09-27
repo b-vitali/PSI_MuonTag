@@ -66,6 +66,7 @@ class SiPMSD : public G4VSensitiveDetector{
 		std::vector<G4double> fEin, fThetaIn;
 
 		std::vector<G4double> fPosInX, fPosInY, fPosInZ; 
+		std::vector<G4double> fPosSiPMInX, fPosSiPMInY, fPosSiPMInZ; 
 		std::vector<G4double> fMomInX, fMomInY, fMomInZ; 
 		std::vector<G4double> fTimeIn;
 		

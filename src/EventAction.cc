@@ -48,6 +48,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 
 	ScintHit* scintHit;
 	G4int N = ScintHitCollection->entries();
+	G4cout<<"entries "<<N<<G4endl;
 	for(int i = 0; i < N; i++){
 		scintHit = (*ScintHitCollection)[i];
 
@@ -66,7 +67,6 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	G4int M = SiPMHitCollection->entries();
 	G4cout<<"entries "<<M<<G4endl;
 	for(int i = 0; i < M; i++){
-		G4cout<<"LOL"<<G4endl;
 		sipmHit = (*SiPMHitCollection)[i];
 
 		fEvID = event->GetEventID();
@@ -77,5 +77,5 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	}
 	
 	if(fEvID % 100 == 0 || (fEvID & (fEvID - 1)) == 0 ) 
-	std::cout << "Event n. " << fEvID << std::endl;
+	std::cout<< std::endl << "Event n. " << fEvID << std::endl;
 }

@@ -45,7 +45,7 @@ DetectorConstruction :: ~DetectorConstruction()
 G4VPhysicalVolume* DetectorConstruction::Construct()
 {
 	// At construction the DefineVolumes describes the geometry
-	G4int WHICH = 2;
+	G4int WHICH = 3;
 	switch (WHICH)
 	{
 		case 0:
@@ -56,6 +56,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 			break;
 		case 2:
 			return DefineVolumes_doubleguide();
+			break;
+		case 3:
+			return DefineVolumes_singlemuedm();
 			break;
 	}
 }
@@ -373,6 +376,48 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	// transform = translate*translate*translate; //rotation*rotation
 	//fPhysElement 	= new G4PVPlacement(transform , fLogicScint2, "Scint2", fLogicWorld, false, fCheckOverlaps);
 
+
+	/*
+	// G4double fGround;
+	// fGround =  0.999;
+	// if(fGround < 1){
+		G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
+		OpScintSurface->SetModel(glisur);
+		OpScintSurface->SetType(dielectric_dielectric);
+		OpScintSurface->SetFinish(polished); //ground polished
+	// 	OpScintSurface->SetPolish(fGround);
+
+		new G4LogicalSkinSurface("ScintSurface", fLogicScint, OpScintSurface);	
+	// }
+	*/
+	/*
+	G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
+	OpScintSurface->SetModel(glisur);
+	OpScintSurface->SetType(dielectric_dielectric);
+	OpScintSurface->SetFinish(polished); //ground polished
+
+	G4OpticalSurface* OpScintSurface_Read = new G4OpticalSurface("OpScintSurface_Read");
+	OpScintSurface_Read->SetModel(glisur);
+	OpScintSurface_Read->SetType(dielectric_dielectric);
+	OpScintSurface_Read->SetFinish(ground);
+	OpScintSurface_Read->SetPolish(0.02);
+
+	new G4LogicalBorderSurface("OpScintSurface",  fPhysScint, fPhysWorld, OpScintSurface);
+	new G4LogicalBorderSurface("OpScintSurface_Read", fPhysScint, fPhysRead, OpScintSurface_Read);
+
+	*/
+	// G4double fGround;
+	// fGround =  0.8;
+	// if(fGround < 1){
+	// 	G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
+	// 	OpScintSurface->SetModel(glisur);
+	// 	OpScintSurface->SetType(dielectric_dielectric);
+	// 	OpScintSurface->SetFinish(groundair); //ground polished
+	// 	OpScintSurface->SetPolish(fGround);
+
+	// 	new G4LogicalSkinSurface("ScintSurface", fLogicScint, OpScintSurface);	
+	// }
+
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
     fLogicScint	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.5));
 
@@ -528,7 +573,6 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_guide()
     return fPhysWorld;
 }
 
-
 //----------------------------------------------------------------------
 // Scintillator with double-light guide
 //----------------------------------------------------------------------
@@ -678,6 +722,149 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_doubleguide()
     fLogicScint	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.5));
     fLogicScint_guide	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.5));
 	
+    return fPhysWorld;
+}
+
+
+//----------------------------------------------------------------------
+// Single MuEDM cylinder's scint
+//----------------------------------------------------------------------
+G4VPhysicalVolume* DetectorConstruction::DefineVolumes_singlemuedm()
+{
+	// Scintillator dimensions
+    fScintSizeX = 200*mm;
+    fScintSizeY = 10*mm;
+    fScintSizeZ = 3*mm;
+
+	// World Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
+	fSolidWorld	= new G4Box("World", 0.5*fWorldSizeX, 0.5*fWorldSizeY, 0.5*fWorldSizeZ);
+    fLogicWorld = new G4LogicalVolume(fSolidWorld, fVacuum_nogamma, "World");
+    fPhysWorld	= new G4PVPlacement(0, G4ThreeVector(), fLogicWorld, "World", 0, false, 0, fCheckOverlaps);
+
+	// Scintillator Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
+	fSolidScint	= new G4Box("Scint", 0.5*fScintSizeX, 0.5*fScintSizeY, 0.5*fScintSizeZ);
+    fLogicScint = new G4LogicalVolume(fSolidScint, fScintMaterial, "Scint");
+
+	// Element
+	fElementSizeX = fScintSizeX + 1*mm;
+	fElementSizeY = fScintSizeY + 1*mm;
+	fElementSizeZ = 3*mm; //fScintSizeZ + 1*mm
+
+	fSolidElement = new G4Box("Element", 0.5*(fElementSizeX),0.5*(fElementSizeY), 0.5*(fElementSizeZ));
+    fLogicElement = new G4LogicalVolume(fSolidElement, fVacuum, "Element");
+	fLogicElement->SetVisAttributes(G4Colour(0, 1, 0, 0.1));
+
+	G4Rotate3D 	rotation =  G4Rotate3D(30*deg, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
+	G4Translate3D 	translate =  G4Translate3D(G4ThreeVector(0., 0., 3*cm));
+	G4Transform3D transform = translate*rotation;
+
+	// Read Solid and Phys. 
+	fReadSizeX = 0.4*mm;
+	fReadSizeY = 3*mm;
+	fReadSizeZ = 3*mm;
+	
+	fSolidRead	= new G4Box("Read", 0.5*fReadSizeX,0.5*fReadSizeY, 0.5*fReadSizeZ);
+    fLogicRead = new G4LogicalVolume(fSolidRead, fVacuum, "Read");
+	fLogicRead->SetVisAttributes(G4Colour(0.0, 1.0, 1.0, 0.3));
+
+	// grease Solid and Phys. 
+	fSolidGrease = new G4Box("Read", 0.5*fReadSizeX*0.5,0.5*fReadSizeY, 0.5*fReadSizeZ);
+    fLogicGrease = new G4LogicalVolume(fSolidGrease, fOG, "Grease");
+	fLogicGrease->SetVisAttributes(G4Colour(1,0,0, 0.5));
+
+	// VirtualDetector/SiPM Solid and Phys. 
+	fSolidSiPM	= new G4Box("SiPM", 0.5*fReadSizeX*0.5, 0.5*fReadSizeY, 0.5*fReadSizeZ);
+    fLogicSiPM 	= new G4LogicalVolume(fSolidSiPM, fSiPMMaterial, "SiPM");
+    fLogicSiPM	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.5));
+
+	// Put Grease and SiPM in Read
+    G4ThreeVector Grease_pos = G4ThreeVector(-(0.5*fReadSizeX*0.5), 0, 0); 
+    G4ThreeVector SiPM_pos = G4ThreeVector(0.5*fReadSizeX*0.5, 0,0); //0.5*fReadSizeX
+		
+	//fPhysRead 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicRead, "Read", fLogicWorld, true, 0, fCheckOverlaps);
+	fPhysGrease	= new G4PVPlacement(0, Grease_pos, fLogicGrease, "Grease", fLogicRead, false, fCheckOverlaps);
+	fPhysSiPM		= new G4PVPlacement(0, SiPM_pos, fLogicSiPM, "SiPM", fLogicRead, false, fCheckOverlaps);
+
+	// Put Scint and Read in element
+	G4ThreeVector Scint_pos = G4ThreeVector(0, 0, 0); 
+   	G4ThreeVector Read_pos1 = G4ThreeVector(0.5*fReadSizeX+0.5*fScintSizeX, (3+0.25)*mm,0); //0.5*fReadSizeX
+   	G4ThreeVector Read_pos2 = G4ThreeVector(0.5*fReadSizeX+0.5*fScintSizeX, 0, 0); //0.5*fReadSizeX
+   	G4ThreeVector Read_pos3 = G4ThreeVector(0.5*fReadSizeX+0.5*fScintSizeX, -(3+0.25)*mm,0); //0.5*fReadSizeX
+
+	//fSolidScint2	= new G4Box("Scint2", 0.7*fScintSizeX, 0.7*fScintSizeY, 0.7*fScintSizeZ);
+    //fLogicScint2 = new G4LogicalVolume(fSolidScint2, fScintMaterial, "Scint2");
+
+	//? Put Scint and Read in element
+	fPhysElement 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicElement, "Element", fLogicWorld, false, fCheckOverlaps);
+	fPhysRead		= new G4PVPlacement(0, Read_pos1, fLogicRead, "Read0", fLogicElement, true, 0, fCheckOverlaps);
+	fPhysRead		= new G4PVPlacement(0, Read_pos2, fLogicRead, "Read1", fLogicElement, true, 1, fCheckOverlaps);
+	fPhysRead		= new G4PVPlacement(0, Read_pos3, fLogicRead, "Read2", fLogicElement, true, 2, fCheckOverlaps);
+	
+	rotation =  G4Rotate3D(180*deg, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
+	translate =  G4Translate3D(Read_pos1);
+	transform = rotation*translate;
+	fPhysRead		= new G4PVPlacement(transform, fLogicRead, "Read3", fLogicElement, true, 3, fCheckOverlaps);
+	translate =  G4Translate3D(Read_pos2);
+	transform = rotation*translate;
+	fPhysRead		= new G4PVPlacement(transform, fLogicRead, "Read4", fLogicElement, true, 4, fCheckOverlaps);
+	translate =  G4Translate3D(Read_pos3);
+	transform = rotation*translate;
+	fPhysRead		= new G4PVPlacement(transform, fLogicRead, "Read5", fLogicElement, true, 5, fCheckOverlaps);
+
+	fPhysScint		= new G4PVPlacement(0, Scint_pos, fLogicScint, "Scint", fLogicElement, false, fCheckOverlaps);
+
+	// transform = translate; //*rotation
+	// fPhysElement 	= new G4PVPlacement(transform , fLogicElement, "Element", fLogicWorld, true, 1, fCheckOverlaps);
+	// transform = translate*translate; //rotation*rotation
+	// fPhysElement 	= new G4PVPlacement(transform , fLogicElement, "Element", fLogicWorld, true, 2, fCheckOverlaps);
+	// transform = translate*translate*translate; //rotation*rotation
+	//fPhysElement 	= new G4PVPlacement(transform , fLogicScint2, "Scint2", fLogicWorld, false, fCheckOverlaps);
+
+
+	/*
+	// G4double fGround;
+	// fGround =  0.999;
+	// if(fGround < 1){
+		G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
+		OpScintSurface->SetModel(glisur);
+		OpScintSurface->SetType(dielectric_dielectric);
+		OpScintSurface->SetFinish(polished); //ground polished
+	// 	OpScintSurface->SetPolish(fGround);
+
+		new G4LogicalSkinSurface("ScintSurface", fLogicScint, OpScintSurface);	
+	// }
+	*/
+	/*
+	G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
+	OpScintSurface->SetModel(glisur);
+	OpScintSurface->SetType(dielectric_dielectric);
+	OpScintSurface->SetFinish(polished); //ground polished
+
+	G4OpticalSurface* OpScintSurface_Read = new G4OpticalSurface("OpScintSurface_Read");
+	OpScintSurface_Read->SetModel(glisur);
+	OpScintSurface_Read->SetType(dielectric_dielectric);
+	OpScintSurface_Read->SetFinish(ground);
+	OpScintSurface_Read->SetPolish(0.02);
+
+	new G4LogicalBorderSurface("OpScintSurface",  fPhysScint, fPhysWorld, OpScintSurface);
+	new G4LogicalBorderSurface("OpScintSurface_Read", fPhysScint, fPhysRead, OpScintSurface_Read);
+
+	*/
+	// G4double fGround;
+	// fGround =  0.8;
+	// if(fGround < 1){
+	// 	G4OpticalSurface* OpScintSurface = new G4OpticalSurface("OpScintSurface");
+	// 	OpScintSurface->SetModel(glisur);
+	// 	OpScintSurface->SetType(dielectric_dielectric);
+	// 	OpScintSurface->SetFinish(groundair); //ground polished
+	// 	OpScintSurface->SetPolish(fGround);
+
+	// 	new G4LogicalSkinSurface("ScintSurface", fLogicScint, OpScintSurface);	
+	// }
+
+    fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
+    fLogicScint	->SetVisAttributes(G4Colour(0.34, 0.57, 0.8, 0.5));
+
     return fPhysWorld;
 }
 

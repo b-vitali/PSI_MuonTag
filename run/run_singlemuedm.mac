@@ -1,0 +1,5 @@
+/run/initialize
+/run/verbose 1
+/random/setSeeds 299792458 662607015
+
+/control/loop singlemuedm.loop pos_x 0 95 5  

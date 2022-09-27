@@ -127,7 +127,7 @@ void ScintSD::Initialize(G4HCofThisEvent* hitsCE){
 
 
 void ScintSD::CreateEntry(G4Step *aStep){
-	G4cout<<"CreateEntry trk : "<<aStep->GetTrack()->GetTrackID()<<" -> "<<Trk<<G4endl;
+	//G4cout<<"CreateEntry trk : "<<aStep->GetTrack()->GetTrackID()<<" -> "<<Trk<<G4endl;
 	fEdep.push_back(0);
 	fDelta.push_back(0);
 	fTrackLength.push_back(0);
@@ -213,7 +213,7 @@ G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
 	if(aStep->GetTrack()->GetTrackID() != Trk) {
 		Trk = aStep->GetTrack()->GetTrackID();
 		TrkParent = aStep->GetTrack()->GetParentID();
-       	G4cout<<"new Trk : "<< Trk <<" child of :"<<TrkParent<<G4endl;
+       	if(debug.contains("p+")) G4cout<<"new Trk : "<< Trk <<" child of :"<<TrkParent<<G4endl;
 
 		//? If the current hit is in another scintillator reset the EntryCreated
 		//? (first check that fScintNo is not empty)
@@ -221,13 +221,13 @@ G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
 			//G4cout<<"the Hit stored scintNo : "<< fScintNo.at(fScintNo.size()-1) << " and we are in "<<preStep->GetTouchable()->GetCopyNumber(1)+1<<G4endl;
 
 			if(fScintNo.at(fScintNo.size()-1) != preStep->GetTouchable()->GetCopyNumber(1)+1){
-				G4cout<<"new Trk : "<< Trk <<" child of :"<<TrkParent<<G4endl;
-				G4cout<< "fScintNo changed, EntryCreated = false"<<G4endl;
+				if(debug.contains("p+")) G4cout<<"new Trk : "<< Trk <<" child of :"<<TrkParent<<G4endl;
+				if(debug.contains("p+")) G4cout<< "fScintNo changed, EntryCreated = false"<<G4endl;
 				EntryCreated = false;
 			}
 
 			if(Trk==1 && !TrackOneIn){
-				G4cout<< "Same fScintNo but the TrackOneIn == false"<<G4endl;
+				if(debug.contains("p+")) G4cout<< "Same fScintNo but the TrackOneIn == false"<<G4endl;
 				EntryCreated = false;
 			}
 
@@ -240,18 +240,18 @@ G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
 	if(!EntryCreated){
 
 		int pdgid = aStep->GetTrack()->GetDynamicParticle()->GetParticleDefinition()->GetPDGEncoding();
-		G4cout<<"pdgid : "<<pdgid<<G4endl;
+		if(debug.contains("p+")) G4cout<<"pdgid : "<<pdgid<<G4endl;
 		
 		//? A photon is the first entry? 
 		if( pdgid == 22 || pdgid == -22 ){ //photon pdgid == 22 or -22
-			G4cout<<"Photon with no entry"<<G4endl;
+			if(debug.contains("p+")) G4cout<<"Photon with no entry"<<G4endl;
 			aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			return false;
 		}
 
 		//? A (anti)neutrino is the first entry? 
 		else if( pdgid == 12 || pdgid == 14 || pdgid == 16 || pdgid == -12 || pdgid == -14 || pdgid == -16 ){
-			G4cout<<"Neutrino with no entry"<<G4endl;
+			if(debug.contains("p+")) G4cout<<"Neutrino with no entry"<<G4endl;
 			aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			return false;
 		}
@@ -261,7 +261,7 @@ G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
 			
 			//? double check that it's the first step in volume
 			if(aStep->IsFirstStepInVolume()){
-				G4cout<<"First step"<<G4endl;
+				if(debug.contains("p+")) G4cout<<"First step"<<G4endl;
 				CreateEntry(aStep);
 				if(aStep->GetTrack()->GetTrackID() == 1) TrackOneIn == true;	
 			}

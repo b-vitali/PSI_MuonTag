@@ -11,8 +11,8 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
     G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
     G4ParticleDefinition * particle = particleTable->FindParticle("mu+");
 
-G4cout<<particle->GetParticleName()<<G4endl;
-    G4ThreeVector pos(0.,0.,-10.*mm);
+    G4cout<<particle->GetParticleName()<<G4endl;
+    G4ThreeVector pos(25*mm,0.,-10.*mm);
     G4ThreeVector mom(0.,0.,1.);
 
     fParticleGun->SetParticlePosition(pos);
