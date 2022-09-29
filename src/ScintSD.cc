@@ -263,7 +263,7 @@ G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
 			if(aStep->IsFirstStepInVolume()){
 				if(debug.contains("p+")) G4cout<<"First step"<<G4endl;
 				CreateEntry(aStep);
-				if(aStep->GetTrack()->GetTrackID() == 1) TrackOneIn == true;	
+				if(aStep->GetTrack()->GetTrackID() == 1) TrackOneIn = true;	
 			}
 			else {G4cout<<"NOT First step, how?"<<G4endl;}
 		}

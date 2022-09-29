@@ -363,11 +363,13 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
     //fLogicScint2 = new G4LogicalVolume(fSolidScint2, fScintMaterial, "Scint2");
 
 	//? Put Scint and Read in element
-	fPhysElement 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicElement, "Element", fLogicWorld, false, fCheckOverlaps);
+	fPhysElement 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicElement, "Element", fLogicWorld, true, 0, fCheckOverlaps);
 	fPhysRead		= new G4PVPlacement(0, Read_pos1, fLogicRead, "Read0", fLogicElement, true, 0, fCheckOverlaps);
 	fPhysRead		= new G4PVPlacement(0, Read_pos2, fLogicRead, "Read1", fLogicElement, true, 1, fCheckOverlaps);
 	fPhysRead		= new G4PVPlacement(0, Read_pos3, fLogicRead, "Read2", fLogicElement, true, 2, fCheckOverlaps);
 	fPhysScint		= new G4PVPlacement(0, Scint_pos, fLogicScint, "Scint", fLogicElement, false, fCheckOverlaps);
+
+	fPhysElement 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 2*cm), fLogicElement, "Element", fLogicWorld, true, 1, fCheckOverlaps);
 
 	// transform = translate; //*rotation
 	// fPhysElement 	= new G4PVPlacement(transform , fLogicElement, "Element", fLogicWorld, true, 1, fCheckOverlaps);
@@ -894,6 +896,14 @@ void DetectorConstruction::ConstructSDandField()
 		VirtualDetectorSD * VD_SD_2 = new VirtualDetectorSD("VirtualDetector2");
 		fLogicVD_2->SetSensitiveDetector(VD_SD_2);
 	}
+
+	G4ThreeVector fieldValue(0.,-3*tesla,0.);
+	fMagFieldMessenger = new G4GlobalMagFieldMessenger(fieldValue);
+	//fMagFieldMessenger->SetVerboseLevel(1);
+	
+	// Register the field messenger for deleting
+	G4AutoDelete::Register(fMagFieldMessenger);
+
 }
 
 /*
