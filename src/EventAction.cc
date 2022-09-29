@@ -6,6 +6,7 @@
 #include "RunAction.hh"
 #include "EventAction.hh"
 #include "ScintHit.hh"
+#include "SiPMHit.hh"
 
 #include "G4RunManager.hh"
 #include "G4Event.hh"
@@ -17,11 +18,12 @@
 #include "G4SystemOfUnits.hh"
 
 EventAction::EventAction(RunAction* runAction) : 
-	G4UserEventAction(), fRunAction(runAction), fCollIDScint_out(-1), fCollIDScint_in(-1)
+	G4UserEventAction(), fRunAction(runAction), fCollIDScint_out(-1), fCollIDScint_in(-1), fCollIDSiPM_in(-1),fCollIDSiPM_out(-1)
 	, fEvID(-1){
-		tmp_scint_out = new ScintSD("Scint_out",1);
-		tmp_scint_in = new ScintSD("Scint_in",2);
-
+		tmp_scint_out 	= new ScintSD("Scint_out",1);
+		tmp_scint_in 	= new ScintSD("Scint_in",2);
+		tmp_sipm_out 	= new SiPMSD("SiPM_out",3);
+		tmp_sipm_in 	= new SiPMSD("SiPM_in",4);
 	}
 
 EventAction::~EventAction(){}
@@ -34,10 +36,12 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	if(!HCE) return;
 
 	// Get hits collections IDs
-	if(fCollIDScint_out < 0 && fCollIDScint_in < 0 ){
+	if(fCollIDScint_out < 0 && fCollIDScint_in < 0 && fCollIDSiPM_out < 0 && fCollIDSiPM_in < 0 ){
 		G4SDManager* SDMan = G4SDManager::GetSDMpointer();
 		fCollIDScint_out = SDMan->GetCollectionID("Scint_out/scintCollection");
 		fCollIDScint_in = SDMan->GetCollectionID("Scint_in/scintCollection");
+		fCollIDSiPM_in = SDMan->GetCollectionID("SiPM_in/sipmCollection");
+		fCollIDSiPM_out = SDMan->GetCollectionID("SiPM_out/sipmCollection");
 	}
 	else{
 		G4cout<<"Something is wrong with the hit collections"<<G4endl;
@@ -71,6 +75,37 @@ void EventAction::EndOfEventAction(const G4Event* event){
 
 		scintHit_in->Clear();
 	}
+
+	SiPMHitsCollection* SiPMHitCollection_out = (SiPMHitsCollection*) (HCE->GetHC(fCollIDSiPM_out));
+
+	SiPMHit* sipmHit;
+	G4int M_out = SiPMHitCollection_out->entries();
+	G4cout<<"entries "<<M_out<<G4endl;
+	for(int i = 0; i < M_out; i++){
+		sipmHit = (*SiPMHitCollection_out)[i];
+
+		fEvID = event->GetEventID();
+
+		tmp_sipm_out->FillNtupla(man, sipmHit,3);
+
+		sipmHit->Clear();
+	}
+
+	SiPMHitsCollection* SiPMHitCollection_in = (SiPMHitsCollection*) (HCE->GetHC(fCollIDSiPM_in));
+
+	G4int M_in = SiPMHitCollection_in->entries();
+	G4cout<<"entries "<<M_in<<G4endl;
+	for(int i = 0; i < M_in; i++){
+		sipmHit = (*SiPMHitCollection_in)[i];
+
+		fEvID = event->GetEventID();
+
+		tmp_sipm_in->FillNtupla(man, sipmHit,4);
+
+		sipmHit->Clear();
+	}
+
+
 
 	if(fEvID % 100 == 0 || (fEvID & (fEvID - 1)) == 0 ) 
 	std::cout << "Event n. " << fEvID << std::endl;

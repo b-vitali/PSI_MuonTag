@@ -25,6 +25,7 @@
 
 #include "VirtualDetectorSD.hh"
 #include "ScintSD.hh"
+#include "SiPMSD.hh"
 
 #include "DetectorMessenger.hh"
 
@@ -86,15 +87,10 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     	G4double fScintSizeY_in;
     	G4double fScintSizeZ_in;
 
-		// Read dimensions out
-    	G4double fReadSizeX_out;
-    	G4double fReadSizeY_out;
-    	G4double fReadSizeZ_out;
-
-		// Read dimensions in
-    	G4double fReadSizeX_in;
-    	G4double fReadSizeY_in;
-    	G4double fReadSizeZ_in;
+		// Read dimensions
+    	G4double fReadSizeX;
+    	G4double fReadSizeY;
+    	G4double fReadSizeZ;
 
 		// Element dimensions out
     	G4double fElementSizeX_out;
@@ -127,20 +123,35 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4LogicalVolume* fLogicScint_in;
 		G4PVPlacement* fPhysScint_in;
 
-		// Readout out
+		// Readout
+		G4Box* fSolidRead_in;
+		G4LogicalVolume* fLogicRead_in;
+		G4PVPlacement* fPhysRead_in;
+
+		// Readout
 		G4Box* fSolidRead_out;
 		G4LogicalVolume* fLogicRead_out;
 		G4PVPlacement* fPhysRead_out;
+
+		// Grease
+		G4Box* fSolidGrease;
+		G4LogicalVolume* fLogicGrease;
+		G4PVPlacement* fPhysGrease;
+		
+		// SiPM
+		G4Box* fSolidSiPM_in;
+		G4LogicalVolume* fLogicSiPM_in;
+		G4PVPlacement* fPhysSiPM_in;		
+
+		// SiPM
+		G4Box* fSolidSiPM_out;
+		G4LogicalVolume* fLogicSiPM_out;
+		G4PVPlacement* fPhysSiPM_out;
 
 		// Element out
 		G4Box* fSolidElement_out;
 		G4LogicalVolume* fLogicElement_out;
 		G4PVPlacement* fPhysElement_out;
-
-		// Readout in
-		G4Box* fSolidRead_in;
-		G4LogicalVolume* fLogicRead_in;
-		G4PVPlacement* fPhysRead_in;
 
 		// Element in
 		G4Box* fSolidElement_in;
@@ -162,13 +173,17 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
 		//? Materials & Elements
 		G4Material* fScintMaterial;
+		G4Material* fSiPMMaterial;
 
 		//-----------------------------------
 		G4Material* fAir;
 		G4Material* fVacuum;
+		G4Material* fVacuum_nogamma;
 		G4Material* fBC400;
 		G4Material* fLYSO;
 		G4Material* fOG; // optical grease BC 631 index saint gobain
+		G4Material* fSi;
+		G4Material* fSiResin;
 
 		G4Element* fH;
 		G4Element* fC;

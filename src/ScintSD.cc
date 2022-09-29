@@ -45,7 +45,7 @@ G4VSensitiveDetector(name){ //fThetaOut((Double_t)(std::numeric_limits<double>::
 }
 
 ScintSD::ScintSD(G4String name, G4int ntuple):
-G4VSensitiveDetector("tmp"){
+G4VSensitiveDetector(name){
 	G4cout<<"Create a tmp ScintSD to fill the Ntupla"<<G4endl;
 
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
@@ -189,7 +189,7 @@ void ScintSD::CreateEntry(G4Step *aStep){
 
 G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){	
 
-	if(debug.contains("p"))	G4cout<<"Ev : "<<G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()<<G4endl;
+	//if(debug.contains("p"))	G4cout<<"Ev : "<<G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()<<G4endl;
 
 	if(aStep->GetStepLength() == 0 && aStep->GetTotalEnergyDeposit() == 0) {
 		// G4cout<<"step of lenght 0 and edep 0"<<G4endl; 
@@ -213,7 +213,7 @@ G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
 	if(aStep->GetTrack()->GetTrackID() != Trk) {
 		Trk = aStep->GetTrack()->GetTrackID();
 		TrkParent = aStep->GetTrack()->GetParentID();
-       	G4cout<<"new Trk : "<< Trk <<" child of :"<<TrkParent<<G4endl;
+       	if(debug.contains("p+")) G4cout<<"new Trk : "<< Trk <<" child of :"<<TrkParent<<G4endl;
 
 		//? If the current hit is in another scintillator reset the EntryCreated
 		//? (first check that fScintNo is not empty)
@@ -221,13 +221,13 @@ G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
 			//G4cout<<"the Hit stored scintNo : "<< fScintNo.at(fScintNo.size()-1) << " and we are in "<<preStep->GetTouchable()->GetCopyNumber(1)+1<<G4endl;
 
 			if(fScintNo.at(fScintNo.size()-1) != preStep->GetTouchable()->GetCopyNumber(1)+1){
-				G4cout<<"new Trk : "<< Trk <<" child of :"<<TrkParent<<G4endl;
-				G4cout<< "fScintNo changed, EntryCreated = false"<<G4endl;
+				if(debug.contains("p+")) G4cout<<"new Trk : "<< Trk <<" child of :"<<TrkParent<<G4endl;
+				if(debug.contains("p+")) G4cout<< "fScintNo changed, EntryCreated = false"<<G4endl;
 				EntryCreated = false;
 			}
 
 			if(Trk==1 && !TrackOneIn){
-				G4cout<< "Same fScintNo but the TrackOneIn == false"<<G4endl;
+				if(debug.contains("p+")) G4cout<< "Same fScintNo but the TrackOneIn == false"<<G4endl;
 				EntryCreated = false;
 			}
 
@@ -240,18 +240,18 @@ G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
 	if(!EntryCreated){
 
 		int pdgid = aStep->GetTrack()->GetDynamicParticle()->GetParticleDefinition()->GetPDGEncoding();
-		G4cout<<"pdgid : "<<pdgid<<G4endl;
+		if(debug.contains("p+")) G4cout<<"pdgid : "<<pdgid<<G4endl;
 		
 		//? A photon is the first entry? 
 		if( pdgid == 22 || pdgid == -22 ){ //photon pdgid == 22 or -22
-			G4cout<<"Photon with no entry"<<G4endl;
+			if(debug.contains("p+")) G4cout<<"Photon with no entry"<<G4endl;
 			aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			return false;
 		}
 
 		//? A (anti)neutrino is the first entry? 
 		else if( pdgid == 12 || pdgid == 14 || pdgid == 16 || pdgid == -12 || pdgid == -14 || pdgid == -16 ){
-			G4cout<<"Neutrino with no entry"<<G4endl;
+			if(debug.contains("p+")) G4cout<<"Neutrino with no entry"<<G4endl;
 			aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			return false;
 		}
@@ -261,9 +261,9 @@ G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
 			
 			//? double check that it's the first step in volume
 			if(aStep->IsFirstStepInVolume()){
-				G4cout<<"First step"<<G4endl;
+				if(debug.contains("p+")) G4cout<<"First step"<<G4endl;
 				CreateEntry(aStep);
-				if(aStep->GetTrack()->GetTrackID() == 1) TrackOneIn == true;	
+				if(aStep->GetTrack()->GetTrackID() == 1) TrackOneIn = true;	
 			}
 			else {G4cout<<"NOT First step, how?"<<G4endl;}
 		}
@@ -398,42 +398,42 @@ G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
 				fLeft.at(fLeft.size()-1)  += 1;
 				man->FillH2(PhotonTime_ID, postStep->GetGlobalTime(), fScintNo.at(fScintNo.size()-1));
 				man->FillH3(PhotonPositionLeft_ID, localpos.z(), localpos.y(), fScintNo.at(fScintNo.size()-1));
-				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+				// aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.x() - dimensionX) < kCarTolerance && fDirOut_trans.getX() > 0){
 				if(debug.contains("g"))G4cout<<"Right"<<G4endl;
 				fRight.at(fRight.size()-1)  += 1;
 				man->FillH2(PhotonTime_ID, postStep->GetGlobalTime(), fScintNo.at(fScintNo.size()-1));
 				man->FillH3(PhotonPositionRight_ID, localpos.z(), localpos.y(), fScintNo.at(fScintNo.size()-1));
-				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+				//aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.y() + dimensionY) < kCarTolerance && fDirOut_trans.getY() < 0){
 				if(debug.contains("g"))G4cout<<"Down"<<G4endl;
 				fDown.at(fDown.size()-1)  += 1;
 				man->FillH2(PhotonTime_ID, postStep->GetGlobalTime(), fScintNo.at(fScintNo.size()-1));
 				man->FillH3(PhotonPositionDown_ID, localpos.x(), localpos.z(), fScintNo.at(fScintNo.size()-1));
-				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+				// aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.y() - dimensionY) < kCarTolerance && fDirOut_trans.getY() > 0){
 				if(debug.contains("g"))G4cout<<"Up"<<G4endl;
 				fUp.at(fUp.size()-1)  += 1;
 				man->FillH2(PhotonTime_ID, postStep->GetGlobalTime(), fScintNo.at(fScintNo.size()-1));
 				man->FillH3(PhotonPositionUp_ID, localpos.x(), localpos.z(), fScintNo.at(fScintNo.size()-1));
-				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+				// aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.z() + dimensionZ) < kCarTolerance && fDirOut_trans.getZ() < 0) {
 				if(debug.contains("g"))G4cout<<"Back"<<G4endl;
 				fBack.at(fBack.size()-1)  += 1;
 				man->FillH2(PhotonTime_ID, postStep->GetGlobalTime(), fScintNo.at(fScintNo.size()-1));
 				man->FillH3(PhotonPositionBack_ID, localpos.x(),localpos.y(), fScintNo.at(fScintNo.size()-1));
-				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+				// aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else if(std::fabs(localpos.z() - dimensionZ) < kCarTolerance && fDirOut_trans.getZ() > 0){
 				if(debug.contains("g"))G4cout<<"Front"<<G4endl;
 				fFront.at(fFront.size()-1)  += 1;
 				man->FillH2(PhotonTime_ID, postStep->GetGlobalTime(), fScintNo.at(fScintNo.size()-1));
 				man->FillH3(PhotonPositionFront_ID, localpos.x(),localpos.y(), fScintNo.at(fScintNo.size()-1));
-				aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+				// aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 			}
 			else {
 				fReflection.at(fReflection.size()-1) += 1; 
@@ -586,7 +586,8 @@ void ScintSD::DrawAll(){}
 void ScintSD::PrintAll(){}
 
 void ScintSD::FillNtupla(G4AnalysisManager *man, ScintHit* scintHit, G4int ntupla){
-	//G4cout<<"FillScintNtupla "<<ntupla<<G4endl;
+
+	G4cout<<"Fill Ntupla: "<<ntupla<<G4endl;
 	
 	fEvent 	=  scintHit->GetEvent();
 	fScintNo 	=  scintHit->GetScintNo();
