@@ -20,10 +20,10 @@
 EventAction::EventAction(RunAction* runAction) : 
 	G4UserEventAction(), fRunAction(runAction), fCollIDScint_out(-1), fCollIDScint_in(-1), fCollIDSiPM_in(-1),fCollIDSiPM_out(-1)
 	, fEvID(-1){
-		tmp_scint_out 	= new ScintSD("Scint_out",1);
-		tmp_scint_in 	= new ScintSD("Scint_in",2);
-		tmp_sipm_out 	= new SiPMSD("SiPM_out",3);
-		tmp_sipm_in 	= new SiPMSD("SiPM_in",4);
+		// tmp_scint_out 	= new ScintSD("Scint_out",1);
+		// tmp_scint_in 	= new ScintSD("Scint_in",2);
+		// tmp_sipm_out 	= new SiPMSD("SiPM_out",3);
+		// tmp_sipm_in 	= new SiPMSD("SiPM_in",4);
 	}
 
 EventAction::~EventAction(){}
@@ -31,6 +31,7 @@ EventAction::~EventAction(){}
 void EventAction::BeginOfEventAction(const G4Event*){}
 
 void EventAction::EndOfEventAction(const G4Event* event){
+	/*
 	// Hits collections
 	G4HCofThisEvent*HCE = event->GetHCofThisEvent();
 	if(!HCE) return;
@@ -105,7 +106,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 		sipmHit->Clear();
 	}
 
-
+*/
 
 	if(fEvID % 100 == 0 || (fEvID & (fEvID - 1)) == 0 ) 
 	std::cout << "Event n. " << fEvID << std::endl;

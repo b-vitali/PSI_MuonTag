@@ -13,6 +13,7 @@
 #include "G4PhysicalConstants.hh"
 
 #include "G4Box.hh"
+#include "G4Tubs.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 
@@ -65,6 +66,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		void DefineOpticalProperties();	
 
 		G4VPhysicalVolume* DefineVolumes();
+		G4VPhysicalVolume* DefineVolumes_eSUN();
 
 		DetectorMessenger* fDetectorMessenger;
 
@@ -180,6 +182,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4Material* fVacuum;
 		G4Material* fVacuum_nogamma;
 		G4Material* fBC400;
+		G4Material* fBC400_noscint;
 		G4Material* fLYSO;
 		G4Material* fOG; // optical grease BC 631 index saint gobain
 		G4Material* fSi;

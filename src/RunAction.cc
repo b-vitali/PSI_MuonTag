@@ -3,7 +3,7 @@
 
 #include "RunAction.hh"
 
-RunAction::RunAction()
+RunAction::RunAction():fName("data")
 {
 	//DefineCommands();
 	
@@ -16,12 +16,21 @@ RunAction::RunAction()
 	man->CreateNtupleIColumn("fParticleID");
 	man->CreateNtupleDColumn("fVDTime");
 	man->CreateNtupleDColumn("fMom");
+	man->CreateNtupleDColumn("fPosX");
+	man->CreateNtupleDColumn("fPosY");
+	man->CreateNtupleDColumn("fPosZ");
+	man->CreateNtupleDColumn("fMomX");
+	man->CreateNtupleDColumn("fMomY");
+	man->CreateNtupleDColumn("fMomZ");
 	man->FinishNtuple(0);
 
+	fMessenger = new RunActionMessenger(this);
 }
 
 RunAction::~RunAction()
-{}
+{
+	delete fMessenger;	
+}
 
 void RunAction::BeginOfRunAction(const G4Run* run)
 {
@@ -30,16 +39,7 @@ void RunAction::BeginOfRunAction(const G4Run* run)
 	G4int runID = run->GetRunID();
 	std::stringstream strRunID;
 	strRunID << runID;
-	man->OpenFile("output_"+strRunID.str()+".root");
-
-	// man->CreateH2("Scint_PhotonTime","PhotonTime", 200, 0., 200, 5, 0,5);
-	// man->CreateH3("Scint_PhotonPos_Front","PhotonPositionFront",200, -50., 50, 200, -50., 50, 5, 0,5);
-	// man->CreateH3("Scint_PhotonPos_Back","PhotonPositionBack",200, -50., 50, 200, -50., 50, 5, 0,5);
-	// man->CreateH3("Scint_PhotonPos_Left","PhotonPositionLeft",200, -5., 5, 200, -50., 50, 5, 0,5);
-	// man->CreateH3("Scint_PhotonPos_Right","PhotonPositionRight",200, -5., 5, 200, -50., 50, 5, 0,5);
-	// man->CreateH3("Scint_PhotonPos_Up","PhotonPositionUp",200, -50., 50, 200, -50., 50, 5, 0,5);
-	// man->CreateH3("Scint_PhotonPos_Down","PhotonPositionDown",200, -50., 50, 200, -50., 50, 5, 0,5);
-
+	man->OpenFile(fName);
 
 	/*
 	fData = TFile::Open(fName, "RECREATE");

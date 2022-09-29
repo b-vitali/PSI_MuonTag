@@ -30,6 +30,8 @@ class VirtualDetectorSD : public G4VSensitiveDetector
         G4int       fParticleID;// pdg particle ID
         G4double    fVDTime;    // time of hit
         G4double    fMom;    // entering momentum
+        G4double    fMomX, fMomY, fMomZ;    // entering momentum
+        G4double    fPosX, fPosY, fPosZ;    // entering position
 };
 
 #endif

@@ -60,7 +60,9 @@ DetectorConstruction :: ~DetectorConstruction()
 G4VPhysicalVolume* DetectorConstruction::Construct()
 {
 	// At construction the DefineVolumes describes the geometry
-	return DefineVolumes();
+	//return DefineVolumes();
+	return DefineVolumes_eSUN();
+
 }
 
 void DetectorConstruction::DefineMaterials()
@@ -88,6 +90,10 @@ void DetectorConstruction::DefineMaterials()
 	fBC400 = new G4Material("BC400", density = 1.023*g/cm3, 2);
 	fBC400->AddElement(fC, 1000);
 	fBC400->AddElement(fH, 1103);
+
+	fBC400_noscint = new G4Material("BC400", density = 1.023*g/cm3, 2);
+	fBC400_noscint->AddElement(fC, 1000);
+	fBC400_noscint->AddElement(fH, 1103);
 
 	// LYSO
 	fLYSO = new G4Material("LYSO", density = 7.1*g/cm3, 5);
@@ -300,6 +306,65 @@ void DetectorConstruction::DefineOpticalProperties()
 	G4MaterialPropertiesTable* OG_mt = new G4MaterialPropertiesTable();
 	OG_mt->AddProperty("RINDEX", Si_Energy, OG_RIND, Sinum);
 	fOG->SetMaterialPropertiesTable(OG_mt);
+}
+
+G4VPhysicalVolume* DetectorConstruction::DefineVolumes_eSUN(){
+	fVDOn = true;
+	fCheckOverlaps = true;
+	// World Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
+	fSolidWorld	= new G4Box("World", 0.5*fWorldSizeX, 0.5*fWorldSizeY, 0.5*fWorldSizeZ);
+    fLogicWorld = new G4LogicalVolume(fSolidWorld, fVacuum_nogamma, "World");
+    fPhysWorld	= new G4PVPlacement(0, G4ThreeVector(), fLogicWorld, "World", 0, false, 0, fCheckOverlaps);
+
+	fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
+
+	// orbit
+	G4Tubs *fSolidOrbit	= new G4Tubs("Orbit", 29, 31, 1, 0, 2*M_PI);
+    G4LogicalVolume *fLogicOrbit = new G4LogicalVolume(fSolidOrbit, fVacuum_nogamma, "Orbit");
+    G4Transform3D transform_cylinder = G4Rotate3D(90*deg, G4ThreeVector(1, 0, 0))*(G4Translate3D)G4ThreeVector();
+	G4PVPlacement *fPhysOrbit	= new G4PVPlacement(transform_cylinder, fLogicOrbit, "Orbit", fLogicWorld, false, fCheckOverlaps);
+	fLogicOrbit	->SetVisAttributes(G4Colour(1, 1, 1, 0.3));
+
+
+	// VirtualDetector dimensions
+    fVDSizeX = 30*mm;
+    fVDSizeY = 20*cm;
+    fVDSizeZ = 0.75*mm;
+
+	r 	= 5*cm; 		// actual path of the particle
+	int N	= 18;
+	double theta 	= 2*M_PI / N; 
+	double theta_VD = std::atan((fVDSizeZ/2) / (r - fVDSizeX/2)) *2;
+	G4cout<<theta<<G4endl;
+	G4cout<<N<<G4endl;
+
+	if(N * theta >  2*M_PI) {N = N-1; theta = 2*M_PI / N;}
+		while(theta_VD > theta) {
+			G4cout<<"Too tight: "<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<theta_VD*180/M_PI<<G4endl;
+			N = N-1; theta = 2*M_PI / N;
+	}
+	G4cout<<"N = "<<N<<" theta [deg] = "<<theta*180/M_PI<<" theta scint [deg] = "<<theta_VD*180/M_PI<<G4endl;
+
+
+	// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
+	fSolidVD	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
+    fLogicVD 	= new G4LogicalVolume(fSolidVD, fBC400_noscint, "VD");
+
+	G4Rotate3D 	rotation =  G4Rotate3D(30*deg, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
+	G4Translate3D 	translate =  G4Translate3D(G4ThreeVector(0., 0., 3*cm));
+	G4Transform3D transform = translate*rotation;
+
+    	for(int j=0; j<N; j += 1)
+		{
+			G4Rotate3D 	rotation =  G4Rotate3D(j*theta*rad, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
+			G4Translate3D translate =  G4Translate3D(G4ThreeVector(-r, 0, 0));
+			G4Transform3D transform = rotation*translate; //G4Translate3D(r*mm,0,0)*
+			fPhysVD	= new G4PVPlacement(transform, fLogicVD, "VD", fLogicWorld, true, j, fCheckOverlaps);			
+		}
+
+    fLogicVD	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.05));
+	
+    return fPhysWorld;
 }
 
 
@@ -619,9 +684,6 @@ void DetectorConstruction::ConstructSDandField()
 
 		// Assign the SD to the logial volume
 		fLogicVD->SetSensitiveDetector(VD_SD);
-
-		VirtualDetectorSD * VD_SD_2 = new VirtualDetectorSD("VirtualDetector2");
-		fLogicVD_2->SetSensitiveDetector(VD_SD_2);
 	}
 }
 
