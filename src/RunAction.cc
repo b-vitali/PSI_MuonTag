@@ -3,7 +3,7 @@
 
 #include "RunAction.hh"
 
-RunAction::RunAction():fName("data")
+RunAction::RunAction():fName("test")
 {
 	//DefineCommands();
 	
@@ -22,7 +22,17 @@ RunAction::RunAction():fName("data")
 	man->CreateNtupleDColumn("fMomX");
 	man->CreateNtupleDColumn("fMomY");
 	man->CreateNtupleDColumn("fMomZ");
+	man->CreateNtupleDColumn("fRotY");
 	man->FinishNtuple(0);
+
+	man->CreateNtuple("MC", "MC");
+	man->CreateNtupleDColumn("MCPosX");
+	man->CreateNtupleDColumn("MCPosY");
+	man->CreateNtupleDColumn("MCPosZ");
+	man->CreateNtupleDColumn("MCMomX");
+	man->CreateNtupleDColumn("MCMomY");
+	man->CreateNtupleDColumn("MCMomZ");
+	man->FinishNtuple(1);
 
 	fMessenger = new RunActionMessenger(this);
 }

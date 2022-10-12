@@ -60,7 +60,7 @@ int main(int argc, char** argv){
     }
     else{
         // interactive mode
-        UImanager->ApplyCommand("/control/execute vis.mac");
+        UImanager->ApplyCommand("/control/execute mac/vis.mac");
         /*
         UImanager->ApplyCommand("/run/initialize");
         UImanager->ApplyCommand("/vis/open OGL 600x600-0+0");

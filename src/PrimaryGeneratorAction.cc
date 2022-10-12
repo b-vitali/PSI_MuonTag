@@ -4,6 +4,7 @@
 #include "PrimaryGeneratorAction.hh"
 
 #include "Randomize.hh"
+#include "g4root.hh"			// to access root stuff
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
 {
@@ -15,7 +16,6 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 
     G4ThreeVector pos(0.,0.,-10.*mm);
     G4ThreeVector mom(0.,0.,1.);
-
     fParticleGun->SetParticlePosition(pos);
     fParticleGun->SetParticleMomentumDirection(mom);
     fParticleGun->SetParticleMomentum(100.*MeV);
@@ -33,23 +33,34 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
     G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
     G4ParticleDefinition * particle = particleTable->FindParticle("e+");
 
+    //? Position uniform in on the 3cm circle
+    G4double phi_pos = G4UniformRand();
+    G4ThreeVector pos(sin(phi_pos*2*CLHEP::pi),0,cos(phi_pos*2*CLHEP::pi));
+    pos = 3*cm*pos;
+
     //? Random direction of the momentum
     G4double phi = G4UniformRand();
     G4double theta = G4UniformRand();
 
-    G4ThreeVector mom(0,0,1);
-    mom.setMag(1);
-    mom.setPhi(phi*2*CLHEP::pi);
-    mom.setTheta(phi*CLHEP::pi); //sqrt(-2*log(theta))*cos(2*CLHEP::pi*theta)*CLHEP::pi
-   
-    //? Position uniform in on the 3cm circle
-    G4double phi_pos = G4UniformRand();
-    G4ThreeVector pos(2.5*cm*cos(phi_pos*2*CLHEP::pi),0,2.5*cm*sin(phi_pos*2*CLHEP::pi));
-
+    double mom_phi = phi_pos*2*CLHEP::pi-0.5*CLHEP::pi;
+    double mom_theta = 0*CLHEP::pi/180;
+    G4ThreeVector mom(sin(mom_phi)*cos(mom_theta), sin(mom_theta), cos(mom_phi)*cos(mom_theta));
+    G4cout<<mom.mag()<<G4endl;
     fParticleGun->SetParticlePosition(pos);
-    fParticleGun->SetParticleMomentumDirection(mom);
-    fParticleGun->SetParticleMomentum(53.*MeV);
+
+    G4double p = G4UniformRand();
+    p= (p*4+24)*MeV;
+    mom = p*mom;
+    fParticleGun->SetParticleMomentum(mom); //28.*MeV
     fParticleGun->SetParticleDefinition(particle);
+    G4AnalysisManager *man = G4AnalysisManager::Instance();
+    man->FillNtupleDColumn(1, 0, pos.getX());
+    man->FillNtupleDColumn(1, 1, pos.getY());
+    man->FillNtupleDColumn(1, 2, pos.getZ());
+    man->FillNtupleDColumn(1, 3, mom.getX());
+    man->FillNtupleDColumn(1, 4, mom.getY());
+    man->FillNtupleDColumn(1, 5, mom.getZ());
+    man->AddNtupleRow(1);
 
     fParticleGun->GeneratePrimaryVertex(anEvent);
 }
