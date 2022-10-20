@@ -21,16 +21,16 @@ struct Hit{
 };
 
 // Name of the file
-TString filename="type1_5deg";
-// TString filename="C4_0deg";
-// TString filename="cxsun_10deg";
+TString filename="type2_5deg";
+
 // Time cut on the hit to fit
-double t_cut = 1;
+double t_cut = 2;
 
 double x_sigma=1;   //5; gaus 7 bin da 250 micron => 1 mm
 double y_sigma=10;  //10; dipende da se fai una X o no
 double z_sigma=1;   //1; spessore della fibra
-double t_sigma=0.5;   // 500 ps come risoluzione in tempo?
+double t_sigma=0.3;   // 500 ps come risoluzione in tempo?
+
 double x_sigma_proj;
 double y_sigma_proj;
 double z_sigma_proj;
@@ -84,14 +84,14 @@ void ytlinear(TGraphErrors * gryt){
     for(int i = 0; i<gryt->GetN(); i++){
         fit->SetParameters(0,0);
         cout<<x_min<<" "<<t[i]<<endl;
-        result = gryt->Fit(fit,"MES","", x_min,t[i]);
-        gryt->Draw();
-        gPad->Modified(); gPad->Update();
-        cin.get();
+        result = gryt->Fit(fit,"S","", x_min,t[i]);
+        // gryt->Draw();
+        // gPad->Modified(); gPad->Update();
+        // cin.get();
         chi2_tmp = result->MinFcnValue()/result->Ndf();
         chi->Fill(chi2_tmp);
         cout<<chi2_tmp<<endl;
-        if(result->Ndf()>5 && chi2_tmp<chi2) {cout<<"less"<<endl; chi2 = chi2_tmp; to = i;}
+        if(result->Ndf()>3 && chi2_tmp<chi2) {cout<<"less"<<endl; chi2 = chi2_tmp; to = i;}
     }
 
     cout<<x_min<<" "<<t[to]<<endl;
@@ -138,7 +138,7 @@ void asd (bool display)
     grxz->SetMarkerStyle(20);
     grxz->SetMarkerColor(kBlue);
     grxz->SetName("XZ circle");
-    grxz->SetTitle(filename+t_cut+"ns: XZ circle; z[mm]; x [mm]");
+    grxz->SetTitle("XZ circle");
 
 
     TCanvas *c_yt=new TCanvas("yt");
@@ -148,17 +148,12 @@ void asd (bool display)
     gryt->SetMarkerStyle(20);
     gryt->SetMarkerColor(kBlue);
     gryt->SetName("YT Line");
-    gryt->SetTitle(filename+t_cut+"ns: YT Line; t [ns]; y [mm]");
+    gryt->SetTitle("YT Line");
 
-    TH1F *h_d = new TH1F("h_d",filename+t_cut+"ns: h_d",100,0,30); 
-    h_d->GetXaxis()->SetTitle("Circles distance [mm]");  
-    TH1F *h_Dp = new TH1F("h_Dp",filename+t_cut+"ns: h_Dp",60,-15,15);   
-    h_Dp->GetXaxis()->SetTitle("#Delta p [MeV]");  
-    TH2F *h_yt = new TH2F("h_yt",filename+t_cut+"ns: h_yt",100,0,10, 300,-150,150);   
-    h_yt->GetYaxis()->SetTitle("y [mm]");  
-    h_yt->GetXaxis()->SetTitle("t [ns]");  
+    TH1F *h_d = new TH1F("h_d","h_d",100,0,30);   
+    TH1F *h_Dp = new TH1F("h_Dp","h_Dp",40,-10,10);   
+    TH2F *h_yt = new TH2F("h_yt","h_yt",100,0,10, 300,-150,150);   
     h_yt->SetOption("colz");
-    gStyle->SetOptStat(111111);
 
     auto chi2Function = [&](const double *par) {
         //minimisation function computing the sum of squares of residuals
@@ -183,6 +178,7 @@ void asd (bool display)
     // 3 is the number of fit parameters (size of array par)
     ROOT::Math::Functor fcn(chi2Function,3);
     ROOT::Fit::Fitter  fitter;
+
     Hit tmp_hit;
     for(int i = 0; i< T->GetEntries(); i++){
         T->GetEntry(i);
@@ -223,16 +219,14 @@ void asd (bool display)
         }
         else if(hit.Event!=prev){ 
             last:
-            prev=hit.Event;           
-            cout<<grxz->GetN()<<endl;
-
-            if(grxz->GetN()>0){
             // cout<<"post "<<hit.Event<<endl;
+            prev=hit.Event;           
             double pStart[3] = {0,0,1};
             fitter.SetFCN(fcn, pStart);
             fitter.Config().ParSettings(0).SetName("x0");
             fitter.Config().ParSettings(1).SetName("y0");
             fitter.Config().ParSettings(2).SetName("R");
+
             // do the fit
             bool ok = fitter.FitFCN();
             if (!ok) {
@@ -245,13 +239,13 @@ void asd (bool display)
             if(display) {
                 c_yt->cd();
                 gryt->Draw("AP");
-                //ytlinear(gryt);
+                ytlinear(gryt);
                 gryt->GetYaxis()->SetRangeUser( -150, 150);
 
                 TLine *line_tcut = new TLine(t_cut,-150,t_cut,150);
                 line_tcut->Draw();     
                 c_yt->Modified(); c_yt->Update();
-               
+
                 c_xz->cd();
                 grxz->Draw("AP");            
                 grxz->GetXaxis()->SetLimits( -100, 100);
@@ -308,9 +302,7 @@ void asd (bool display)
 
                 c_xz->Modified(); 
                 c_xz->Update();
-                
-                c_xz->Print("XZ.png");
-                c_yt->Print("YT.png");
+
                 j=i;
                 cin.get();
             }
@@ -319,14 +311,13 @@ void asd (bool display)
             cout<<"Distance "<<d<<endl;
             h_d->Fill(abs(d));
 
-
-            double p = sqrt(Hits.at(j).px*Hits.at(j).px+Hits.at(j).py*Hits.at(j).py+Hits.at(j).pz*Hits.at(j).pz);
-            h_Dp->Fill(0.3*3*result.Parameter(2)-p);
-            }
-
             // Clear the TGraphErrors
             grxz->Set(0);
             gryt->Set(0);
+
+            double p = sqrt(Hits.at(j).px*Hits.at(j).px+Hits.at(j).py*Hits.at(j).py+Hits.at(j).pz*Hits.at(j).pz);
+            h_Dp->Fill(0.3*3*result.Parameter(2)-p);
+
         //! is this ok?
             if( i != T->GetEntries() )i = i-1;
             //fill first of new one
@@ -347,29 +338,25 @@ void asd (bool display)
             h_d->Draw();
             gPad->Modified(); 
             gPad->Update();
-            gPad->Print("data/"+filename+t_cut+"-h_d.png");
 
             new TCanvas;
             h_Dp->Draw();
             gPad->Modified(); 
             gPad->Update();
-            gPad->Print("data/"+filename+t_cut+"-h_Dp.png");
 
             new TCanvas;
             h_yt->Draw();
             gPad->Modified(); 
             gPad->Update();
-            gPad->Print("data/"+filename+t_cut+"-h_yt.png");
 
             new TCanvas;
             h_yt->ProfileX()->Draw();
             gPad->Modified(); 
             gPad->Update();
-            gPad->Print("data/"+filename+t_cut+"-h_yt_px.png");
 
             cin.get();
 
-            TFile *out_file = TFile::Open("data/"+filename+t_cut+".root","recreate");
+            TFile *out_file = TFile::Open("data/"+filename+".root","recreate");
             out_file->Add(h_d);
             out_file->Add(h_Dp);
             out_file->Add(h_yt);
@@ -380,32 +367,48 @@ void asd (bool display)
 }
 
 
-double f_dy;
+double f_dx, f_dy;
 double dx = 1, dy = 10;
+bool both=false;
+bool squared=false;
+Double_t Xerrors(double phi) { 
+        if(!both){
+            double Dx=sqrt(pow(dx*cos(phi),2) + pow(dy*sin(phi),2));
+            double Dy=sqrt(pow(dx*sin(phi),2) + pow(dy*cos(phi),2));
+            f_dx = sqrt(Dx*Dx + dx*dx);
+            if(!squared) f_dx = min(Dx, dx);
+        }
+        else{
+            double Dx=sqrt(pow(dx*cos(phi),2) + pow(dy*sin(phi),2));
+            double Dy=sqrt(pow(dx*sin(phi),2) + pow(dy*cos(phi),2));
+            f_dx = sqrt(Dx*Dx + Dx*Dx); 
+            if(!squared) f_dx = Dx;
+        }       
+        return f_dx; 
+    }
 Double_t Yerrors(double phi) { 
-        double Dy= (dx * tan((90-phi)*ROOT::Math::Pi()/180));
-        f_dy = max( min(Dy,dy), dx);
+        if(!both){
+            double Dx=sqrt(pow(dx*cos(phi),2) + pow(dy*sin(phi),2));
+            double Dy=sqrt(pow(dx*sin(phi),2) + pow(dy*cos(phi),2));
+            f_dy = sqrt(Dy*Dy + dy*dy);
+            if(!squared) f_dy = min(Dy, dy);
+        }
+        else{
+            double Dx=sqrt(pow(dx*cos(phi),2) + pow(dy*sin(phi),2));
+            double Dy=sqrt(pow(dx*sin(phi),2) + pow(dy*cos(phi),2));
+            f_dy = sqrt(Dy*Dy + Dy*Dy); 
+            if(!squared) f_dy = Dy;
+        }   
         return f_dy;  
     }
 
-double f_o;
-double x = 30, y = 200;
-Double_t overlap(double phi) { 
-        double px= (x * tan((90-phi)*ROOT::Math::Pi()/180));
-        f_o = max( min(px,y), x);
-        return f_o;  
-    }
-
-void Errors(){
-    TF1 *f_yerrors = new TF1("f_yerrors","Yerrors(x)",0,90);
+void Errors(bool a, bool b){
+    both = a;
+    squared = b;
+    TF1 *f_xerrors = new TF1("f_xerrors","Xerrors(x)",0,3.14);
+    TF1 *f_yerrors = new TF1("f_yerrors","Yerrors(x)",0,3.14);
     new TCanvas;
-    f_yerrors->SetTitle("Longitudinal resolution vs tilt angle");
-    f_yerrors->GetXaxis()->SetTitle("#phi [deg]");
-    f_yerrors->GetYaxis()->SetTitle("#sigma [deg]");
+    f_xerrors->Draw();
+    new TCanvas;
     f_yerrors->Draw();
-  
-    TF1 *f_overlap = new TF1("overlap","overlap(x)",0,90);
-    new TCanvas; 
-    f_overlap->SetTitle("Longitudinal resolution vs tilt angle");
-    f_overlap->Draw();
 }

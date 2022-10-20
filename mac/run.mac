@@ -2,6 +2,6 @@
 /run/verbose 1
 /random/setSeeds 299792458 662607015
 
-/Analysis/SetFileName test
+/Analysis/SetFileName C4_0deg
 #/gun/momentumAmp 28 MeV
 /run/beamOn 1000

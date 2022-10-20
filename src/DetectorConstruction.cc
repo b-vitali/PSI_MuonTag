@@ -60,7 +60,7 @@ DetectorConstruction :: ~DetectorConstruction()
 G4VPhysicalVolume* DetectorConstruction::Construct()
 {
 	// At construction the DefineVolumes describes the geometry
-	//return DefineVolumes();
+	// return DefineVolumes();
 	return DefineVolumes_eCXSUN();
 
 }
@@ -361,26 +361,26 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_eCXSUN(){
 	G4Translate3D 	translate =  G4Translate3D(G4ThreeVector(0., 0., r));
 	G4Transform3D transform = translate*rotation;
 
-    	for(int j=0; j<N; j += 1)
-		{
-			G4Rotate3D 	rotation =  G4Rotate3D(j*theta*rad, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
-			G4Rotate3D 	rot_tilt =  G4Rotate3D(-tilt*deg, G4ThreeVector(0, 0, 1)); //i*theta*deg std::cos(theta*i)
+    	// for(int j=0; j<N; j += 1)
+		// {
+			// G4Rotate3D 	rotation =  G4Rotate3D(j*theta*rad, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
+			// G4Rotate3D 	rot_tilt =  G4Rotate3D(-tilt*deg, G4ThreeVector(0, 0, 1)); //i*theta*deg std::cos(theta*i)
 
-			G4Translate3D translate =  G4Translate3D(G4ThreeVector(-r-0.5*fVDSizeX, 0, 0));
-			G4Transform3D transform = rotation*translate*rot_tilt; //G4Translate3D(r*mm,0,0)*
-			fPhysVD	= new G4PVPlacement(transform, fLogicVD, "VD", fLogicWorld, true, j, fCheckOverlaps);			
+			// G4Translate3D translate =  G4Translate3D(G4ThreeVector(-r-0.5*fVDSizeX, 0, 0));
+			// G4Transform3D transform = rotation*translate*rot_tilt; //G4Translate3D(r*mm,0,0)*
+			// fPhysVD	= new G4PVPlacement(transform, fLogicVD, "VD", fLogicWorld, true, j, fCheckOverlaps);			
 			
-			G4Rotate3D 	Drotation =  G4Rotate3D(Dtheta*rad, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
-			rot_tilt =  G4Rotate3D(tilt*deg, G4ThreeVector(0, 0, 1));
-			transform = Drotation*rotation*translate*rot_tilt;
-			fPhysVD	= new G4PVPlacement(transform, fLogicVD, "VD", fLogicWorld, true, 100+j, fCheckOverlaps);			
-			G4cout<<j*theta*rad<<G4endl;
-		}
+			// G4Rotate3D 	Drotation =  G4Rotate3D(Dtheta*rad, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
+			// rot_tilt =  G4Rotate3D(tilt*deg, G4ThreeVector(0, 0, 1));
+			// transform = Drotation*rotation*translate*rot_tilt;
+			// fPhysVD	= new G4PVPlacement(transform, fLogicVD, "VD", fLogicWorld, true, 100+j, fCheckOverlaps);			
+			// G4cout<<j*theta*rad<<G4endl;
+		// }
 
-	int layers = 3;
+	int layers = 5;
 	double theta0 =0;
 	for(int k=0; k<layers; k++){
-		r_in 	= 3*cm + 0.5*k*cm; 		// actual path of the particle
+		r_in 	= 2*cm + 1.5*k*cm; 		// actual path of the particle
 		N_in	= 15;
 		theta_in 	= 2*M_PI / N_in; 
 		theta_scint_in = std::atan((fVDSizeX/2) / (r_in - fVDSizeZ/2)) *2;
@@ -465,7 +465,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_eXSUN(){
 	G4Translate3D 	translate =  G4Translate3D(G4ThreeVector(0., 0., r));
 	G4Transform3D transform = translate*rotation;
 
-    	for(int j=0; j<N; j += 1)
+    	for(int j=0; j<N*0.5; j += 1)
 		{
 			G4Rotate3D 	rotation =  G4Rotate3D(j*theta*rad, G4ThreeVector(0, 1, 0)); //i*theta*deg std::cos(theta*i)
 			G4Rotate3D 	rot_tilt =  G4Rotate3D(-tilt*deg, G4ThreeVector(0, 0, 1)); //i*theta*deg std::cos(theta*i)
