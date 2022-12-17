@@ -19,6 +19,9 @@ class MyPhysicsList : public G4VModularPhysicsList
 	public:
 		MyPhysicsList();
 		~MyPhysicsList();
+		G4VModularPhysicsList * GetPhysicsList(){return physicsList;};
+	private:	
+		G4VModularPhysicsList* physicsList;
 };
 
 #endif

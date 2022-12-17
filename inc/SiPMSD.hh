@@ -1,10 +1,10 @@
-/// \file  ScintSD.hh
-/// \brief Definition of the ScintSD class
+/// \file  SiPMSD.hh
+/// \brief Definition of the SiPMSD class
 
-#ifndef ScintSD_h
-#define ScintSD_h 1
+#ifndef SiPMSD_h
+#define SiPMSD_h 1
 
-#include "ScintHit.hh"
+#include "SiPMHit.hh"
 
 #include "G4ThreeVector.hh"
 #include "G4VSensitiveDetector.hh"
@@ -28,11 +28,11 @@ class G4Step;
 class G4HCofThisEvent;
 class G4VLogicalVolume;
 
-class ScintSD : public G4VSensitiveDetector{
+class SiPMSD : public G4VSensitiveDetector{
 	public:
-		ScintSD(G4String name);
-		ScintSD(G4String name, G4int ntuple);
-		virtual ~ScintSD();
+		SiPMSD(G4String name);
+		SiPMSD(G4String name, G4int ntuple);
+		virtual ~SiPMSD();
 
 		virtual void Initialize(G4HCofThisEvent* hitsCE);
 		virtual G4bool ProcessHits(G4Step* aStep, G4TouchableHistory*ROhist);
@@ -40,7 +40,7 @@ class ScintSD : public G4VSensitiveDetector{
 		virtual void CreateEntry(G4Step *aStep);
 
 		virtual void FillHit();
-		virtual void FillNtupla(G4AnalysisManager *man, ScintHit* scintHit, G4int ntupla);
+		virtual void FillNtupla(G4AnalysisManager *man, SiPMHit* SiPMHit, G4int ntupla);
 
 		virtual void EndOfEvent(G4HCofThisEvent* hitsCE);
 		virtual void clear();
@@ -48,9 +48,9 @@ class ScintSD : public G4VSensitiveDetector{
 		virtual void PrintAll();
 		
 	private:
-		ScintHitsCollection* fScintCollection;
+		SiPMHitsCollection* fSiPMCollection;
 
-		G4String ScintName;
+		G4String SiPMName;
 
 		G4int Trk=0;
 		G4int TrkParent=0;
@@ -61,23 +61,19 @@ class ScintSD : public G4VSensitiveDetector{
 		G4String debug	= "";
 
 		//G4int fBounce; 
-		std::vector<G4int> fEvent, fScintNo, fParticleID, fNgamma, fNgammaSec, fNCer;
+		std::vector<G4int> fEvent, fSiPMNo, fParticleID, fNgamma, fNgammaSec;
  		std::vector<G4int> fRight, fLeft, fDown, fUp, fBack, fFront;
-		std::vector<G4double> fEin, fEdep, fEout, fDelta, fThetaIn, fTrackLength, fThetaOut, fDecayTime;
-
-		std::vector<G4int> fAbsorption, fReflection;
+		std::vector<G4double> fEin, fThetaIn;
 
 		std::vector<G4double> fPosInX, fPosInY, fPosInZ; 
-		std::vector<G4double> fPosOutX, fPosOutY, fPosOutZ; 
+		std::vector<G4double> fPosSiPMInX, fPosSiPMInY, fPosSiPMInZ; 
 		std::vector<G4double> fMomInX, fMomInY, fMomInZ; 
-		std::vector<G4double> fMomOutX, fMomOutY, fMomOutZ; 
-		std::vector<G4double> fTimeIn, fTimeOut;
+		std::vector<G4double> fTimeIn;
 		
 		G4ThreeVector fDirIn_trans, fDirOut_trans;
 		G4ThreeVector fDirIn, fDirOut;
 
-		G4int PhotonTime_ID, PhotonPositionFront_ID, PhotonPositionBack_ID, PhotonPositionLeft_ID;
-		G4int PhotonPositionRight_ID, PhotonPositionUp_ID, PhotonPositionDown_ID;
+		G4int PhotonTime_ID, PhotonPosition_ID;
 
 		G4int hitsCID;
 };

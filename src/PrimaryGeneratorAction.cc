@@ -3,7 +3,7 @@
 
 #include "PrimaryGeneratorAction.hh"
 
-G4bool flat_angle = false;
+int wich = 2;
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
 {
@@ -16,12 +16,9 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
     G4ThreeVector pos(0.,0.,-15*cm);
     G4ThreeVector mom(0.,0.,1.);
 
-    if(flat_angle) pos = G4ThreeVector(0.,0.,5.*cm);
-
-
     fParticleGun->SetParticlePosition(pos);
     fParticleGun->SetParticleMomentumDirection(mom);
-    fParticleGun->SetParticleMomentum(100.*MeV);
+    fParticleGun->SetParticleMomentum(28.*MeV);
     fParticleGun->SetParticleDefinition(particle);
 
 }
@@ -33,14 +30,53 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
 {
-    if(flat_angle){
-        G4double cosTheta = - ( 1*G4UniformRand() - 1. ), phi = twopi*G4UniformRand();
-        G4double sinTheta = std::sqrt(1. - cosTheta*cosTheta);
-        G4double    ux = sinTheta*std::cos(phi),
-                    uy = sinTheta*std::sin(phi),
-                    uz = cosTheta;
+    G4ThreeVector pos(0.,0.,-15*cm);
+    G4ThreeVector mom(0.,0.,1.);
+    if(wich == 0){
+        bool ok=false;
+        while(!ok){
+            G4double cosTheta = - ( 1*G4UniformRand() - 1. ), phi = twopi*G4UniformRand();
+            G4double sinTheta = std::sqrt(1. - cosTheta*cosTheta);
+            G4double    ux = sinTheta*std::cos(phi),
+                        uy = sinTheta*std::sin(phi),
+                        uz = cosTheta;
+            if(true) {
+                ok = true;
+                pos = G4ThreeVector(0.,0.,-10.4*cm);
+                pos = G4ThreeVector(0.,0.,0*cm);
+                mom = G4ThreeVector(ux,uy,uz);
+            }
+        }
+        fParticleGun->SetParticlePosition(pos);
+        fParticleGun->SetParticleMomentumDirection(mom);
+    }
 
-    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(ux,uy,uz));
+    else if(wich == 1){
+        bool ok=false;
+        while(!ok){
+            G4double x = G4RandGauss::shoot(0,3);
+            G4double y = G4RandGauss::shoot(0,3);
+
+            G4double cosTheta = G4RandGauss::shoot(0,0.2), phi = twopi*G4UniformRand();
+            G4double sinTheta = std::sqrt(1. - cosTheta*cosTheta);
+            G4double    ux = sinTheta*std::cos(phi),
+                        uy = sinTheta*std::sin(phi),
+                        uz = cosTheta;
+            if((x*x+y*y< 10*10)){
+                ok = true;
+                pos = G4ThreeVector(x,y,-15*cm);
+                mom = G4ThreeVector(ux,uy,uz);
+            }   
+        }
+        fParticleGun->SetParticlePosition(pos);
+        fParticleGun->SetParticleMomentumDirection(mom);
+    }
+
+    else if(wich == 2){
+        pos = G4ThreeVector(0, 0, 0*cm);
+        mom = G4ThreeVector(0, 1, 0);
+        fParticleGun->SetParticlePosition(pos);
+        fParticleGun->SetParticleMomentumDirection(mom);
     }
 
     fParticleGun->GeneratePrimaryVertex(anEvent);

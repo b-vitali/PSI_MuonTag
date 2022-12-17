@@ -25,6 +25,7 @@
 
 #include "VirtualDetectorSD.hh"
 #include "ScintSD.hh"
+#include "SiPMSD.hh"
 
 #include "DetectorMessenger.hh"
 
@@ -64,6 +65,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		void DefineOpticalProperties();	
 
 		G4VPhysicalVolume* DefineVolumes();
+		G4VPhysicalVolume* OneBar();
 
 		DetectorMessenger* fDetectorMessenger;
 
@@ -90,18 +92,10 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     	G4double fScintSizeY_telescope2;
     	G4double fScintSizeZ_telescope2;
 
-		// Reads dimensions
-    	G4double fReadSizeX_gate;
-    	G4double fReadSizeY_gate;
-    	G4double fReadSizeZ_gate;
-    	
-		G4double fReadSizeX_telescope;
-    	G4double fReadSizeY_telescope;
-    	G4double fReadSizeZ_telescope;
-    	
-		G4double fReadSizeX_telescope2;
-    	G4double fReadSizeY_telescope2;
-    	G4double fReadSizeZ_telescope2;
+		// Read dimensions
+    	G4double fReadSizeX;
+    	G4double fReadSizeY;
+    	G4double fReadSizeZ;
 
 		// Elements dimensions
     	G4double fElementSizeX_gate;
@@ -153,6 +147,25 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4LogicalVolume* fLogicRead_telescope2;
 		G4PVPlacement* fPhysRead_telescope2;
 		
+		// SiPM
+		G4Box* fSolidSiPM_gate;
+		G4LogicalVolume* fLogicSiPM_gate;
+		G4PVPlacement* fPhysSiPM_gate;		
+
+		G4Box* fSolidSiPM_telescope;
+		G4LogicalVolume* fLogicSiPM_telescope;
+		G4PVPlacement* fPhysSiPM_telescope;
+
+
+		G4Box* fSolidSiPM_telescope2;
+		G4LogicalVolume* fLogicSiPM_telescope2;
+		G4PVPlacement* fPhysSiPM_telescope2;
+
+		// Grease
+		G4Box* fSolidGrease;
+		G4LogicalVolume* fLogicGrease;
+		G4PVPlacement* fPhysGrease;
+
 		// Elements
 		G4Box* fSolidElement_gate;
 		G4LogicalVolume* fLogicElement_gate;
@@ -182,14 +195,19 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
 		//? Materials & Elements
 		G4Material* fScintMaterial;
+		G4Material* fSiPMMaterial;
 
 		//-----------------------------------
 		G4Material* fAir;
 		G4Material* fVacuum;
+		G4Material* fVacuum_nogamma;
 		G4Material* fBC400;
+		G4Material* fBC400_noscint;
 		G4Material* fLYSO;
 		G4Material* fOG; // optical grease BC 631 index saint gobain
-
+		G4Material* fSi;
+		G4Material* fSiResin;
+		
 		G4Element* fH;
 		G4Element* fC;
 		G4Element* fN;
