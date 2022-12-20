@@ -35,6 +35,8 @@
 #include "G4Cache.hh"
 #include "G4SDManager.hh"
 
+#include "G4SubtractionSolid.hh"
+
 
 class G4Box;
 class G4Material;
@@ -69,7 +71,9 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4VPhysicalVolume* DefineVolumes_eSUN();
 		G4VPhysicalVolume* DefineVolumes_eXSUN();
 		G4VPhysicalVolume* DefineVolumes_eCXSUN();
-
+		G4VPhysicalVolume* DefineVolumes_SciFi();
+		G4VPhysicalVolume* DefineVolumes_MuEDM();
+		
 		DetectorMessenger* fDetectorMessenger;
 
     static G4ThreadLocal G4GlobalMagFieldMessenger*  fMagFieldMessenger;
@@ -190,6 +194,12 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4Material* fSi;
 		G4Material* fSiResin;
 
+	G4Material* fBCF10;
+	G4Material* fBCF12;
+	G4Material* fBCF20;
+	G4Material* fFClad;
+	G4Material* fSClad;
+
 		G4Element* fH;
 		G4Element* fC;
 		G4Element* fN;
@@ -203,6 +213,12 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4MaterialPropertiesTable* fBC400_mt;
 		G4MaterialPropertiesTable* fLYSO_mt;
   		G4bool fPhotonWorldPropagation;
+
+	G4MaterialPropertiesTable* fBCF10_mt;
+	G4MaterialPropertiesTable* fBCF12_mt;
+	G4MaterialPropertiesTable* fBCF20_mt;
+	
+	G4LogicalVolume* fLogicFiber;
 
 };
 

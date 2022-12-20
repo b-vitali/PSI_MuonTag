@@ -12,13 +12,13 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 
     // Default in the construction so that it can be overwritten later
     G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
-    G4ParticleDefinition * particle = particleTable->FindParticle("mu+");
+    G4ParticleDefinition * particle = particleTable->FindParticle("e+");
 
-    G4ThreeVector pos(0.,0.,-10.*mm);
+    G4ThreeVector pos(-0.3*mm,0.,-10.*mm);
     G4ThreeVector mom(0.,0.,1.);
     fParticleGun->SetParticlePosition(pos);
     fParticleGun->SetParticleMomentumDirection(mom);
-    fParticleGun->SetParticleMomentum(100.*MeV);
+    fParticleGun->SetParticleMomentum(28.*MeV);
     fParticleGun->SetParticleDefinition(particle);
 
 }
@@ -30,6 +30,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
 {
+    /*
     G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
     G4ParticleDefinition * particle = particleTable->FindParticle("e+");
 
@@ -53,6 +54,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
     mom = p*mom;
     fParticleGun->SetParticleMomentum(mom); //28.*MeV
     fParticleGun->SetParticleDefinition(particle);
+
+    
     G4AnalysisManager *man = G4AnalysisManager::Instance();
     man->FillNtupleDColumn(1, 0, pos.getX());
     man->FillNtupleDColumn(1, 1, pos.getY());
@@ -61,6 +64,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
     man->FillNtupleDColumn(1, 4, mom.getY());
     man->FillNtupleDColumn(1, 5, mom.getZ());
     man->AddNtupleRow(1);
-
+*/
     fParticleGun->GeneratePrimaryVertex(anEvent);
 }

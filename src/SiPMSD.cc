@@ -129,7 +129,7 @@ void SiPMSD::CreateEntry(G4Step *aStep){
 	fParticleID.push_back(track->GetParticleDefinition()->GetPDGEncoding());
 
 	//! GetCopyNumber 0 or 1 if there is an "element volume" with "read" and "SiPM in"
-	fSiPMNo.push_back(preStep->GetTouchable()->GetCopyNumber(2)*10+preStep->GetTouchable()->GetCopyNumber(1)+1);	
+	fSiPMNo.push_back(preStep->GetTouchable()->GetCopyNumber(2)*10+preStep->GetTouchable()->GetCopyNumber(1)+1);
 	fEin.push_back(preStep->GetKineticEnergy());
 	fMomInX.push_back(preStep->GetMomentum().getX());
 	fMomInY.push_back(preStep->GetMomentum().getY());
@@ -280,7 +280,7 @@ void SiPMSD::FillHit(){
 void SiPMSD::EndOfEvent(G4HCofThisEvent* hitsCE){
 	G4cout<<G4endl<<"End of event n: "<<G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()<<G4endl;
 	if(fEvent.size()>0){
-		G4cout<<"Number of sub-hits "<<fEvent.size()<<G4endl;
+		G4cout<<"Number of sub-hits in SiPM "<<fEvent.size()<<G4endl;
 		FillHit();
 	}
 	
@@ -295,10 +295,11 @@ void SiPMSD::DrawAll(){}
 void SiPMSD::PrintAll(){}
 
 void SiPMSD::FillNtupla(G4AnalysisManager *man, SiPMHit* SiPMHit, G4int ntupla){
-	//G4cout<<"FillSiPMNtupla "<<ntupla<<G4endl;
 	
-	G4cout<<"Fill Ntupla: "<<ntupla<<G4endl;
 
+	G4cout<<"Fill SiPM Ntupla: "<<ntupla<<G4endl;	
+	G4cout<<"number of subhits "<<SiPMHit->GetEvent().size()<<G4endl;
+	
 	fEvent 	=  SiPMHit->GetEvent();
 	fSiPMNo 	=  SiPMHit->GetSiPMNo();
 	fParticleID 	=  SiPMHit->GetParticleID();
@@ -323,5 +324,6 @@ void SiPMSD::FillNtupla(G4AnalysisManager *man, SiPMHit* SiPMHit, G4int ntupla){
 	fMomInZ 	=  SiPMHit->GetMomInZ();
 	fTimeIn 	=  SiPMHit->GetTimeIn();
 
+	G4cout<<"example "<<fPosSiPMInY[0]<<G4endl;
 	man->AddNtupleRow(ntupla);
 }
