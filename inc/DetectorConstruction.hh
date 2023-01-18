@@ -68,9 +68,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		void DefineOpticalProperties();	
 
 		G4VPhysicalVolume* DefineVolumes();
-		G4VPhysicalVolume* DefineVolumes_eSUN();
-		G4VPhysicalVolume* DefineVolumes_eXSUN();
-		G4VPhysicalVolume* DefineVolumes_eCXSUN();
 		G4VPhysicalVolume* DefineVolumes_SciFi();
 		G4VPhysicalVolume* DefineVolumes_MuEDM();
 		
@@ -219,6 +216,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 	G4MaterialPropertiesTable* fBCF20_mt;
 	
 	G4LogicalVolume* fLogicFiber;
+	G4LogicalVolume* fLogicFiberIn;
 
 };
 
