@@ -97,6 +97,11 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     	G4double fReadSizeY;
     	G4double fReadSizeZ;
 
+		// Read dimensions
+    	G4double fSiPMSizeX;
+    	G4double fSiPMSizeY;
+    	G4double fSiPMSizeZ;
+
 		// Element dimensions out
     	G4double fElementSizeX_out;
     	G4double fElementSizeY_out;

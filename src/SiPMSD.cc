@@ -129,7 +129,23 @@ void SiPMSD::CreateEntry(G4Step *aStep){
 	fParticleID.push_back(track->GetParticleDefinition()->GetPDGEncoding());
 
 	//! GetCopyNumber 0 or 1 if there is an "element volume" with "read" and "SiPM in"
-	fSiPMNo.push_back(preStep->GetTouchable()->GetCopyNumber(2)*10+preStep->GetTouchable()->GetCopyNumber(1)+1);
+	int q = 0;
+	int bUD=1;
+    int bSiPM=8;
+    // G4cout<<"Start q = "<<q<<G4endl;
+	// q = q + preStep->GetTouchable()->GetCopyNumber(2);
+    // G4cout<<"q = "<<q<<G4endl;
+	// q = q<<bUD;
+    // G4cout<<"q = "<<q<<G4endl;
+	// q = q + preStep->GetTouchable()->GetCopyNumber(1);
+    // G4cout<<"q = "<<q<<G4endl;
+	// q = q<<bSiPM;
+    // G4cout<<"q = "<<q<<G4endl;
+	// q = q + preStep->GetTouchable()->GetCopyNumber(0);
+    // G4cout<<"q = "<<q<<G4endl;
+
+	q = preStep->GetTouchable()->GetCopyNumber(2)*1e3+preStep->GetTouchable()->GetCopyNumber(1)*200+preStep->GetTouchable()->GetCopyNumber(0);
+	fSiPMNo.push_back(q);
 	fEin.push_back(preStep->GetKineticEnergy());
 	fMomInX.push_back(preStep->GetMomentum().getX());
 	fMomInY.push_back(preStep->GetMomentum().getY());
