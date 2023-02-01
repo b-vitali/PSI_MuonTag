@@ -61,8 +61,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 {
 	// At construction the DefineVolumes describes the geometry
 	// return DefineVolumes();
-	return DefineVolumes_SciFi();
-	// return DefineVolumes_MuEDM();
+	// return DefineVolumes_SciFi();
+	return DefineVolumes_MuEDM();
 
 }
 
@@ -831,6 +831,16 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_MuEDM()
 	fReadSizeY = 0.4*mm;
 	fReadSizeZ = 3.2*cm;
 	
+	G4double fSiPMFrameSizeX = 1.3*mm;
+	G4double fSiPMFrameSizeZ = 0.25*mm;
+
+	fSiPMSizeX = 1.3*mm;
+	fSiPMSizeY = fReadSizeY;
+	fSiPMSizeZ = 0.23*mm;
+
+	G4double window_positionX = 0;//-0.5*fSiPMFrameSizeX+0.5*fSiPMSizeX+0.1*mm;
+	G4double window_positionZ = 0;//-0.5*fSiPMFrameSizeZ+0.5*fSiPMSizeZ+0.1*mm;
+
 	// out
 	fSolidRead_out	= new G4Box("Read_out", 0.5*fReadSizeX,0.5*fReadSizeY, 0.5*fReadSizeZ);
     fLogicRead_out = new G4LogicalVolume(fSolidRead_out, fVacuum, "Read_out");
@@ -848,14 +858,14 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_MuEDM()
 
 	//? VirtualDetector/SiPM Solid and Phys. 
 	// out
-	fSolidSiPM_out	= new G4Box("SiPM_out", 0.5*fReadSizeX, 0.5*0.5*fReadSizeY, 0.5*fReadSizeZ);
-    fLogicSiPM_out 	= new G4LogicalVolume(fSolidSiPM_out, fSiPMMaterial, "SiPM_out");
+	fSolidSiPM_out	= new G4Box("SiPM_out", 0.5*fSiPMSizeX, 0.5*0.5*fSiPMSizeY, 0.5*fSiPMSizeZ);
+    fLogicSiPM_out 	= new G4LogicalVolume(fSolidSiPM_out, fSi, "SiPM_out");
     fLogicSiPM_out	->SetVisAttributes(G4Colour(0,0,1, 0.5));
 
 	// in
-	fSolidSiPM_in	= new G4Box("SiPM_in", 0.5*fReadSizeX, 0.5*0.5*fReadSizeY, 0.5*fReadSizeZ);
-    fLogicSiPM_in 	= new G4LogicalVolume(fSolidSiPM_in, fSiPMMaterial, "SiPM_in");
-    fLogicSiPM_in	->SetVisAttributes(G4Colour(0,1,0, 0.5));
+	fSolidSiPM_in	= new G4Box("SiPM_in", 0.5*fSiPMSizeX, 0.5*0.5*fSiPMSizeY, 0.5*fSiPMSizeZ);
+    fLogicSiPM_in 	= new G4LogicalVolume(fSolidSiPM_in, fSi, "SiPM_in");
+    fLogicSiPM_in	->SetVisAttributes(G4Colour(0,0,1, 0.5));
 
 	//? Put Grease and SiPM in Read
     G4ThreeVector Grease_pos = G4ThreeVector(0, -(0.5*fReadSizeY*0.5), 0); 
@@ -863,13 +873,27 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_MuEDM()
 	
 	// fPhysRead_in 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicRead, "Read", fLogicWorld, true, 0, fCheckOverlaps);
 	fPhysGrease	= new G4PVPlacement(0, Grease_pos, fLogicGrease, "Grease", fLogicRead_in, false, fCheckOverlaps);
-	fPhysSiPM_in		= new G4PVPlacement(0, SiPM_pos, fLogicSiPM_in, "SiPM_in", fLogicRead_in, false, fCheckOverlaps);
 
 	// fPhysRead_out 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicRead, "Read", fLogicWorld, true, 0, fCheckOverlaps);
 	fPhysGrease	= new G4PVPlacement(0, Grease_pos, fLogicGrease, "Grease", fLogicRead_out, false, fCheckOverlaps);
-	fPhysSiPM_out		= new G4PVPlacement(0, SiPM_pos, fLogicSiPM_out, "SiPM_out", fLogicRead_out, false, fCheckOverlaps);
 
-	G4Rotate3D 	flip_sipm =  G4Rotate3D(180*deg, G4ThreeVector(1, 0, 0));
+	// how many SiPM 
+	G4int howmanySiPM = fReadSizeZ/fSiPMFrameSizeZ;
+	G4cout<<"howmanySiPM"<<fElementSizeZ_out<<"/"<<fReadSizeZ<<"="<<howmanySiPM<<G4endl;
+    G4Transform3D SiPM_transform_out;
+	G4ThreeVector SiPM_translate_out = G4ThreeVector(0, 0, fSiPMFrameSizeZ);
+	G4ThreeVector SiPM_Window_translate_out = G4ThreeVector(window_positionX, 0, window_positionZ);
+	// G4ThreeVector SiPM_offset = G4ThreeVector(0, 0, fSiPMSizeX);
+	// G4ThreeVector offset_layer = G4ThreeVector(fFiberWidth, 0, 0);
+
+	for(int j=0; j<howmanySiPM; j += 1){
+		SiPM_transform_out = (G4Translate3D)(SiPM_pos+j*SiPM_translate_out-(howmanySiPM-1)*0.5*SiPM_translate_out + SiPM_Window_translate_out);
+		new G4PVPlacement(SiPM_transform_out, fLogicSiPM_out, "SiPM_out", fLogicRead_out, true, j, fCheckOverlaps);
+		
+		new G4PVPlacement(SiPM_transform_out, fLogicSiPM_in, "SiPM_in", fLogicRead_in, true, j, fCheckOverlaps);
+	}
+
+	G4Rotate3D 	flip_sipm =  G4Rotate3D(180*deg, G4ThreeVector(0, 0, 1));
 
 	//? Elements to contain in and out system
 	// Element out
@@ -1317,11 +1341,11 @@ void DetectorConstruction::ConstructSDandField()
 		fLogicSiPM_out->SetSensitiveDetector(SiPM_SD_out);
 	}
 
-	// if(fLogicScint_in){
-		// ScintSD* scint_SD_in = new ScintSD(SDname="Scint_in");
-  		// sdManager->AddNewDetector(scint_SD_in);
-		// fLogicScint_in->SetSensitiveDetector(scint_SD_in);
-	// }
+	if(fLogicScint_in){
+		ScintSD* scint_SD_in = new ScintSD(SDname="Scint_in");
+  		sdManager->AddNewDetector(scint_SD_in);
+		fLogicScint_in->SetSensitiveDetector(scint_SD_in);
+	}
 
 	if(fLogicSiPM_in){
 		SiPMSD * SiPM_SD_in = new SiPMSD("SiPM_in");
@@ -1329,9 +1353,9 @@ void DetectorConstruction::ConstructSDandField()
 		fLogicSiPM_in->SetSensitiveDetector(SiPM_SD_in);
 	}
 
-	// G4ThreeVector fieldValue(0.,-3*tesla,0.);
-	// fMagFieldMessenger = new G4GlobalMagFieldMessenger(fieldValue);
-	//fMagFieldMessenger->SetVerboseLevel(1);
+	G4ThreeVector fieldValue(0.,-3*tesla,0.);
+	fMagFieldMessenger = new G4GlobalMagFieldMessenger(fieldValue);
+	fMagFieldMessenger->SetVerboseLevel(1);
 	
 	// Register the field messenger for deleting
 	G4AutoDelete::Register(fMagFieldMessenger);

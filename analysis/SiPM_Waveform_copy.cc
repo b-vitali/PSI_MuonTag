@@ -15,36 +15,16 @@
 #include "TH2.h"
 #include "TString.h"
 
-#include "TNtuple.h"
 
 //? Name of the file
-TString filename="100eV";
-int NEvents=10;
+TString filename="test";
 bool print = false;
-double PDE = 0.4;
+double PDE = 1;
 double thr = -3;
 double tmax = 30;
 double tmin = -10;
 double DarkRate = 100e3;
 
-/*
-    This class is to store per each event all the gammas which arrived to SiPMs
-    It contains ev, sipmno, position (x,y,z) and time
-*/
-class Data {
-    public:           
-        Data() {}     // Empty Constructor
-        Data(int fev, int fsipm, double fx, double fy, double fz, double ft) { // Constructor
-            ev = fev;
-            sipm = fsipm;
-            x = fx;
-            y = fy;
-            z = fz;
-            t = ft;
-        }     
-        int ev, sipm;
-        double x, y,z,t;
-};
 
 //? Ask Giovanni
 double Gp[5] = {8.88913032e-01,  6.46867235e+01,  4.16687779e-01, 212.49027149107357, 1.5};
@@ -76,12 +56,12 @@ std::vector<TF1 *> AddDark(std::vector<TF1 *> v){
     r.SetSeed();
     double t;
     double prob = DarkRate*1e-6/tmax;
-    if(print) cout<<prob<<endl;
+    // cout<<prob<<endl;
 
     float whole, fractional;
     fractional = std::modf(prob, &whole);
 
-    if(print) cout<<whole<<" "<<fractional<<endl;
+    // cout<<whole<<" "<<fractional<<endl;
 
     r.Uniform(tmin,prob);
     for(int i = 0; i < whole; i++){
@@ -92,19 +72,15 @@ std::vector<TF1 *> AddDark(std::vector<TF1 *> v){
     return v;
 }
 
-
-bool compareData(Data* d1, Data* d2)
-{
-    return (d1->sipm < d2->sipm);
-}
-
-void Waves(vector<TF1* > * waves, TNtuple* T_new, std::vector<Data *> data, double thr){
-    
-    double Tx,Ty,Tz,Tt;
-    int Tev, Tsipm;
-
+vector<TF1* > Waves(std::vector<std::pair<int, double>> data, double thr){
     //? Sort the pair according to increasing SiPMNo
-    sort(data.begin(), data.end(), compareData);
+    sort(data.begin(), data.end());
+
+    /*
+        std::sort(begin(v), end(v), [](auto const &t1, auto const &t2) {
+        return get<0>(t1) < get<0>(t2); // or use a custom compare function
+        });
+    */
 
     //? Vector for the resulting functions
     vector<TF1 *> v_fsum;
@@ -120,26 +96,19 @@ void Waves(vector<TF1* > * waves, TNtuple* T_new, std::vector<Data *> data, doub
     int channel = -1;
     int index = -1;
     for(int i = 0; i < data.size(); i++){
-        if(print) cout<<data[i]->sipm<< endl;
+        if(print) cout<<std::get<0>(data[i])<< endl;
 
         //? If it is a new channel conclude the previous, clear v and increase index
-        if(channel != data[i]->sipm) {
+        if(channel != std::get<0>(data[i])) {
             if(print) cout<< "new channel" << endl;
-            channel = data[i]->sipm;
+            channel = std::get<0>(data[i]);
             if(index > -1) {
                 v = AddDark(v);
-                f_tmp = new TF1(TString::Format("f_ch%d", data[i]->sipm),SumTF1(v),tmin,tmax,0);
+                f_tmp = new TF1(TString::Format("f_ch%d", std::get<0>(data[i])),SumTF1(v),tmin,tmax,0);
                 if(f_tmp->GetMinimum() < thr){
                     v_fsum.push_back(f_tmp);
                     // new TCanvas;
                     // v_fsum[index]->Draw();
-                    Tev = data[i]->ev;
-                    Tsipm = data[i]->sipm;
-                    Tx = data[i]->x;
-                    Ty = data[i]->y;
-                    Tz = data[i]->z;
-                    Tt = data[i]->t;
-                    T_new->Fill(Tev, Tsipm, Tx, Ty, Tz, Tt);
                 }
             }
             v.clear();
@@ -150,12 +119,13 @@ void Waves(vector<TF1* > * waves, TNtuple* T_new, std::vector<Data *> data, doub
         p = r.Rndm();
         if(p < PDE){
             if(print) cout<<setprecision(3)<<p<<"<"<<PDE<<" => New photoelectron"<<endl;
-            v.push_back(new TF1("f",TString::Format("OneWave(x-%f)", data[i]->t), tmin, tmax));
+            v.push_back(new TF1("f",TString::Format("OneWave(x-%f)", std::get<1>(data[i])), tmin, tmax));
         }
         else{if(print) cout<<setprecision(3)<<p<<">"<<PDE<<" => No photoelectron"<<endl;}
+
     }
-    
-    *waves = v_fsum;
+
+    return v_fsum;
 }
 
 TBrowser *OpenBrowser() { return new TBrowser; }
@@ -165,37 +135,26 @@ int CreateWaveforms(TString Tree, TFile * _file1){
     TFile *_file0 = TFile::Open("../build/"+filename+".root");
     TTree *T = _file0->Get<TTree>(Tree);
     cout<<Tree<<endl;
-
-    //? Variables needed for the output
-    vector<TF1*> * waves = new vector<TF1*>;
+    vector<TF1*> waves ;
     vector<TH1F *> h_charges;
     double charge;
 
-    TString treename= Tree + "_hits";
-    TNtuple *T_new = new TNtuple(treename,"","ev:sipm:x:y:z:t");
-    
     //? Variables to read the necessary branches
-    std::vector<int> *Event   =0;
-    std::vector<int> *SiPMNo  =0;
-    std::vector<double> *X =0;
-    std::vector<double> *Y =0;
-    std::vector<double> *Z =0;
-    std::vector<double> *Time =0;
+    std::vector<int> *Event=0;
+    std::vector<int> *SiPMNo=0;
+    std::vector<double> *Time=0;
 
     T->SetBranchAddress("fEvent",&(Event));
     T->SetBranchAddress("fSiPMNo",&(SiPMNo));
-    T->SetBranchAddress("fPosSiPMInX",&(X));
-    T->SetBranchAddress("fPosSiPMInY",&(Y));
-    T->SetBranchAddress("fPosSiPMInZ",&(Z));
     T->SetBranchAddress("fTimeIn",&(Time));
-
-    std::vector<Data *> data; 
-    Data* data_tmp; 
 
     int ev;
 
+    //? Pairs with time and SiPMNo to generate the signals
+    std::vector<std::pair<int, double>> data;
+
     //? Loop on the entries (each contains vectors of time and sipmNo)
-    for(int i = 0; i < NEvents; i++){ //i< T->GetEntries()
+    for(int i = 0; i< T->GetEntries(); i++){
 
         cout<<"*****************************************"<<endl;
         cout<<"*************** Event N : " <<i<<"**************"<<endl;
@@ -204,22 +163,17 @@ int CreateWaveforms(TString Tree, TFile * _file1){
         T->GetEntry(i);
 
         cout<<Event[0][0]<<endl;
-        cout<<(*Event)[0]<<endl;
         cout<<SiPMNo[0][0]<<endl;
         cout<<SiPMNo[0].size()<<endl;
         cout<<"*****************************************"<<endl<<endl;
 
-        data_tmp = new Data();
-        
-        //? Put info (for the i event) in array of Data
+        //? Put SiPMNo and Time in a pair
         data.reserve(SiPMNo[0].size());
-        for(int j=0; j<SiPMNo[0].size(); j++){
-            data.push_back( new Data(Event[0][j], SiPMNo[0][j], X[0][j], Y[0][j], Z[0][j], Time[0][j]));
-        }
+        std::transform(SiPMNo[0].begin(), SiPMNo[0].end(), Time[0].begin(), std::back_inserter(data),
+               [](int a, double b) { return std::make_pair(a, b); });
 
         //? Call the Waves routine which gives you an array of TF1
-        Waves(waves, T_new, data, thr);
-        if(print) cout<<"waves.size() ="<< waves->size()<<endl;
+        waves = Waves(data, thr);
 
         //? Insert the TF1 in folders accordin to the Ev number
         ev = Event[0][i];
@@ -227,15 +181,13 @@ int CreateWaveforms(TString Tree, TFile * _file1){
         _file1->mkdir(dirname);
         _file1->cd(dirname);
         h_charges.push_back(new TH1F(TString::Format("h%d", ev),TString::Format("h%d", ev),100,-300,0));
-        for(int j = 0; j < waves->size(); j++){
-            charge = 0;// waves->at(j)->Integral(tmin,tmax);
+        for(int j = 0; j < waves.size(); j++){
+            charge = waves[j]->Integral(tmin,tmax);
             h_charges[i]->Fill(charge);
-            waves->at(j)->Write("");
+            waves[j]->Write("");
         }
         h_charges[i]->Write("");
     }
-    _file1->cd("");
-    T_new->Write("");
     return 1;
 }
 
@@ -245,7 +197,6 @@ int SiPM_Waveform(){
     cout<<"*********** Waveform analysis ***********"<<endl;
     cout<<"*****************************************"<<endl;
     cout<<"* File name\t: "<<   filename<<"\t\t\t*"<<endl;
-    cout<<"* N Events\t: "<<   NEvents<<"\t\t\t*"<<endl;
     cout<<"* Debug\t\t: "<<     print<<"\t\t\t*"<<endl;
     cout<<"* PDE\t\t: "<<       PDE<<"\t\t\t*"<<endl;
     cout<<"* Threshold\t: "<<   thr<<"\t\t\t*"<<endl;
@@ -263,8 +214,6 @@ int SiPM_Waveform(){
 	TFile *_file1 = TFile::Open(newfile,"recreate");
     if(choice) CreateWaveforms("SiPM_out", _file1);
     if(choice) CreateWaveforms("SiPM_in", _file1);
-
-    OpenBrowser();
     return 1;
 }
 

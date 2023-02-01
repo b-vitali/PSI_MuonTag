@@ -23,7 +23,7 @@ EventAction::EventAction(RunAction* runAction) :
 		// tmp_scint_out 	= new ScintSD("Scint_out",1);
 		// tmp_scint_in 	= new ScintSD("Scint_in",2);
 		tmp_sipm_out 	= new SiPMSD("SiPM_out",2);
-		// tmp_sipm_in 	= new SiPMSD("SiPM_in",3);
+		tmp_sipm_in 	= new SiPMSD("SiPM_in",3);
 	}
 
 EventAction::~EventAction(){}
@@ -42,7 +42,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	// 	fCollIDScint_out = SDMan->GetCollectionID("Scint_out/scintCollection");
 	// 	fCollIDScint_in = SDMan->GetCollectionID("Scint_in/scintCollection");
 		fCollIDSiPM_out = SDMan->GetCollectionID("SiPM_out/sipmCollection");
-		// fCollIDSiPM_in = SDMan->GetCollectionID("SiPM_in/sipmCollection");
+		fCollIDSiPM_in = SDMan->GetCollectionID("SiPM_in/sipmCollection");
 	// }
 	// else{
 	// 	G4cout<<"Something is wrong with the hit collections"<<G4endl;
@@ -92,19 +92,19 @@ void EventAction::EndOfEventAction(const G4Event* event){
 		sipmHit->Clear();
 	}
 
-	// SiPMHitsCollection* SiPMHitCollection_in = (SiPMHitsCollection*) (HCE->GetHC(fCollIDSiPM_in));
+	SiPMHitsCollection* SiPMHitCollection_in = (SiPMHitsCollection*) (HCE->GetHC(fCollIDSiPM_in));
 
-	// G4int M_in = SiPMHitCollection_in->entries();
-	// G4cout<<"entries "<<M_in<<G4endl;
-	// for(int i = 0; i < M_in; i++){
-	// 	sipmHit = (*SiPMHitCollection_in)[i];
+	G4int M_in = SiPMHitCollection_in->entries();
+	G4cout<<"entries "<<M_in<<G4endl;
+	for(int i = 0; i < M_in; i++){
+		sipmHit = (*SiPMHitCollection_in)[i];
 
-	// 	fEvID = event->GetEventID();
+		fEvID = event->GetEventID();
 
-	// 	tmp_sipm_in->FillNtupla(man, sipmHit,3);
+		tmp_sipm_in->FillNtupla(man, sipmHit,3);
 
-	// 	sipmHit->Clear();
-	// }
+		sipmHit->Clear();
+	}
 
 	if(fEvID % 100 == 0 || (fEvID & (fEvID - 1)) == 0 ) 
 	std::cout << "Event n. " << fEvID << std::endl;
