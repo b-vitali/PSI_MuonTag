@@ -18,7 +18,7 @@
 #include "TNtuple.h"
 
 //? Name of the file
-TString filename="100eV";
+TString filename="test";
 int NEvents=10;
 bool print = false;
 double PDE = 0.4;
@@ -43,7 +43,7 @@ class Data {
             t = ft;
         }     
         int ev, sipm;
-        double x, y,z,t;
+        double x,y,z,t;
 };
 
 //? Ask Giovanni
@@ -100,7 +100,7 @@ bool compareData(Data* d1, Data* d2)
 
 void Waves(vector<TF1* > * waves, TNtuple* T_new, std::vector<Data *> data, double thr){
     
-    double Tx,Ty,Tz,Tt;
+    double Tx,Ty,Tz,Tt,Tcharge,Tamplitude;
     int Tev, Tsipm;
 
     //? Sort the pair according to increasing SiPMNo
@@ -129,7 +129,8 @@ void Waves(vector<TF1* > * waves, TNtuple* T_new, std::vector<Data *> data, doub
             if(index > -1) {
                 v = AddDark(v);
                 f_tmp = new TF1(TString::Format("f_ch%d", data[i]->sipm),SumTF1(v),tmin,tmax,0);
-                if(f_tmp->GetMinimum() < thr){
+                Tamplitude = f_tmp->GetMinimum();
+                if(Tamplitude < thr){
                     v_fsum.push_back(f_tmp);
                     // new TCanvas;
                     // v_fsum[index]->Draw();
@@ -139,7 +140,8 @@ void Waves(vector<TF1* > * waves, TNtuple* T_new, std::vector<Data *> data, doub
                     Ty = data[i]->y;
                     Tz = data[i]->z;
                     Tt = data[i]->t;
-                    T_new->Fill(Tev, Tsipm, Tx, Ty, Tz, Tt);
+                    Tcharge = f_tmp->Integral(tmin,tmax);
+                    T_new->Fill(Tev, Tsipm, Tx, Ty, Tz, Tt, Tcharge, Tamplitude);
                 }
             }
             v.clear();
@@ -168,11 +170,10 @@ int CreateWaveforms(TString Tree, TFile * _file1){
 
     //? Variables needed for the output
     vector<TF1*> * waves = new vector<TF1*>;
-    vector<TH1F *> h_charges;
     double charge;
 
     TString treename= Tree + "_hits";
-    TNtuple *T_new = new TNtuple(treename,"","ev:sipm:x:y:z:t");
+    TNtuple *T_new = new TNtuple(treename,"","ev:sipm:x:y:z:t:charge:amplitude");
     
     //? Variables to read the necessary branches
     std::vector<int> *Event   =0;
@@ -195,6 +196,7 @@ int CreateWaveforms(TString Tree, TFile * _file1){
     int ev;
 
     //? Loop on the entries (each contains vectors of time and sipmNo)
+    if(NEvents > T->GetEntries()) NEvents = T->GetEntries();
     for(int i = 0; i < NEvents; i++){ //i< T->GetEntries()
 
         cout<<"*****************************************"<<endl;
@@ -226,13 +228,9 @@ int CreateWaveforms(TString Tree, TFile * _file1){
         TString dirname = TString::Format("Ev_%d_", ev)+Tree;
         _file1->mkdir(dirname);
         _file1->cd(dirname);
-        h_charges.push_back(new TH1F(TString::Format("h%d", ev),TString::Format("h%d", ev),100,-300,0));
         for(int j = 0; j < waves->size(); j++){
-            charge = 0;// waves->at(j)->Integral(tmin,tmax);
-            h_charges[i]->Fill(charge);
             waves->at(j)->Write("");
         }
-        h_charges[i]->Write("");
     }
     _file1->cd("");
     T_new->Write("");
