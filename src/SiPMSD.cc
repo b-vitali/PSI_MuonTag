@@ -295,10 +295,10 @@ void SiPMSD::DrawAll(){}
 void SiPMSD::PrintAll(){}
 
 void SiPMSD::FillNtupla(G4AnalysisManager *man, SiPMHit* SiPMHit, G4int ntupla){
-	//G4cout<<"FillSiPMNtupla "<<ntupla<<G4endl;
 	
-	G4cout<<"Fill Ntupla: "<<ntupla<<G4endl;
-
+	G4cout<<"Fill SiPM Ntupla: "<<ntupla<<G4endl;	
+	G4cout<<"number of subhits "<<SiPMHit->GetEvent().size()<<G4endl;
+	
 	fEvent 	=  SiPMHit->GetEvent();
 	fSiPMNo 	=  SiPMHit->GetSiPMNo();
 	fParticleID 	=  SiPMHit->GetParticleID();
@@ -323,5 +323,6 @@ void SiPMSD::FillNtupla(G4AnalysisManager *man, SiPMHit* SiPMHit, G4int ntupla){
 	fMomInZ 	=  SiPMHit->GetMomInZ();
 	fTimeIn 	=  SiPMHit->GetTimeIn();
 
+	G4cout<<"example "<<fPosSiPMInY[0]<<G4endl;
 	man->AddNtupleRow(ntupla);
 }

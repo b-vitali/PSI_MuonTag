@@ -22,11 +22,12 @@
 **/
 
 EventAction::EventAction(RunAction* runAction) : 
-	G4UserEventAction(), fRunAction(runAction), fCollIDScint_gate(-1), fCollIDScint_telescope(-1), fCollIDSiPM_telescope(-1)
+	G4UserEventAction(), fRunAction(runAction), fCollIDScint_gate(-1), fCollIDScint_telescope(-1), fCollIDSiPM_gate(-1), fCollIDSiPM_telescope(-1)
 	, fEvID(-1){
-		tmp_scint_telescope = new ScintSD("Scint_telescope",1);
+		// tmp_scint_telescope = new ScintSD("Scint_telescope",1);
+		//! tmp_scint_telescope = new ScintSD("Scint_telescope",1);
+		tmp_sipm_gate = new SiPMSD("SiPM_gate",1);
 		tmp_sipm_telescope = new SiPMSD("SiPM_telescope",2);
-		// tmp_scint_gate = new ScintSD("Scint_gate",3);
 	}
 
 EventAction::~EventAction(){}
@@ -36,18 +37,16 @@ void EventAction::BeginOfEventAction(const G4Event*){}
 void EventAction::EndOfEventAction(const G4Event* event){
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 
-	if(event->GetEventID()==0){
-	}
-
 	// Hits collections
 	G4HCofThisEvent*HCE = event->GetHCofThisEvent();
 	if(!HCE) return;
-
-	//###################################
-	ScintHit* scintHit;
+	
 	G4int N;
 	G4bool gate = false;
 	G4bool telescope = true;
+	//###################################
+	/*
+	ScintHit* scintHit;
 	if(gate){
 		if(fCollIDScint_gate < 0){
 			G4SDManager* SDMan = G4SDManager::GetSDMpointer();
@@ -69,7 +68,9 @@ void EventAction::EndOfEventAction(const G4Event* event){
 		}
 		}
 	}
+	*/
 	//###################################
+	/*
 	if(telescope){
 	if(fCollIDScint_telescope < 0){
 		G4SDManager* SDMan = G4SDManager::GetSDMpointer();
@@ -92,6 +93,27 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	if(fEvID % 100 == 0 || (fEvID & (fEvID - 1)) == 0 ) 
 	std::cout << "Filled first ntupla" << std::endl;
 	}
+	*/
+
+	//###################################
+	if(fCollIDSiPM_gate < 0){
+		G4SDManager* SDMan = G4SDManager::GetSDMpointer();
+		fCollIDSiPM_gate = SDMan->GetCollectionID("SiPM_gate/sipmCollection");
+	}
+	SiPMHitsCollection* SiPMHitCollection_gate = (SiPMHitsCollection*) (HCE->GetHC(fCollIDSiPM_gate));
+
+
+	SiPMHit* sipmHit;
+	N = SiPMHitCollection_gate->entries();
+	for(int i = 0; i < N; i++){
+		sipmHit = (*SiPMHitCollection_gate)[i];
+		G4cout<<"subhits : "<<sipmHit->GetEvent().size()<<G4endl;
+		fEvID = event->GetEventID();
+
+		tmp_sipm_gate->FillNtupla(man, sipmHit, 1);
+
+		sipmHit->Clear();
+	}
 
 	//###################################
 	if(fCollIDSiPM_telescope < 0){
@@ -101,7 +123,6 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	
 	SiPMHitsCollection* SiPMHitCollection_telescope = (SiPMHitsCollection*) (HCE->GetHC(fCollIDSiPM_telescope));
 
-	SiPMHit* sipmHit;
 	N = SiPMHitCollection_telescope->entries();
 	for(int i = 0; i < N; i++){
 		sipmHit = (*SiPMHitCollection_telescope)[i];

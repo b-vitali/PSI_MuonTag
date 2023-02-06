@@ -88,10 +88,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     	G4double fScintSizeY_telescope;
     	G4double fScintSizeZ_telescope;
 
-		G4double fScintSizeX_telescope2;
-    	G4double fScintSizeY_telescope2;
-    	G4double fScintSizeZ_telescope2;
-
 		// Read dimensions
     	G4double fReadSizeX;
     	G4double fReadSizeY;
@@ -105,10 +101,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4double fElementSizeX_telescope;
     	G4double fElementSizeY_telescope;
     	G4double fElementSizeZ_telescope;
-    	
-		G4double fElementSizeX_telescope2;
-    	G4double fElementSizeY_telescope2;
-    	G4double fElementSizeZ_telescope2;
 
 		// VirtualDetector dimensions
     	G4double fVDSizeX;
@@ -130,10 +122,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4LogicalVolume* fLogicScint_telescope;
 		G4PVPlacement* fPhysScint_telescope;
 
-		G4Box* fSolidScint_telescope2;
-		G4LogicalVolume* fLogicScint_telescope2;
-		G4PVPlacement* fPhysScint_telescope2;
-
 		// Readouts
 		G4Box* fSolidRead_gate;
 		G4LogicalVolume* fLogicRead_gate;
@@ -143,10 +131,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4LogicalVolume* fLogicRead_telescope;
 		G4PVPlacement* fPhysRead_telescope;
 		
-		G4Box* fSolidRead_telescope2;
-		G4LogicalVolume* fLogicRead_telescope2;
-		G4PVPlacement* fPhysRead_telescope2;
-		
 		// SiPM
 		G4Box* fSolidSiPM_gate;
 		G4LogicalVolume* fLogicSiPM_gate;
@@ -155,11 +139,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4Box* fSolidSiPM_telescope;
 		G4LogicalVolume* fLogicSiPM_telescope;
 		G4PVPlacement* fPhysSiPM_telescope;
-
-
-		G4Box* fSolidSiPM_telescope2;
-		G4LogicalVolume* fLogicSiPM_telescope2;
-		G4PVPlacement* fPhysSiPM_telescope2;
 
 		// Grease
 		G4Box* fSolidGrease;
@@ -175,10 +154,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4LogicalVolume* fLogicElement_telescope;
 		G4PVPlacement* fPhysElement_telescope;
 
-		G4Box* fSolidElement_telescope2;
-		G4LogicalVolume* fLogicElement_telescope2;
-		G4PVPlacement* fPhysElement_telescope2;
-
 		// VD
 		G4Box* fSolidVD;
 		G4LogicalVolume* fLogicVD;
@@ -190,7 +165,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4PVPlacement* fPhysVD_2;
 
 		G4bool fVDOn;
-		G4bool fmuEDM;
 		G4bool fCheckOverlaps;
 
 		//? Materials & Elements

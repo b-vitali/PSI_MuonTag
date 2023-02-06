@@ -3,7 +3,7 @@
 
 #include "PrimaryGeneratorAction.hh"
 
-int wich = 2;
+int wich = 4;
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
 {

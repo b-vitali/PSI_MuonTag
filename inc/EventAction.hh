@@ -27,9 +27,11 @@ class EventAction : public G4UserEventAction{
 		ScintSD * tmp_scint_gate;
 		ScintSD * tmp_scint_telescope;
 		SiPMSD * tmp_sipm_telescope;
+		SiPMSD * tmp_sipm_gate;
 
 		G4int fCollIDScint_gate;
 		G4int fCollIDScint_telescope;
+		G4int fCollIDSiPM_gate;
 		G4int fCollIDSiPM_telescope;
 		
 		G4int fEvID; // to register each event just once
