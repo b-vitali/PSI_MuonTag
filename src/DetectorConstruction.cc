@@ -584,12 +584,12 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	
 	// out
 	fSolidRead_out	= new G4Box("Read_out", 0.5*fReadSizeX,0.5*fReadSizeY, 0.5*fReadSizeZ);
-    fLogicRead_out = new G4LogicalVolume(fSolidRead_out, fVacuum, "Read_out");
+    fLogicRead_out = new G4LogicalVolume(fSolidRead_out, fSi, "Read_out");
 	fLogicRead_out->SetVisAttributes(G4Colour(0.0, 1.0, 1.0, 0.3));
 
 	// in
 	fSolidRead_in	= new G4Box("Read_in", 0.5*fReadSizeX,0.5*fReadSizeY, 0.5*fReadSizeZ);
-    fLogicRead_in = new G4LogicalVolume(fSolidRead_in, fVacuum, "Read_in");
+    fLogicRead_in = new G4LogicalVolume(fSolidRead_in, fSi, "Read_in");
 	fLogicRead_in->SetVisAttributes(G4Colour(1.0, 0.0, 1.0, 0.3));
 
 	// grease Solid and Phys.  (same for both)
@@ -843,12 +843,12 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_MuEDM()
 
 	// out
 	fSolidRead_out	= new G4Box("Read_out", 0.5*fReadSizeX,0.5*fReadSizeY, 0.5*fReadSizeZ);
-    fLogicRead_out = new G4LogicalVolume(fSolidRead_out, fVacuum, "Read_out");
+    fLogicRead_out = new G4LogicalVolume(fSolidRead_out, fSi, "Read_out");
 	fLogicRead_out->SetVisAttributes(G4Colour(0.0, 1.0, 1.0, 0.3));
 
 	// in
 	fSolidRead_in	= new G4Box("Read_in", 0.5*fReadSizeX,0.5*fReadSizeY, 0.5*fReadSizeZ);
-    fLogicRead_in = new G4LogicalVolume(fSolidRead_in, fVacuum, "Read_in");
+    fLogicRead_in = new G4LogicalVolume(fSolidRead_in, fSi, "Read_in");
 	fLogicRead_in->SetVisAttributes(G4Colour(1.0, 0.0, 1.0, 0.3));
 
 	// grease Solid and Phys.  (same for both)
@@ -859,12 +859,12 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_MuEDM()
 	//? VirtualDetector/SiPM Solid and Phys. 
 	// out
 	fSolidSiPM_out	= new G4Box("SiPM_out", 0.5*fSiPMSizeX, 0.5*0.5*fSiPMSizeY, 0.5*fSiPMSizeZ);
-    fLogicSiPM_out 	= new G4LogicalVolume(fSolidSiPM_out, fSi, "SiPM_out");
+    fLogicSiPM_out 	= new G4LogicalVolume(fSolidSiPM_out, fSiPMMaterial, "SiPM_out");
     fLogicSiPM_out	->SetVisAttributes(G4Colour(0,0,1, 0.5));
 
 	// in
 	fSolidSiPM_in	= new G4Box("SiPM_in", 0.5*fSiPMSizeX, 0.5*0.5*fSiPMSizeY, 0.5*fSiPMSizeZ);
-    fLogicSiPM_in 	= new G4LogicalVolume(fSolidSiPM_in, fSi, "SiPM_in");
+    fLogicSiPM_in 	= new G4LogicalVolume(fSolidSiPM_in, fSiPMMaterial, "SiPM_in");
     fLogicSiPM_in	->SetVisAttributes(G4Colour(0,0,1, 0.5));
 
 	//? Put Grease and SiPM in Read
