@@ -24,10 +24,10 @@
 EventAction::EventAction(RunAction* runAction) : 
 	G4UserEventAction(), fRunAction(runAction), fCollIDScint_gate(-1), fCollIDScint_telescope(-1), fCollIDSiPM_gate(-1), fCollIDSiPM_telescope(-1)
 	, fEvID(-1){
-		// tmp_scint_telescope = new ScintSD("Scint_telescope",1);
-		//! tmp_scint_telescope = new ScintSD("Scint_telescope",1);
-		tmp_sipm_gate = new SiPMSD("SiPM_gate",1);
-		tmp_sipm_telescope = new SiPMSD("SiPM_telescope",2);
+		tmp_scint_gate = new ScintSD("Scint_gate",1);
+		tmp_scint_telescope = new ScintSD("Scint_telescope",2);
+		tmp_sipm_gate = new SiPMSD("SiPM_gate",3);
+		tmp_sipm_telescope = new SiPMSD("SiPM_telescope",4);
 	}
 
 EventAction::~EventAction(){}
@@ -42,18 +42,19 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	if(!HCE) return;
 	
 	G4int N;
-	G4bool gate = false;
+	G4bool gate = true;
 	G4bool telescope = true;
+	G4bool scint = true;
+
 	//###################################
-	/*
 	ScintHit* scintHit;
-	if(gate){
+	if(scint && gate){
 		if(fCollIDScint_gate < 0){
 			G4SDManager* SDMan = G4SDManager::GetSDMpointer();
 			fCollIDScint_gate = SDMan->GetCollectionID("Scint_gate/scintCollection");
 		}
 
-		if(fCollIDScint_gate){
+		if(true){
 		ScintHitsCollection* ScintHitCollection_gate = (ScintHitsCollection*) (HCE->GetHC(fCollIDScint_gate));
 
 		N = ScintHitCollection_gate->entries();
@@ -62,16 +63,15 @@ void EventAction::EndOfEventAction(const G4Event* event){
 
 			fEvID = event->GetEventID();
 
-			tmp_scint_gate->FillNtupla(man, scintHit, 3);
+			tmp_scint_gate->FillNtupla(man, scintHit, 1);
 
 			scintHit->Clear();
 		}
 		}
 	}
-	*/
+
 	//###################################
-	/*
-	if(telescope){
+	if(scint && telescope){
 	if(fCollIDScint_telescope < 0){
 		G4SDManager* SDMan = G4SDManager::GetSDMpointer();
 		fCollIDScint_telescope = SDMan->GetCollectionID("Scint_telescope/scintCollection");
@@ -85,7 +85,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 
 		fEvID = event->GetEventID();
 
-		tmp_scint_telescope->FillNtupla(man, scintHit, 1);
+		tmp_scint_telescope->FillNtupla(man, scintHit, 2);
 
 		scintHit->Clear();
 	}
@@ -93,7 +93,6 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	if(fEvID % 100 == 0 || (fEvID & (fEvID - 1)) == 0 ) 
 	std::cout << "Filled first ntupla" << std::endl;
 	}
-	*/
 
 	//###################################
 	if(fCollIDSiPM_gate < 0){
@@ -110,7 +109,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 		G4cout<<"subhits : "<<sipmHit->GetEvent().size()<<G4endl;
 		fEvID = event->GetEventID();
 
-		tmp_sipm_gate->FillNtupla(man, sipmHit, 1);
+		tmp_sipm_gate->FillNtupla(man, sipmHit, 3);
 
 		sipmHit->Clear();
 	}
@@ -129,7 +128,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 
 		fEvID = event->GetEventID();
 
-		tmp_sipm_telescope->FillNtupla(man, sipmHit, 2);
+		tmp_sipm_telescope->FillNtupla(man, sipmHit, 4);
 
 		sipmHit->Clear();
 	}

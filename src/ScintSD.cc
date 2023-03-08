@@ -122,7 +122,7 @@ void ScintSD::Initialize(G4HCofThisEvent* hitsCE){
 		e = else, 1 = trk ==1, + = additionla info; 
 	*/
 	// G4String debug	= "p1 i o n g e";
-	debug	= ""; //"p+ i+ o e 
+	debug	= "p+"; //"p+ i+ o e 
 }
 
 
@@ -188,8 +188,11 @@ void ScintSD::CreateEntry(G4Step *aStep){
 
 
 G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){	
+if(aStep->GetTrack()->GetDynamicParticle()->GetParticleDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) return false;
 
-	//if(debug.contains("p"))	G4cout<<"Ev : "<<G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()<<G4endl;
+	if(debug.contains("p"))	G4cout<<"Ev : "<<G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()<<G4endl;
+	if(debug.contains("p"))	G4cout<<"Scint : "<< aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName()<<G4endl;
+
 
 	if(aStep->GetStepLength() == 0 && aStep->GetTotalEnergyDeposit() == 0) {
 		// G4cout<<"step of lenght 0 and edep 0"<<G4endl; 
@@ -371,6 +374,7 @@ G4bool ScintSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
 
 	//? If the entry was created and it is an G4OpticalPhoton 
 	else if(aStep->GetTrack()->GetDynamicParticle()->GetParticleDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()){
+		return false; // if it is a photon ignore
 		G4VSolid* solid = thePrePV->GetLogicalVolume()->GetSolid();
 		// if(postStep->GetPhysicalVolume()->GetName() != "Element") {return false;}
 		G4Box* boxSolid = (G4Box*)(solid);

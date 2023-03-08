@@ -443,11 +443,11 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 	// Scintillator sizes
     fScintSizeX_telescope = hole+scint_thick;
     fScintSizeY_telescope = scint_thick;
-    fScintSizeZ_telescope = 5*cm;
+    fScintSizeZ_telescope = 20*cm;
 
     fScintSizeX_gate = 2*cm;
     fScintSizeY_gate = 2*cm;
-    fScintSizeZ_gate = 0.05*mm;
+    fScintSizeZ_gate = 0.5*mm;
 	
 	//? Read Solid and Phys.
 	fReadSizeX = 3*mm;
@@ -613,19 +613,19 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 	if(fVDOn){
 		// Add 0.5mm space in z to account for Element_telescope 
-
-
 		// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 		fSolidVD	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
     	fLogicVD 	= new G4LogicalVolume(fSolidVD, fVacuum, "VD");
-    	fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., shift-fVDSizeZ*0.5-0.5*mm), fLogicVD, "VD", fLogicWorld, false, 0, fCheckOverlaps);
+    	fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., shift-fVDSizeZ*0.5-0.5*mm), fLogicVD, "VD", fLogicWorld, true, 0, fCheckOverlaps);
+    	
+		fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., shift+fVDSizeZ*0.5+fScintSizeZ_telescope+0.5*mm), fLogicVD, "VD", fLogicWorld, true, 1, fCheckOverlaps);
 
 		// 2_VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
-		fSolidVD_2	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
-    	fLogicVD_2 	= new G4LogicalVolume(fSolidVD_2, fVacuum, "VD");
-    	fPhysVD_2	= new G4PVPlacement(0, G4ThreeVector(0., 0., shift+fVDSizeZ*0.5+fScintSizeZ_telescope+0.5*mm), fLogicVD_2, "VD", fLogicWorld, false, 1, fCheckOverlaps);
+		// fSolidVD_2	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
+    	// fLogicVD_2 	= new G4LogicalVolume(fSolidVD_2, fVacuum, "VD");
+    	// fPhysVD_2	= new G4PVPlacement(0, G4ThreeVector(0., 0., shift+fVDSizeZ*0.5+fScintSizeZ_telescope+0.5*mm), fLogicVD_2, "VD", fLogicWorld, false, 1, fCheckOverlaps);
     	fLogicVD	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.1));
-    	fLogicVD_2	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.1));
+    	// fLogicVD_2	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.1));
 	}
 	
     return fPhysWorld;
@@ -637,17 +637,17 @@ void DetectorConstruction::ConstructSDandField()
 	auto sdManager = G4SDManager::GetSDMpointer();
    	G4String SDname;
 
-	// if(fLogicScint_gate){
-		// ScintSD* scint_SD_gate = new ScintSD(SDname="Scint_gate");
-  		// sdManager->AddNewDetector(scint_SD_gate);
-		// fLogicScint_gate->SetSensitiveDetector(scint_SD_gate);
-	// }	
+	if(fLogicScint_gate){
+		ScintSD* scint_SD_gate = new ScintSD(SDname="Scint_gate");
+  		sdManager->AddNewDetector(scint_SD_gate);
+		fLogicScint_gate->SetSensitiveDetector(scint_SD_gate);
+	}	
 	
-	// if(fLogicScint_telescope){
-	// 	ScintSD* scint_SD_telescope = new ScintSD(SDname="Scint_telescope");
-  	// 	sdManager->AddNewDetector(scint_SD_telescope);
-  	// 	fLogicScint_telescope->SetSensitiveDetector(scint_SD_telescope);
-	// }
+	if(fLogicScint_telescope){
+		ScintSD* scint_SD_telescope = new ScintSD(SDname="Scint_telescope");
+  		sdManager->AddNewDetector(scint_SD_telescope);
+  		fLogicScint_telescope->SetSensitiveDetector(scint_SD_telescope);
+	}
 
 	if(fLogicSiPM_telescope){
 		SiPMSD * SiPM_SD_telescope = new SiPMSD("SiPM_telescope");
@@ -661,15 +661,15 @@ void DetectorConstruction::ConstructSDandField()
 		fLogicSiPM_gate->SetSensitiveDetector(SiPM_SD_gate);
 	}
 
-	if(fLogicVD && fLogicVD_2){
+	if(fLogicVD){
 		// Create the Sensitive Detector defined in VirtualDetectorSD 
 		VirtualDetectorSD * VD_SD = new VirtualDetectorSD("VirtualDetector");
 
 		// Assign the SD to the logial volume
 		fLogicVD->SetSensitiveDetector(VD_SD);
 
-		VirtualDetectorSD * VD_SD_2 = new VirtualDetectorSD("VirtualDetector2");
-		fLogicVD_2->SetSensitiveDetector(VD_SD_2);
+		// VirtualDetectorSD * VD_SD_2 = new VirtualDetectorSD("VirtualDetector2");
+		// fLogicVD_2->SetSensitiveDetector(VD_SD_2);
 	}
 }
 
