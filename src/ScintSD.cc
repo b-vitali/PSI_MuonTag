@@ -122,7 +122,7 @@ void ScintSD::Initialize(G4HCofThisEvent* hitsCE){
 		e = else, 1 = trk ==1, + = additionla info; 
 	*/
 	// G4String debug	= "p1 i o n g e";
-	debug	= "p+"; //"p+ i+ o e 
+	debug	= ""; //"p+ i+ o e 
 }
 
 

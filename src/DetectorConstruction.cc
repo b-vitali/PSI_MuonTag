@@ -447,7 +447,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
     fScintSizeX_gate = 2*cm;
     fScintSizeY_gate = 2*cm;
-    fScintSizeZ_gate = 0.5*mm;
+    fScintSizeZ_gate = 0.1*mm;
 	
 	//? Read Solid and Phys.
 	fReadSizeX = 3*mm;
@@ -616,9 +616,9 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 		// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 		fSolidVD	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
     	fLogicVD 	= new G4LogicalVolume(fSolidVD, fVacuum, "VD");
-    	fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., shift-fVDSizeZ*0.5-0.5*mm), fLogicVD, "VD", fLogicWorld, true, 0, fCheckOverlaps);
+    	fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., shift-fVDSizeZ*0.5-1*mm), fLogicVD, "VD", fLogicWorld, true, 0, fCheckOverlaps);
     	
-		fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., shift+fVDSizeZ*0.5+fScintSizeZ_telescope+0.5*mm), fLogicVD, "VD", fLogicWorld, true, 1, fCheckOverlaps);
+		fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., shift+fVDSizeZ*0.5+fScintSizeZ_telescope+1*mm), fLogicVD, "VD", fLogicWorld, true, 1, fCheckOverlaps);
 
 		// 2_VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
 		// fSolidVD_2	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
