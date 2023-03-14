@@ -637,17 +637,17 @@ void DetectorConstruction::ConstructSDandField()
 	auto sdManager = G4SDManager::GetSDMpointer();
    	G4String SDname;
 
-	if(fLogicScint_gate){
-		ScintSD* scint_SD_gate = new ScintSD(SDname="Scint_gate");
-  		sdManager->AddNewDetector(scint_SD_gate);
-		fLogicScint_gate->SetSensitiveDetector(scint_SD_gate);
-	}	
+	// if(fLogicScint_gate){
+	// 	ScintSD* scint_SD_gate = new ScintSD(SDname="Scint_gate");
+  	// 	sdManager->AddNewDetector(scint_SD_gate);
+	// 	fLogicScint_gate->SetSensitiveDetector(scint_SD_gate);
+	// }	
 	
-	if(fLogicScint_telescope){
-		ScintSD* scint_SD_telescope = new ScintSD(SDname="Scint_telescope");
-  		sdManager->AddNewDetector(scint_SD_telescope);
-  		fLogicScint_telescope->SetSensitiveDetector(scint_SD_telescope);
-	}
+	// if(fLogicScint_telescope){
+	// 	ScintSD* scint_SD_telescope = new ScintSD(SDname="Scint_telescope");
+  	// 	sdManager->AddNewDetector(scint_SD_telescope);
+  	// 	fLogicScint_telescope->SetSensitiveDetector(scint_SD_telescope);
+	// }
 
 	if(fLogicSiPM_telescope){
 		SiPMSD * SiPM_SD_telescope = new SiPMSD("SiPM_telescope");

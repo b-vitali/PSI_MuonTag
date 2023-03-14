@@ -23,7 +23,21 @@ RunAction::RunAction():fName("data")
 	man->CreateNtupleDColumn("fMomY");
 	man->CreateNtupleDColumn("fMomZ");
 	man->FinishNtuple(0);
-		
+
+	// Ntuple for the PrimaryGenerator
+	man->CreateNtuple("gun", "gun");
+	man->CreateNtupleIColumn("fEvent");
+	man->CreateNtupleDColumn("fMom");
+	man->CreateNtupleDColumn("fPosX");
+	man->CreateNtupleDColumn("fPosY");
+	man->CreateNtupleDColumn("fPosZ");
+	man->CreateNtupleDColumn("fAngX");
+	man->CreateNtupleDColumn("fAngY");
+	man->CreateNtupleDColumn("fMomX");
+	man->CreateNtupleDColumn("fMomY");
+	man->CreateNtupleDColumn("fMomZ");
+	man->FinishNtuple(1);
+
 	fMessenger = new RunActionMessenger(this);
 }
 

@@ -14,6 +14,10 @@
 #include "Randomize.hh"
 #include "G4PhysicalConstants.hh"
 
+#include "TDecompChol.h"
+#include "TMatrixD.h"
+#include "g4root.hh"			// to access root stuff
+
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
 public:
