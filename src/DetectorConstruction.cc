@@ -7,6 +7,63 @@
 
 #include "G4AutoDelete.hh"
 
+/*
+
+To define this geometry in Geant4, you will need to create a set of logical volumes that represent the different components of your geometry.
+
+First, define the dimensions of the cylinder, the thickness of the walls, the dimensions of the fibers, and the angle of the helical path. Once you have these parameters, you can start building the geometry.
+
+To create the fibers, you can use the G4Tubs class to define a tubular shape with a given inner radius and outer radius, representing the fiber thickness. The G4Polyhedra class can be used to create a square cross-section for the fibers.
+
+Next, you will need to create a set of G4RotationMatrix objects to represent the helical path of the fibers. You can use these matrices to specify the orientation of each fiber in space.
+
+To create the cylinder, you can use a series of G4AssemblyVolume objects to stack the fibers together in a cylindrical shape. You can create multiple layers of fibers by repeating the assembly process with different rotations and positions.
+
+To stagger the layers, you can adjust the positions of the fibers in each layer. You can use a G4ThreeVector object to specify the position of each fiber relative to the center of the cylinder.
+
+Once you have defined the logical volumes, you can then use them to create the physical volumes and place them in the detector geometry.
+
+Here's an example code snippet to get you started:
+
+
+///////////////////////////////////////////////////////
+G4double innerRadius = 5.0*cm; 
+G4double outerRadius = 7.0*cm; 
+G4double fiberThickness = 0.5*cm; 
+G4double fiberWidth = 1.0*cm; 
+G4double fiberAngle = 30.0*deg; 
+G4int numLayers = 10;
+
+G4Tubs* fiberTube = new G4Tubs("Fiber", innerRadius, outerRadius, fiberThickness/2, 0, 360*deg);
+G4Polyhedra* fiberShape = new G4Polyhedra("FiberShape", 0, 360*deg, 4, 1, fiberWidth/2, fiberThickness/2);
+
+G4RotationMatrix* fiberRotation = new G4RotationMatrix();
+fiberRotation->rotateZ(fiberAngle);
+
+G4AssemblyVolume* layerAssembly = new G4AssemblyVolume();
+for (int i=0; i<numLayers; i++) {
+  G4double layerZ = (i - (numLayers-1)/2.0) * fiberThickness;
+  G4double layerAngle = (i % 2 == 0) ? 0 : fiberAngle/2.0;
+  G4RotationMatrix* layerRotation = new G4RotationMatrix();
+  layerRotation->rotateZ(layerAngle);
+  G4ThreeVector layerPosition(0, 0, layerZ);
+  G4Transform3D layerTransform(*layerRotation, layerPosition);
+  for (int j=0; j<360/fiberAngle; j++) {
+    G4ThreeVector fiberPosition(outerRadius*cos(j*fiberAngle), outerRadius*sin(j*fiberAngle), 0);
+    G4Transform3D fiberTransform(*fiberRotation, fiberPosition);
+    layerAssembly->AddPlacedVolume(fiberShape, fiberTransform);
+  }
+  layerAssembly->MakeImprint(worldVolume, layerTransform);
+}
+///////////////////////////////////////////////////////
+
+This code creates a cylinder made of fibers with a given inner and outer radius, 
+thickness, width, and helical angle. It creates a set of logical volumes for the fiber 
+tube and the fiber shape, and uses a G4RotationMatrix to define the orientation of the fibers. 
+It then creates a G4AssemblyVolume for each layer of
+
+*/
+
 
 G4ThreadLocal 
 G4GlobalMagFieldMessenger* DetectorConstruction::fMagFieldMessenger = 0; 
