@@ -3,12 +3,11 @@ import matplotlib.pyplot as plt
 
 z_min = 0
 z_max = 15
-turns = 0.22 # 0.22 = 15*2 = 30; 0.8 = 45*2 = 90
+turns = 0.2 # 0.22 = 15*2 = 30; 0.8 = 45*2 = 90
 thikness = 10 #mm
-r = 3.2
+r = 3.5
 hits = [[0.5,10],[3.7,10],[7.3,10], [0.5,175],[3.7,175],[7.3,175], [0.5,88],[3.7,88],[7.3,88]]
 #hits = [[7.3,10],[9,175],[12,88]]
-#hits = [[,10]]
 colours = ['C0','C1','C2','C3','C4','C5','C6','C7','C8','C9']
 
 sew = True
@@ -52,7 +51,10 @@ x = np.arange(0, z_max, 0.0001)
 angle = np.arctan(2*np.pi*r*turns/z_max)*180/np.pi
 print(angle)
 fig = plt.figure()
-plt.title('Ghost hits: r='+str(r)+'; #turns='+str(turns)+'; angle='+str(round(angle,1))+' [deg]', fontsize=15)
+if sew:
+    plt.title('Ghosts: r='+str(r)+'[cm]; s='+str(phi1[1])+str(phi2[1])+'[deg]; T='+str(turns)+r'; $\phi$='+str(round(angle,1))+'[deg]', fontsize=15)
+else:
+    plt.title('Ghosts: r='+str(r)+'[cm]; '+'T='+str(turns)+r'; $\phi$='+str(round(angle,1))+'[deg]', fontsize=15)
 plt.ylabel(r'$\vartheta$ [deg]', fontsize=15)
 plt.xlabel('z [cm]', fontsize=15)
 plt.xlim(z_min, z_max)
