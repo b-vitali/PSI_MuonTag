@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
 z_min = 0
 z_max = 15
@@ -10,7 +11,7 @@ anglein = 20
 turnin = np.tan(anglein*np.pi/180)*z_max/(2*np.pi*r)
 turns = [turnin, turnin+1]
 """
-turns = [10, 11]
+turns = [0, 1]
 """
 angles = np.array([35,65])
 turns =  np.tan(angles*np.pi/180)*z_max/(2*np.pi*r)
@@ -18,9 +19,20 @@ turns =  np.tan(angles*np.pi/180)*z_max/(2*np.pi*r)
 
 #turns = [1,2]
 thikness = 10 #mm
-hits = [[0.5,10],[3.7,10],[7.3,10], [0.5,175],[3.7,175],[7.3,175], [0.5,88],[3.7,88],[7.3,88]]
-#hits = [[7.3,10],[9,175],[12,88]]
+#hits = [[0.5,10],[3.7,10],[7.3,10], [0.5,175],[3.7,175],[7.3,175], [0.5,88],[3.7,88],[7.3,88]]
+hits = [[7.3,10],[9,175],[12,88],[2,95],[5,150]]
 colours = ['C0','C1','C2','C3','C4','C5','C6','C7','C8','C9']
+
+
+# Define the Gaussian function
+def sine(x, a,b,c,d):
+    y = a*np.sin(b*x/(2*np.pi) + c)+d
+    return y
+hits0 = [t[0] for t in hits]
+hits1 = [t[1] for t in hits]
+
+print(hits0)
+parameters, covariance = curve_fit(sine, hits0, hits1)
 
 sew = False
 phi1 = [0,90]
@@ -126,6 +138,15 @@ for h in range(len(hits)):
         if phi == 0:
             plt.plot(hit[0], hit[1], 'k*', markersize=25)
         plt.plot(x[idx_short], t1_array[idx_short], colours[h]+'o', markersize=10)
+
+fit_a = parameters[0]
+fit_b = parameters[1]
+fit_c = parameters[2]
+fit_d = parameters[3]
+print(fit_a, fit_b, fit_c, fit_d)
+fit_y = sine(x, fit_a, fit_b, fit_c, fit_d)
+print(x, fit_y)
+plt.plot(x, fit_y, '-', label='fit')
 plt.show()
 if sew: 
     fig.savefig('ghosts_r'+str(r)+'s'+str(phi1[1])+str(phi2[1])+'t'+str(turns[0])+'.jpg')
