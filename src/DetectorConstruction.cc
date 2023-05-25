@@ -243,6 +243,9 @@ void DetectorConstruction::DefineOpticalProperties()
 	}
 	myfile.close();
 
+	std::reverse(energy.begin(), energy.end());
+  	std::reverse(scint.begin(), scint.end());
+
 	assert(energy.size() == scint.size());
 	const G4int bc400 = int(energy.size());
 
@@ -272,15 +275,14 @@ void DetectorConstruction::DefineOpticalProperties()
 	fBC400_mt = new G4MaterialPropertiesTable();
 	fBC400_mt->AddProperty(       "RINDEX", BC400_Energy,  BC400_RIND, bc400);
 	fBC400_mt->AddProperty(    "ABSLENGTH", BC400_Energy,  BC400_ABSL, bc400);
-	fBC400_mt->AddProperty("FASTCOMPONENT", BC400_Energy, BC400_SCINT, bc400);
+	fBC400_mt->AddProperty("SCINTILLATIONCOMPONENT1", BC400_Energy, BC400_SCINT, bc400);
 	
 	fBC400_mt->AddConstProperty("SCINTILLATIONYIELD",        11050./MeV);
 	fBC400_mt->AddConstProperty(   "RESOLUTIONSCALE",                 1);
-	fBC400_mt->AddConstProperty(  "SLOWTIMECONSTANT",            2.4*ns);
-	fBC400_mt->AddConstProperty(  "SLOWSCINTILLATIONRISETIME",   0.9*ns);
-	fBC400_mt->AddConstProperty(  "FASTTIMECONSTANT",            2.4*ns);
-	fBC400_mt->AddConstProperty(  "FASTSCINTILLATIONRISETIME",   0.9*ns);
-	fBC400_mt->AddConstProperty(        "YIELDRATIO",                 0.);
+	fBC400_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT1",            2.4*ns);
+	fBC400_mt->AddConstProperty(  "SCINTILLATIONRISETIME1",   0.9*ns);
+	fBC400_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT2",            2.4*ns);
+	fBC400_mt->AddConstProperty(  "SCINTILLATIONRISETIME2",   0.9*ns);
 	
 	fBC400->SetMaterialPropertiesTable(fBC400_mt);
 
@@ -300,6 +302,9 @@ void DetectorConstruction::DefineOpticalProperties()
 		if(myfile.eof()) break;
 	}
 	myfile.close();
+
+	std::reverse(energy.begin(), energy.end());
+  	std::reverse(scint.begin(), scint.end());
 
 	assert(energy.size() == scint.size());
 	const G4int lyso = int(energy.size());
@@ -330,13 +335,12 @@ void DetectorConstruction::DefineOpticalProperties()
 	fLYSO_mt = new G4MaterialPropertiesTable();
 	fLYSO_mt->AddProperty(       "RINDEX", LYSO_Energy,  LYSO_RIND, lyso);
 	fLYSO_mt->AddProperty(    "ABSLENGTH", LYSO_Energy,  LYSO_ABSL, lyso);
-	fLYSO_mt->AddProperty("FASTCOMPONENT", LYSO_Energy, LYSO_SCINT, lyso);
+	fLYSO_mt->AddProperty("SCINTILLATIONCOMPONENT1", LYSO_Energy, LYSO_SCINT, lyso);
 	
 	fLYSO_mt->AddConstProperty("SCINTILLATIONYIELD",        33200./MeV);
 	fLYSO_mt->AddConstProperty(   "RESOLUTIONSCALE",                 1);
-	fLYSO_mt->AddConstProperty(  "SLOWTIMECONSTANT",            36*ns);
-	fLYSO_mt->AddConstProperty(  "FASTTIMECONSTANT",            36*ns);
-	fLYSO_mt->AddConstProperty(        "YIELDRATIO",                 0.);
+	fLYSO_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT1",            36*ns);
+	fLYSO_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT2",            36*ns);
 	
 	fLYSO->SetMaterialPropertiesTable(fLYSO_mt);
 
@@ -408,6 +412,9 @@ void DetectorConstruction::DefineOpticalProperties()
 	}
 	myfile.close();
 
+	std::reverse(energy.begin(), energy.end());
+  	std::reverse(scint.begin(), scint.end());
+
 	assert(energy.size() == scint.size());
 	const G4int bcf10 = int(energy.size());
 
@@ -437,13 +444,12 @@ void DetectorConstruction::DefineOpticalProperties()
 	fBCF10_mt = new G4MaterialPropertiesTable();
 	fBCF10_mt->AddProperty(       "RINDEX", BCF10_Energy,  BCF10_RIND, bcf10);
 	fBCF10_mt->AddProperty(    "ABSLENGTH", BCF10_Energy,  BCF10_ABSL, bcf10);
-	fBCF10_mt->AddProperty("FASTCOMPONENT", BCF10_Energy, BCF10_SCINT, bcf10);
+	fBCF10_mt->AddProperty("SCINTILLATIONCOMPONENT1", BCF10_Energy, BCF10_SCINT, bcf10);
 	
 	fBCF10_mt->AddConstProperty("SCINTILLATIONYIELD",        8000./MeV);
 	fBCF10_mt->AddConstProperty(   "RESOLUTIONSCALE",                 1);
-	fBCF10_mt->AddConstProperty(  "SLOWTIMECONSTANT",            2.7*ns);
-	fBCF10_mt->AddConstProperty(  "FASTTIMECONSTANT",            2.7*ns);
-	fBCF10_mt->AddConstProperty(        "YIELDRATIO",                 0.);
+	fBCF10_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT1",            2.7*ns);
+	fBCF10_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT2",            2.7*ns);
 	
 	fBCF10->SetMaterialPropertiesTable(fBCF10_mt);
 
@@ -460,6 +466,9 @@ void DetectorConstruction::DefineOpticalProperties()
 		if(myfile.eof()) break;
 	}
 	myfile.close();
+
+	std::reverse(energy.begin(), energy.end());
+  	std::reverse(scint.begin(), scint.end());
 
 	assert(energy.size() == scint.size());
 	const G4int bcf12 = int(energy.size());
@@ -490,13 +499,12 @@ void DetectorConstruction::DefineOpticalProperties()
 	fBCF12_mt = new G4MaterialPropertiesTable();
 	fBCF12_mt->AddProperty(       "RINDEX", BCF12_Energy,  BCF12_RIND, bcf12);
 	fBCF12_mt->AddProperty(    "ABSLENGTH", BCF12_Energy,  BCF12_ABSL, bcf12);
-	fBCF12_mt->AddProperty("FASTCOMPONENT", BCF12_Energy, BCF12_SCINT, bcf12);
+	fBCF12_mt->AddProperty("SCINTILLATIONCOMPONENT1", BCF12_Energy, BCF12_SCINT, bcf12);
 	
 	fBCF12_mt->AddConstProperty("SCINTILLATIONYIELD",        8000./MeV);
 	fBCF12_mt->AddConstProperty(   "RESOLUTIONSCALE",                 1);
-	fBCF12_mt->AddConstProperty(  "SLOWTIMECONSTANT",            3.2*ns);
-	fBCF12_mt->AddConstProperty(  "FASTTIMECONSTANT",            3.2*ns);
-	fBCF12_mt->AddConstProperty(        "YIELDRATIO",                 0.);
+	fBCF12_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT1",            3.2*ns);
+	fBCF12_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT2",            3.2*ns);
 	
 	fBCF12->SetMaterialPropertiesTable(fBCF12_mt);
 
@@ -514,6 +522,9 @@ void DetectorConstruction::DefineOpticalProperties()
 	}
 	myfile.close();
 
+	std::reverse(energy.begin(), energy.end());
+  	std::reverse(scint.begin(), scint.end());
+	
 	assert(energy.size() == scint.size());
 	const G4int bcf20 = int(energy.size());
 
@@ -543,13 +554,12 @@ void DetectorConstruction::DefineOpticalProperties()
 	fBCF20_mt = new G4MaterialPropertiesTable();
 	fBCF20_mt->AddProperty(       "RINDEX", BCF20_Energy,  BCF20_RIND, bcf20);
 	fBCF20_mt->AddProperty(    "ABSLENGTH", BCF20_Energy,  BCF20_ABSL, bcf20);
-	fBCF20_mt->AddProperty("FASTCOMPONENT", BCF20_Energy, BCF20_SCINT, bcf20);
+	fBCF20_mt->AddProperty("SCINTILLATIONCOMPONENT1", BCF20_Energy, BCF20_SCINT, bcf20);
 	
 	fBCF20_mt->AddConstProperty("SCINTILLATIONYIELD",        8000./MeV);
 	fBCF20_mt->AddConstProperty(   "RESOLUTIONSCALE",                 1);
-	fBCF20_mt->AddConstProperty(  "SLOWTIMECONSTANT",            2.7*ns);
-	fBCF20_mt->AddConstProperty(  "FASTTIMECONSTANT",            2.7*ns);
-	fBCF20_mt->AddConstProperty(        "YIELDRATIO",                 0.);
+	fBCF20_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT1",            2.7*ns);
+	fBCF20_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT2",            2.7*ns);
 	
 	fBCF20->SetMaterialPropertiesTable(fBCF20_mt);
 

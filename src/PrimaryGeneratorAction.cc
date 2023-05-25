@@ -4,7 +4,7 @@
 #include "PrimaryGeneratorAction.hh"
 
 #include "Randomize.hh"
-#include "g4root.hh"			// to access root stuff
+#include "G4AnalysisManager.hh"			// to access root stuff
 #include "G4RandomDirection.hh"
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()

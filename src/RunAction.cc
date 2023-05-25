@@ -3,7 +3,7 @@
 
 #include "RunAction.hh"
 
-RunAction::RunAction():fName("test")
+RunAction::RunAction():fName("output.root")
 {
 	//DefineCommands();
 	
