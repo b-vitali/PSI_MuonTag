@@ -16,6 +16,8 @@
 #include "G4Tubs.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
+#include "G4TwistedBox.hh"
+#include "G4IntersectionSolid.hh"
 
 #include "G4OpticalSurface.hh"
 #include "G4LogicalSkinSurface.hh"
@@ -71,6 +73,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		G4VPhysicalVolume* DefineVolumes_SciFi();
 		G4VPhysicalVolume* DefineVolumes_MuEDM();
 		G4VPhysicalVolume* DefineVolumes_CyFi();
+		G4VPhysicalVolume* DefineVolumes_G4CyFi();
 		
 		DetectorMessenger* fDetectorMessenger;
 

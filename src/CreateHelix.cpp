@@ -91,8 +91,8 @@ std::vector<std::tuple<TVector3, TVector3, TVector3>> AddExtrusion(std::vector<T
     for(int i = 0; i<base.size();i++){
         extrusion_loop.push_back(base[i] + TVector3(0,0,extrusion));
     }
-    printvector(base);
-    printvector(extrusion_loop);
+    //printvector(base);
+    //printvector(extrusion_loop);
    
     std::vector<std::tuple<TVector3, TVector3, TVector3>>  cap = triangulatebaseG4(extrusion_loop);
 
@@ -111,6 +111,33 @@ std::vector<TVector3> translate(std::vector<TVector3>v, double turns, int steps,
     for(int i = 0; i<v.size();i++){
         TVector3 offset = path(v[i].z()+length/steps, turns, center, length) - path(v[i].z(), turns, center, length);
         u.push_back(v[i] + offset);
+    }
+    return u;
+}
+
+// The square needs to be alligned to the angle of the fiber
+std::vector<TVector3> tilt(std::vector<TVector3>v,  TVector3 center, double angle){
+    double x,y,z;
+    std::vector<TVector3> u;
+
+    for(int i = 0; i<v.size();i++){
+        x = v[i].x();
+        y = v[i].y();
+        z = v[i].z();
+
+        // Translate the point to the origin
+        double translatedY = y - center.y();
+        double translatedZ = z - center.z();
+
+        // Apply the rotation around the z-axis
+        double rotatedY = translatedY * sin(angle) + translatedY * cos(angle);
+        double rotatedZ = translatedZ * sin(angle) + translatedZ * cos(angle);
+
+        // Translate the point back to the original position
+        y = rotatedY + center.y();
+        z = rotatedZ + center.z();
+        
+        u.push_back(TVector3(x,y,z));
     }
     return u;
 }
@@ -179,11 +206,13 @@ G4TessellatedSolid* CreateHelix(G4String name, TVector3 center, double size, dou
     G4TessellatedSolid* helix = new G4TessellatedSolid(name);
 
     double turns = AngleToTurns(runningangle, length, center.x());
-    G4cout<<"number of turns for "<<name<<" : "<<turns<<G4endl;
+    //G4cout<<"number of turns for "<<name<<" : "<<turns<<G4endl;
 	
     // Create base starting from 'center' and 'size'; triangulate it and add it to the helix
 	std::vector<TVector3> base = createbase(center, size);
 	
+    base = tilt(base, center, runningangle);
+
     // If no extrusion just cap it, otherwise use the AddExtrusion function
     if(extrusion == 0) {
         std::vector<std::tuple<TVector3, TVector3, TVector3>> triang_base = triangulatebaseG4(base);
