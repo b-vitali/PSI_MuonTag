@@ -143,8 +143,9 @@ void SiPMSD::CreateEntry(G4Step *aStep){
     // G4cout<<"q = "<<q<<G4endl;
 	// q = q + preStep->GetTouchable()->GetCopyNumber(0);
     // G4cout<<"q = "<<q<<G4endl;
-
-	q = preStep->GetTouchable()->GetCopyNumber(2)*1e3+preStep->GetTouchable()->GetCopyNumber(1)*200+preStep->GetTouchable()->GetCopyNumber(0);
+	
+	// std::cout<<" "<<preStep->GetTouchable()->GetCopyNumber(1)<<" "<<preStep->GetTouchable()->GetCopyNumber(2)<<std::endl;
+	q = preStep->GetTouchable()->GetCopyNumber(1)*1000+preStep->GetTouchable()->GetCopyNumber(2);
 	fSiPMNo.push_back(q);
 	fEin.push_back(preStep->GetKineticEnergy());
 	fMomInX.push_back(preStep->GetMomentum().getX());
