@@ -815,7 +815,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_G4CyFi()
 	G4double CyFi_length = 15*cm;
 	G4double CyFi_radius = 3.5*cm;
 	G4double FiberThickness  = 5*mm;
-	G4double fFiberWidth  = 5*mm;
+
 	fCheckOverlaps = true;
 	
 	//? World
@@ -826,12 +826,14 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_G4CyFi()
 	// Set how the World is visualized
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
 	
-	G4double fSiPMFrameSizeX = fFiberWidth;
-	G4double fSiPMFrameSizeZ = 0.25*mm;
+	//? Read Solid and Phys.
+	fReadSizeX = FiberThickness;
+	fReadSizeY = FiberThickness;
+	fReadSizeZ = 0.4*mm;
 
 	fSiPMSizeX = 0.8*FiberThickness;
 	fSiPMSizeY = 0.8*FiberThickness;
-	fSiPMSizeZ = fReadSizeZ;
+	fSiPMSizeZ = 0.5*fReadSizeZ;
 
 	// in
 	fSolidRead_in	= new G4Box("Read_in", 0.5*fReadSizeX, 0.5*fReadSizeY, 0.5*fReadSizeZ);
@@ -844,25 +846,25 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_G4CyFi()
 	fLogicRead_out->SetVisAttributes(G4Colour(0.0, 1.0, 1.0, 0.3));
 
 	// grease Solid and Phys.  (same for both)
-	fSolidGrease = new G4Box("Read", 0.5*fReadSizeX, 0.5*fReadSizeY, 0.5 * 0.5*fReadSizeZ);
+	fSolidGrease = new G4Box("Read", 0.5*fReadSizeX, 0.5*fReadSizeY,0.5 * 0.5*fReadSizeZ);
     fLogicGrease = new G4LogicalVolume(fSolidGrease, fOG, "Grease");
 	fLogicGrease->SetVisAttributes(G4Colour(1,0,0, 0.5));
 
 	// SiPM out
-	fSolidSiPM_out	= new G4Box("SiPM_out", 0.5*fSiPMSizeX, 0.5*fSiPMSizeY, 0.5 * 0.5*fReadSizeZ);
+	fSolidSiPM_out	= new G4Box("SiPM_out", 0.5*fSiPMSizeX, 0.5*fSiPMSizeY, 0.5 *fSiPMSizeZ);
     fLogicSiPM_out 	= new G4LogicalVolume(fSolidSiPM_out, fSiPMMaterial, "SiPM_out");
     fLogicSiPM_out	->SetVisAttributes(G4Colour(0,0,1, 0.5));
 
 	// SiPM in
-	fSolidSiPM_in	= new G4Box("SiPM_in", 0.5*fSiPMSizeX, 0.5*fSiPMSizeY, 0.5 * 0.5*fReadSizeZ);
+	fSolidSiPM_in	= new G4Box("SiPM_in", 0.5*fSiPMSizeX, 0.5*fSiPMSizeY, 0.5 *fSiPMSizeZ);
     fLogicSiPM_in 	= new G4LogicalVolume(fSolidSiPM_in, fSiPMMaterial, "SiPM_in");
     fLogicSiPM_in	->SetVisAttributes(G4Colour(0,0,1, 0.5));
 
 	//? Put Grease and SiPM in Read
-    G4ThreeVector Grease_pos = G4ThreeVector(0, 0, -(0.5*0.5*fReadSizeZ)); 
-    G4ThreeVector SiPM_pos = G4ThreeVector(0, 0, 0.5*0.5*fReadSizeZ);
+    G4ThreeVector Grease_pos = G4ThreeVector(0, 0, (0.5*0.5*fReadSizeZ)); 
+    G4ThreeVector SiPM_pos = G4ThreeVector(0, 0, -0.5*0.5*fReadSizeZ);
 	
-	//fPhysRead_in 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicRead_in, "Read", fLogicWorld, true, 0, fCheckOverlaps);
+	fPhysRead_in 	= new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicRead_in, "Read", fLogicWorld, true, 0, fCheckOverlaps);
 	fPhysGrease 	= new G4PVPlacement(0, Grease_pos , fLogicGrease, "Grease", fLogicRead_in, false, fCheckOverlaps);
 	fPhysSiPM_in 	= new G4PVPlacement(0, SiPM_pos, fLogicSiPM_in, "SiPM", fLogicRead_in, false, fCheckOverlaps);
 
@@ -870,38 +872,39 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_G4CyFi()
 	fPhysGrease 	= new G4PVPlacement(0, Grease_pos , fLogicGrease, "Grease", fLogicRead_out, false, fCheckOverlaps);
 	fPhysSiPM_out 	= new G4PVPlacement(0, SiPM_pos, fLogicSiPM_out, "SiPM", fLogicRead_out, false, fCheckOverlaps);
 
-	G4Rotate3D 	flip_sipm =  G4Rotate3D(180*deg, G4ThreeVector(0, 0, 1));
+
+	G4Rotate3D 	flip_sipm =  G4Rotate3D(180*deg, G4ThreeVector(0, 1, 0));
 
 	G4Material* fMaterial = fBCF20; 
-
-	//? Elements to contain in and out system
 
 	/*
 		IN
 	*/
+	G4cout<<"\nInner fibers"<<G4endl;
 	double r_in = CyFi_radius;
-	double angle_in = 55*deg;
-	double steps_in = 300;
-	
+	TVector3 center_in = TVector3(r_in,0,0);
+	double angle_in = 30*deg;
+	double turns_in = AngleToTurns(angle_in, CyFi_length, CyFi_radius);
+	double lenght_in = sqrt( pow(turns_in * 2*M_PI*r_in, 2) + pow(CyFi_length, 2) ); 
+	G4cout<<"Angle_in : "<<angle_in<<"; Turns_in : "<<turns_in<<"; Lenght_in : "<<lenght_in<<G4endl;
+
+	int n_twisted_in = ceil(turns_in * 4);  
+	double twist_in = angle_in / n_twisted_in;
 	// Construct fiber
-    G4double dx, dy, dz, twist, rmin, rmax, dh;
-	G4VSolid* box1 = new G4TwistedBox("TwistedBox1", twist=-60*deg, dx=100*mm, dy=5*mm, dz=50*mm);
-	G4VSolid* box2 = new G4TwistedBox("TwistedBox2", twist, dx-2*dy, dy+10*mm, dz+1*mm);
-	//G4VSolid* sector = new G4Tubs("Sector", rmin=dx-2*dy, rmax=dx+10*mm, dh=2*dz+10*mm, -90*deg, 180*deg);
-    //G4VSolid* fiber = new G4IntersectionSolid("Fiber", box1, sector);
+	G4VSolid* box1 = new G4TwistedBox("TwistedBox1", angle_in, CyFi_radius, FiberThickness, CyFi_length/n_twisted_in);
+	G4VSolid* box2 = new G4TwistedBox("TwistedBox2", angle_in, CyFi_radius-2*FiberThickness, FiberThickness+10*mm, CyFi_length/n_twisted_in+10*mm);
 	G4VSolid* fiber = new G4SubtractionSolid("Fiber", box1, box2);
-	G4LogicalVolume* logicFiber = new G4LogicalVolume(fiber,fBCF20,"Fiber");
+	G4LogicalVolume* logicFiber = new G4LogicalVolume(fiber,fMaterial,"Fiber");
 
 	// Place fibers
-    G4int nn = 20;
+    G4int nn = 2;
     for (G4int i=0; i < nn; ++i)
 	{
 	  	G4RotationMatrix* rot = new G4RotationMatrix();
         rot->rotateZ(i*180*deg/nn);
 	  	new G4PVPlacement(rot,G4ThreeVector(),logicFiber,"Twisted",fLogicWorld,false,0,fCheckOverlaps);
 	}
-
-    return fPhysWorld;
+	return fPhysWorld;
 }
 
 void print_progress_bar(double percentage, std::string name){
@@ -987,11 +990,11 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_CyFi()
 	G4cout<<"\nInner fibers"<<G4endl;
 	double r_in = CyFi_radius;
 	TVector3 center_in = TVector3(r_in,0,0);
-	double angle_in = 55*deg;
+	double angle_in = 30*deg;
 	double turns_in = AngleToTurns(angle_in, CyFi_length, CyFi_radius);
 	double lenght_in = sqrt( pow(turns_in * 2*M_PI*r_in, 2) + pow(CyFi_length, 2) ); 
 	G4cout<<"Angle_in : "<<angle_in<<"; Turns_in : "<<turns_in<<"; Lenght_in : "<<lenght_in<<G4endl;
-	double steps_in = 300;
+	double steps_in = 10;
 	// Fiber made of fVacuum
 	// G4TessellatedSolid* CreateHelix(G4String name, TVector3 center, double size, double runningangle, doule length, int steps, double extrusion)
 	G4TessellatedSolid* FiberSolid_in = CreateHelix("TriangularHelix_in", center_in, FiberThickness, angle_in, CyFi_length, steps_in, fReadSizeZ);	
@@ -1073,7 +1076,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_CyFi()
 	G4cout<<"Fiber's arc : "<<r_in * 2*M_PI / FiberThickness<<"; N of fibers : "<<n_in<<G4endl;
 	double theta_in = 2*M_PI/n_in;
 	G4cout<<"Rotation angle : "<<theta_in<<G4endl;
-	for(int j=0; j<n_in; j += 1){
+	for(int j=0; j<1; j += 10){
 		G4Rotate3D 	  rotation =  G4Rotate3D(j*theta_in, G4ThreeVector(0, 0, 1));
 		G4Transform3D transform = rotation;
 		fiberPlacement_in = new G4PVPlacement(transform, FiberLogical_in, "HelixLogical_in", fLogicWorld, true, j, fCheckOverlaps);			
@@ -1174,7 +1177,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_CyFi()
 	for(int j=0; j<n_out; j += 1){
 		G4Rotate3D 	  rotation =  G4Rotate3D(j*theta_out, G4ThreeVector(0, 0, 1));
 		G4Transform3D transform = rotation;
-		fiberPlacement_out = new G4PVPlacement(transform, FiberLogical_out, "HelixLogical_out", fLogicWorld, true, j, fCheckOverlaps);			
+		//fiberPlacement_out = new G4PVPlacement(transform, FiberLogical_out, "HelixLogical_out", fLogicWorld, true, j, fCheckOverlaps);			
     	if(fCheckOverlaps) print_progress_bar((double)(j+1)/n_out, "HelixLogical_out");
 	}
 
