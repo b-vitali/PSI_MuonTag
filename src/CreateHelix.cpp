@@ -83,38 +83,6 @@ std::vector<std::tuple<TVector3, TVector3, TVector3>> triangulatesideG4(std::vec
     return faces;
 }
 
-
-// Function to flip the closing cap (to fix normals)
-std::vector<std::tuple<TVector3, TVector3, TVector3>> AddExtrusion(std::vector<TVector3> base, double extrusion){
-    std::vector<std::tuple<TVector3, TVector3, TVector3>> faces;
-    std::vector<TVector3> extrusion_loop;
-    for(int i = 0; i<base.size();i++){
-        extrusion_loop.push_back(base[i] + TVector3(0,0,extrusion));
-    }
-    //printvector(base);
-    //printvector(extrusion_loop);
-   
-    std::vector<std::tuple<TVector3, TVector3, TVector3>>  cap = triangulatebaseG4(extrusion_loop);
-
-    base = FlipLoop(base);
-    extrusion_loop = FlipLoop(extrusion_loop);
-    faces = triangulatesideG4(base, extrusion_loop);
-
-    faces.insert(faces.end(), cap.begin(), cap.end());
-
-    return faces;
-}
-
-// Extrude a loop of verteces around the path
-std::vector<TVector3> translate(std::vector<TVector3>v, double turns, int steps, TVector3 center, double length){
-    std::vector<TVector3> u;
-    for(int i = 0; i<v.size();i++){
-        TVector3 offset = path(v[i].z()+length/steps, turns, center, length) - path(v[i].z(), turns, center, length);
-        u.push_back(v[i] + offset);
-    }
-    return u;
-}
-
 // The square needs to be alligned to the angle of the fiber
 std::vector<TVector3> tilt(std::vector<TVector3>v,  TVector3 center, double angle){
     double x,y,z;
@@ -130,43 +98,6 @@ std::vector<TVector3> tilt(std::vector<TVector3>v,  TVector3 center, double angl
     return u;
 }
 
-// The square needs to be translated and rotated around the path
-std::vector<TVector3> rotate(std::vector<TVector3>v, double turns, int steps, TVector3 center, double length){
-    double x,y,z;
-    std::vector<TVector3> u;
-    TVector3 rotationcenter = path(v[0].z(), turns, center, length);
-    
-    double angle = 2*M_PI / steps * turns;
-
-    for(int i = 0; i<v.size();i++){
-        x = v[i].x();
-        y = v[i].y();
-        z = v[i].z();
-
-        // Translate the point to the origin
-        double translatedX = x - rotationcenter.x();
-        double translatedY = y - rotationcenter.y();
-
-        // Apply the rotation around the z-axis
-        double rotatedX = translatedX * cos(angle) - translatedY * sin(angle);
-        double rotatedY = translatedX * sin(angle) + translatedY * cos(angle);
-
-        // Translate the point back to the original position
-        x = rotatedX + rotationcenter.x();
-        y = rotatedY + rotationcenter.y();
-        
-        u.push_back(TVector3(x,y,z));
-    }
-    return u;
-}
-
-// Given a lopp create a second loop along the path. These two are going to be bridged with triangulation
-std::vector<TVector3> transform(std::vector<TVector3>v, double turns, int steps, TVector3 center, double length){
-    std::vector<TVector3> u = translate(v, turns, steps, center, length);
-    u = rotate(u, turns, steps, center, length);
-    return u;
-}
-
 // Function to add a triangulation to a G4TessellatedSolid.
 void MyADD(G4TessellatedSolid* helix, std::vector<std::tuple<TVector3, TVector3, TVector3>> triang){
 	TVector3 a,b,c;
@@ -179,6 +110,38 @@ void MyADD(G4TessellatedSolid* helix, std::vector<std::tuple<TVector3, TVector3,
         G4ThreeVector vc(c.x(), c.y(), c.z());
         helix->AddFacet(new G4TriangularFacet(va, vb, vc, ABSOLUTE));
 	}
+}
+
+// Given a lopp create a second loop along the path. These two are going to be bridged with triangulation
+std::vector<TVector3> transform(std::vector<TVector3>v, double turns, int steps, TVector3 center, double length){
+    std::vector<TVector3> u;
+    double angle_step = turns/steps*2*M_PI;
+    double length_step = length/steps;
+    for(int i = 0; i<v.size();i++){
+        v[i].RotateZ(angle_step);
+        u.push_back(v[i]+length_step*TVector3(0,0,1));
+    }
+    return u;
+}
+
+// Function to flip the closing cap (to fix normals)
+std::vector<std::tuple<TVector3, TVector3, TVector3>> AddExtrusion(std::vector<TVector3> base, double extrusion){
+    std::vector<std::tuple<TVector3, TVector3, TVector3>> faces;
+    std::vector<TVector3> extrusion_loop;
+    TVector3 direction =((base[2]-base[0])).Cross(base[1]-base[0]);
+    for(int i = 0; i<base.size();i++){
+        extrusion_loop.push_back(base[i] + extrusion * direction.Unit());
+    }
+
+    std::vector<std::tuple<TVector3, TVector3, TVector3>>  cap = triangulatebaseG4(extrusion_loop);
+
+    base = FlipLoop(base);
+    extrusion_loop = FlipLoop(extrusion_loop);
+    faces = triangulatesideG4(base, extrusion_loop);
+
+    faces.insert(faces.end(), cap.begin(), cap.end());
+
+    return faces;
 }
 
 ////////////////////////////////////////////////////////////////////!
@@ -207,7 +170,7 @@ G4TessellatedSolid* CreateHelix(G4String name, TVector3 center, double size, dou
 	    MyADD(helix,triang_base);
     }
     else{
-        std::vector<std::tuple<TVector3, TVector3, TVector3>> triang_base_extrusion = AddExtrusion(base, -extrusion);
+        std::vector<std::tuple<TVector3, TVector3, TVector3>> triang_base_extrusion = AddExtrusion(base, extrusion);
         MyADD(helix,triang_base_extrusion);
     }
 
@@ -217,11 +180,8 @@ G4TessellatedSolid* CreateHelix(G4String name, TVector3 center, double size, dou
 	// Create the side: duplicate and move the base; triangulate the side; add to helix and repeat. 
 	for(int i=0; i<steps; i++){
 		second=transform(first, turns, steps, center, length);
-		//printvector(first);
-		//printvector(second);
 		std::vector<std::tuple<TVector3, TVector3, TVector3>> triang_side = triangulatesideG4(first,second);
 		MyADD(helix,triang_side);
-		//G4cout<<"done"<<G4endl;
 		first = second; 
 	}
 

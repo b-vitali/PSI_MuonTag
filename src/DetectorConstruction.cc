@@ -921,7 +921,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_CyFi()
 	G4double CyFi_radius = 3.5*cm;
 	G4double FiberThickness  = 5*mm;
 
-	fCheckOverlaps = false;
+	fCheckOverlaps = true;
 	
 	//? World
 	fSolidWorld	= new G4Box("World", 0.5*fWorldSizeX, 0.5*fWorldSizeY, 0.5*fWorldSizeZ);
@@ -990,11 +990,11 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_CyFi()
 	G4cout<<"\nInner fibers"<<G4endl;
 	double r_in = CyFi_radius;
 	TVector3 center_in = TVector3(r_in,0,0);
-	double angle_in = 30*deg;
+	double angle_in = 55*deg;
 	double turns_in = AngleToTurns(angle_in, CyFi_length, CyFi_radius);
 	double lenght_in = sqrt( pow(turns_in * 2*M_PI*r_in, 2) + pow(CyFi_length, 2) ); 
 	G4cout<<"Angle_in : "<<angle_in<<"; Turns_in : "<<turns_in<<"; Lenght_in : "<<lenght_in<<G4endl;
-	double steps_in = 10;
+	double steps_in = 200;
 	// Fiber made of fVacuum
 	// G4TessellatedSolid* CreateHelix(G4String name, TVector3 center, double size, double runningangle, doule length, int steps, double extrusion)
 	G4TessellatedSolid* FiberSolid_in = CreateHelix("TriangularHelix_in", center_in, FiberThickness, angle_in, CyFi_length, steps_in, fReadSizeZ);	
@@ -1059,15 +1059,16 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_CyFi()
 	G4Transform3D Read_transform_in;
 	TVector3 path_in = path(0, turns_in, center_in, CyFi_length);
 
-	G4ThreeVector Read_translate_in = G4ThreeVector(path_in.x(), path_in.y(), path_in.z() - 0.5*fReadSizeZ);
-	G4Rotate3D 	  Read_rotate_in =  G4Rotate3D(2*M_PI * turns_in, G4ThreeVector(0, 0, 1));
-	G4Rotate3D 	  Read_adapt_in =  G4Rotate3D(0, G4ThreeVector(1, 0, 0)); //angle_in
+	G4ThreeVector Read_translate_in = G4ThreeVector(path_in.x(), path_in.y(), path_in.z());
+	G4Rotate3D 	  Read_adapt_in =  G4Rotate3D(-angle_in, G4ThreeVector(1, 0, 0)); //angle_in
 	Read_transform_in =  (G4Translate3D)Read_translate_in*Read_adapt_in;
+
 	fPhysRead_in 	= new G4PVPlacement(Read_transform_in, fLogicRead_in, "Read", FiberLogical_in, true, 0, fCheckOverlaps);
 	// Other side
 	path_in = path(CyFi_length, turns_in, center_in, CyFi_length);
-	Read_translate_in = G4ThreeVector(path_in.x(), path_in.y(), path_in.z() + 0.5*fReadSizeZ);
-	Read_transform_in = (G4Translate3D)Read_translate_in*Read_rotate_in*flip_sipm;
+	G4Rotate3D 	  Read_rotate_in =  G4Rotate3D(2*M_PI * turns_in, G4ThreeVector(0, 0, 1));
+	Read_translate_in = G4ThreeVector(0, 0, CyFi_length);
+	Read_transform_in = (G4Translate3D)Read_translate_in*Read_rotate_in*Read_transform_in*flip_sipm;//
 	fPhysRead_in 	= new G4PVPlacement(Read_transform_in, fLogicRead_in, "Read", FiberLogical_in, true, 1, fCheckOverlaps);
 
 
@@ -1076,7 +1077,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_CyFi()
 	G4cout<<"Fiber's arc : "<<r_in * 2*M_PI / FiberThickness<<"; N of fibers : "<<n_in<<G4endl;
 	double theta_in = 2*M_PI/n_in;
 	G4cout<<"Rotation angle : "<<theta_in<<G4endl;
-	for(int j=0; j<1; j += 10){
+	for(int j=0; j<1; j += 1){
 		G4Rotate3D 	  rotation =  G4Rotate3D(j*theta_in, G4ThreeVector(0, 0, 1));
 		G4Transform3D transform = rotation;
 		fiberPlacement_in = new G4PVPlacement(transform, FiberLogical_in, "HelixLogical_in", fLogicWorld, true, j, fCheckOverlaps);			
@@ -1178,20 +1179,20 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_CyFi()
 		G4Rotate3D 	  rotation =  G4Rotate3D(j*theta_out, G4ThreeVector(0, 0, 1));
 		G4Transform3D transform = rotation;
 		//fiberPlacement_out = new G4PVPlacement(transform, FiberLogical_out, "HelixLogical_out", fLogicWorld, true, j, fCheckOverlaps);			
-    	if(fCheckOverlaps) print_progress_bar((double)(j+1)/n_out, "HelixLogical_out");
+    	//if(fCheckOverlaps) print_progress_bar((double)(j+1)/n_out, "HelixLogical_out");
 	}
 
 	//? Set VisualAttributes
 	// IN - Blue
-	FiberLogical_in->SetVisAttributes(G4Colour(0.0, 0.0, 1.0, 0.8));
-	CoreLogical_in->SetVisAttributes(G4Colour(1, 1, 1, 0.));
-	SecondCladdingLogical_in->SetVisAttributes(G4Colour(1, 0, 1, 0.));
-	FirstCladdingLogical_in->SetVisAttributes(G4Colour(0, 1, 0, 0.));
+	FiberLogical_in->SetVisAttributes(G4Colour(0.0, 0.0, 1.0, 0.2));
+	CoreLogical_in->SetVisAttributes(G4Colour(1, 1, 1, 0.8));
+	FirstCladdingLogical_in->SetVisAttributes(G4Colour(0, 1, 0, 0.6));
+	SecondCladdingLogical_in->SetVisAttributes(G4Colour(1, 0, 1, 0.4));
 	// OUT - Green
     FiberLogical_out->SetVisAttributes(G4Colour(0.0, 1.0, 0.0, 0.4));
 	CoreLogical_out->SetVisAttributes(G4Colour(1, 1, 1, 0.));
-	SecondCladdingLogical_out->SetVisAttributes(G4Colour(1, 0, 1, 0.));
 	FirstCladdingLogical_out->SetVisAttributes(G4Colour(0, 1, 0, 0.));
+	SecondCladdingLogical_out->SetVisAttributes(G4Colour(1, 0, 1, 0.));
 
     return fPhysWorld;
 }
