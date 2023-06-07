@@ -169,14 +169,14 @@ void SiPMSD::CreateEntry(G4Step *aStep){
 	fDirIn = aStep->GetPreStepPoint()->GetMomentumDirection();
 	fDirIn_trans = momentumTransform.TransformPoint(aStep->GetPreStepPoint()->GetMomentumDirection());
 	
-	if(debug.contains("i+")) G4cout<<"fDirIn [pre trasform] : "<<fDirIn.x()<<" "<<fDirIn.y()<<" "<<fDirIn.z()<<G4endl;
-	if(debug.contains("i+")) G4cout<<"fDirIn [Volume's reference] :"<<fDirIn_trans.x()<<" "<<fDirIn_trans.y()<<" "<<fDirIn_trans.z()<<G4endl;
+	if(G4StrUtil::contains(debug, "i+")) G4cout<<"fDirIn [pre trasform] : "<<fDirIn.x()<<" "<<fDirIn.y()<<" "<<fDirIn.z()<<G4endl;
+	if(G4StrUtil::contains(debug, "i+")) G4cout<<"fDirIn [Volume's reference] :"<<fDirIn_trans.x()<<" "<<fDirIn_trans.y()<<" "<<fDirIn_trans.z()<<G4endl;
 
 	G4ThreeVector norm = -thePreTouchable->GetVolume(0)->GetLogicalVolume()->GetSolid()->SurfaceNormal(localPos);
 	fThetaIn.push_back(norm.dot(fDirIn_trans));
 
-	if(debug.contains("i+")) G4cout<<"norm: "<<norm.x()<<" "<<norm.y()<<" "<<norm.z()<<G4endl;
-	if(debug.contains("i")) G4cout<<"cos(fThetaIn) = "<<norm.dot(fDirIn_trans)<<" and fThetaIn [deg] = "<<std::acos(norm.dot(fDirIn_trans)) * 180/CLHEP::pi<<G4endl;
+	if(G4StrUtil::contains(debug, "i+")) G4cout<<"norm: "<<norm.x()<<" "<<norm.y()<<" "<<norm.z()<<G4endl;
+	if(G4StrUtil::contains(debug, "i")) G4cout<<"cos(fThetaIn) = "<<norm.dot(fDirIn_trans)<<" and fThetaIn [deg] = "<<std::acos(norm.dot(fDirIn_trans)) * 180/CLHEP::pi<<G4endl;
 
 	EntryCreated = true;
 	EntryTrk = aStep->GetTrack()->GetTrackID();
@@ -186,7 +186,7 @@ void SiPMSD::CreateEntry(G4Step *aStep){
 
 G4bool SiPMSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){	
 
-	if(debug.contains("p"))	G4cout<<"Ev : "<<G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()<<G4endl;
+	if(G4StrUtil::contains(debug, "p"))	G4cout<<"Ev : "<<G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()<<G4endl;
 
 	if(aStep->GetStepLength() == 0 && aStep->GetTotalEnergyDeposit() == 0) {
 		// G4cout<<"step of lenght 0 and edep 0"<<G4endl; 
@@ -203,8 +203,8 @@ G4bool SiPMSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
     G4TouchableHistory* thePostTouchable = (G4TouchableHistory*)(postStep->GetTouchable());
     G4VPhysicalVolume* thePostPV = thePostTouchable->GetVolume();
 
-	if(debug.contains("p+")) G4cout<<thePrePV->GetName()<<" "<<thePostPV->GetName()<< G4endl;
-	if(debug.contains("p+")) G4cout<<"track id "<< aStep->GetTrack()->GetTrackID()<< G4endl;
+	if(G4StrUtil::contains(debug, "p+")) G4cout<<thePrePV->GetName()<<" "<<thePostPV->GetName()<< G4endl;
+	if(G4StrUtil::contains(debug, "p+")) G4cout<<"track id "<< aStep->GetTrack()->GetTrackID()<< G4endl;
 
 	Trk = aStep->GetTrack()->GetTrackID();
 	TrkParent = aStep->GetTrack()->GetParentID();
