@@ -1,8 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
-colours = ['C0','C1','C2','C3','C4','C5','C6','C7','C8','C9']
+from matplotlib import colors as mcolors
 
-step5 = True
+#colours = ['blue','green','C2','C3','C4','C5','C6','C7','C8','C9']
+custom_colors = ['green', 'blue', 'green', 'purple', 'orange']
+custom_markerstyles = ['o', 's', '^', 'x', 'd']
+custom_linestyles = ['-', '--', '-.', ':']
+
+step5 = False
 dx = 1
 dy = 10
 limit = 2
@@ -43,8 +48,8 @@ plt.xticks(np.arange(0, 95, step=5))
 plt.yticks(np.arange(1, 11, step=0.5))
 plt.yscale('log')
 plt.grid(True, which="both")
-plt.plot(t, Dx, colours[0]+'-', label=r"$dx = min (\delta x\ \sec\phi;\delta y\ \csc\phi)$")
-plt.plot(t, Dy, colours[1]+'-', label=r"$dy = min (\delta x\ \csc\phi;\delta y\ \sec\phi)$")
+plt.plot(t, Dx, color=custom_colors[0], linestyle=custom_linestyles[0], label=r"$dx = min (\delta x\ \sec\phi;\delta y\ \csc\phi)$")
+plt.plot(t, Dy, color=custom_colors[1], linestyle=custom_linestyles[0], label=r"$dy = min (\delta x\ \csc\phi;\delta y\ \sec\phi)$")
 #ax.fill_between(t, min(Dx), max(Dx), where=(Dy < limit)&(Dx < limit), facecolor='green', alpha=0.3, label = r'$\delta x='+str(dx)+r'; \delta y='+str(dy)+r'\rightarrow dx;dy<'+str(limit)+'$')
 plt.legend(loc="upper center", fontsize = 15)
 plt.show()
@@ -80,23 +85,23 @@ plt.xlabel(r'$\vartheta$ [deg]', fontsize=15)
 plt.xticks(np.arange(0, 95, step=5))
 plt.yscale('log')
 plt.grid(True, which="both")
-plt.plot(a, t, colours[0]+'-')
+plt.plot(a, t, color=custom_colors[0], linestyle=custom_linestyles[0])
 #ax.fill_between(a, min(b), max(b), where=(a < 45), facecolor='green', alpha=0.3)
 plt.show()
 
 fig, ax = plt.subplots()
 plt.title('Angles: 1 turn difference', fontsize=15)
 plt.ylabel(r'$\vartheta$ [deg]', fontsize=15)
-plt.xlabel(r'$\vartheta_{IN}$ [deg]', fontsize=15)
+plt.xlabel(r'$\vartheta_{out}$ [deg]', fontsize=15)
 plt.xticks(np.arange(0, 95, step=5))
 plt.yticks(np.arange(0, 95, step=5))
 plt.grid(True, which="both")
 if step5:
-    plt.plot(a, b, colours[0]+'o', label=r'$\vartheta_{out}$')
-    plt.plot(a, abs(a-b), colours[1]+'o', label=r'$\vartheta_{IN}-\vartheta_{out}$')
+    plt.plot(a, b, color=custom_colors[1],  marker=custom_markerstyles[0], linestyle='None', label=r'$\vartheta_{in}$')
+    plt.plot(a, abs(a-b), color=custom_colors[0],  marker=custom_markerstyles[0], linestyle='None', label=r'$\vartheta_{in}-\vartheta_{out}$')
 else:
-    plt.plot(a, b, colours[0]+'-', label=r'$\vartheta_{out}$')
-    plt.plot(a, abs(a-b), colours[1]+'-', label=r'$\vartheta_{IN}-\vartheta_{out}$')
+    plt.plot(a, b, color=custom_colors[1], linestyle=custom_linestyles[0], label=r'$\vartheta_{in}$')
+    plt.plot(a, abs(a-b), color=custom_colors[0], linestyle=custom_linestyles[0], label=r'$\vartheta_{in}-\vartheta_{out}$')
 #ax.fill_between(a, min(b), max(b), where=(a < 45), facecolor='green', alpha=0.3)
 plt.legend(loc="best", fontsize = 15)
 plt.show()
@@ -108,7 +113,7 @@ dyb = np.array(dyb)
 
 fig2, ax2 = plt.subplots()
 plt.title('Projected uncertainties: 1 turn difference', fontsize=15)
-plt.xlabel(r'$\vartheta_{IN}$ [deg]', fontsize=15)
+plt.xlabel(r'$\vartheta_{out}$ [deg]', fontsize=15)
 plt.xticks(np.arange(0, 95, step=5))
 #plt.yticks(np.arange(1, 11, step=0.5))
 plt.yticks(np.arange(1, 11, step=0.05))
@@ -116,11 +121,11 @@ plt.yticks(np.arange(1, 11, step=0.05))
 plt.grid(True, which="both")
 plt.ylabel('$dx; dy$ [mm]', fontsize=15)
 if step5:
-    plt.plot(a, dxa, colours[0]+'o', label=r'$dx_{IN}$')
-    plt.plot(a, dyb, colours[1]+'o', label=r'$dy_{OUT}$')
+    plt.plot(a, dxa, color=custom_colors[0],  marker=custom_markerstyles[0], linestyle='None', label=r'$dx_{out}$')
+    plt.plot(a, dyb, color=custom_colors[1],  marker=custom_markerstyles[0], linestyle='None', label=r'$dy_{in}$')
 else:
-    plt.plot(a, dxa, colours[0]+'-', label=r'$dx_{IN}$')
-    plt.plot(a, dyb, colours[1]+'-', label=r'$dy_{OUT}$')  
+    plt.plot(a, dxa, color=custom_colors[0], linestyle=custom_linestyles[0], label=r'$dx_{out}$')
+    plt.plot(a, dyb, color=custom_colors[1], linestyle=custom_linestyles[0], label=r'$dy_{in}$')  
 plt.legend(loc="best", fontsize = 15)
 #ax2.fill_between(a, min(dxa), max(dxa), where=(dxa < 2)&(dyb<2), facecolor='green', alpha=0.3)
 plt.show()
@@ -137,18 +142,18 @@ Lb = Length(b)
 
 fig3, ax3 = plt.subplots()
 plt.title("Fibres' length: 1 turn difference", fontsize=15)
-plt.xlabel(r'$\vartheta_{IN}$ [deg]', fontsize=15)
+plt.xlabel(r'$\vartheta_{out}$ [deg]', fontsize=15)
 plt.xticks(np.arange(0, 95, step=5))
 #plt.yticks(np.arange(1, 11, step=0.5))
 #plt.yscale('log')
 plt.grid(True, which="both")
 plt.ylabel('Fibre length [cm]', fontsize=15)
 if step5:
-    plt.plot(a, La, colours[0]+'o', label=r'$L_{IN}$')
-    plt.plot(a, Lb, colours[1]+'o', label=r'$L_{OUT}$')
+    plt.plot(a, La, color=custom_colors[0],  marker=custom_markerstyles[0], linestyle='None', label=r'$L_{out}$')
+    plt.plot(a, Lb, color=custom_colors[1],  marker=custom_markerstyles[0], linestyle='None', label=r'$L_{in}$')
 else:
-    plt.plot(a, La, colours[0]+'-', label=r'$L_{IN}$')
-    plt.plot(a, Lb, colours[1]+'-', label=r'$L_{OUT}$')
+    plt.plot(a, La, color=custom_colors[0], linestyle=custom_linestyles[0], label=r'$L_{out}$')
+    plt.plot(a, Lb, color=custom_colors[1], linestyle=custom_linestyles[0], label=r'$L_{in}$')
 plt.legend(loc="best", fontsize = 15)
 #ax2.fill_between(a, min(dxa), max(dxa), where=(dxa < 2)&(dyb<2), facecolor='green', alpha=0.3)
 plt.show()
