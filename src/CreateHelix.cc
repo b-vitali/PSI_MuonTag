@@ -7,7 +7,7 @@
 */
 
 // Create a triangulated helix using G4TessellatedSolid
-G4TessellatedSolid* CreateHelix(G4String name, TVector3 center, double size, double runningangle, double length, int steps, double extrusion)
+G4TessellatedSolid* HelixMaker::CreateHelix(G4String name, TVector3 center, double size, double runningangle, double length, int steps, double extrusion)
 {
     // Create a new G4TessellatedSolid
     G4TessellatedSolid* helix = new G4TessellatedSolid(name);
@@ -68,14 +68,14 @@ G4TessellatedSolid* CreateHelix(G4String name, TVector3 center, double size, dou
 */
 
 // From the angle to the number of turns
-double AngleToTurns(double angle, double length, double R){
+double HelixMaker::AngleToTurns(double angle, double length, double R){
     double turns = tan(angle)*length/(2*M_PI*R);
     return turns;
 }
 
 // Given the center and the size of the fiber creates a squared base
 // Change this to move from *squared* helix to other shape.
-std::vector<TVector3>  CreateBase(TVector3 center, double size){
+std::vector<TVector3>  HelixMaker::CreateBase(TVector3 center, double size){
     std::vector<TVector3> base = {
     center + TVector3(-size*0.5, -size*0.5, 0),
     center + TVector3(size*0.5, -size*0.5, 0),
@@ -86,7 +86,7 @@ std::vector<TVector3>  CreateBase(TVector3 center, double size){
 
 // Evaluate the path using the length t. 
 // Change this to move from *helix* to *other extrusion shape*
-TVector3 Path(double t, double turns, TVector3 center, double length){
+TVector3 HelixMaker::Path(double t, double turns, TVector3 center, double length){
     double R = center.x();
     double x,y,z;
     x = R * cos(t/length* 2*M_PI *turns);
@@ -97,7 +97,7 @@ TVector3 Path(double t, double turns, TVector3 center, double length){
 }
 
 // Function to flip the closing cap (to fix normals)
-std::vector<TVector3> FlipLoop(std::vector<TVector3> cap){
+std::vector<TVector3> HelixMaker::FlipLoop(std::vector<TVector3> cap){
     std::vector<TVector3> fliploop;
     fliploop.push_back(cap[1]);
     fliploop.push_back(cap[0]);
@@ -107,7 +107,7 @@ std::vector<TVector3> FlipLoop(std::vector<TVector3> cap){
 }
 
 // Function to create the triangulation for the endcaps
-std::vector<std::tuple<TVector3, TVector3, TVector3>> TriangulateBase(std::vector<TVector3>v){
+std::vector<std::tuple<TVector3, TVector3, TVector3>> HelixMaker::TriangulateBase(std::vector<TVector3>v){
     std::vector<std::tuple<TVector3, TVector3, TVector3>> faces;
     faces.push_back(std::make_tuple(v[3],v[1],v[0]));
     faces.push_back(std::make_tuple(v[3],v[2],v[1]));
@@ -115,7 +115,7 @@ std::vector<std::tuple<TVector3, TVector3, TVector3>> TriangulateBase(std::vecto
 }
 
 // Function to create the triangulation given two verteces loops to be bridged
-std::vector<std::tuple<TVector3, TVector3, TVector3>> TriangulateSide(std::vector<TVector3>v, std::vector<TVector3>u){
+std::vector<std::tuple<TVector3, TVector3, TVector3>> HelixMaker::TriangulateSide(std::vector<TVector3>v, std::vector<TVector3>u){
     std::vector<std::tuple<TVector3, TVector3, TVector3>> faces;
     for(int i = 0; i<v.size()-1;i++){
         faces.push_back(std::make_tuple(v[i],v[i+1],u[i]));
@@ -128,7 +128,7 @@ std::vector<std::tuple<TVector3, TVector3, TVector3>> TriangulateSide(std::vecto
 }
 
 // The square needs to be alligned to the angle of the fiber
-std::vector<TVector3> Tilt(std::vector<TVector3>v,  TVector3 center, double angle){
+std::vector<TVector3> HelixMaker::Tilt(std::vector<TVector3>v,  TVector3 center, double angle){
     double x,y,z;
     std::vector<TVector3> u;
 
@@ -143,7 +143,7 @@ std::vector<TVector3> Tilt(std::vector<TVector3>v,  TVector3 center, double angl
 }
 
 // Function to add a triangulation to a G4TessellatedSolid.
-void MyADD(G4TessellatedSolid* helix, std::vector<std::tuple<TVector3, TVector3, TVector3>> triang){
+void HelixMaker::MyADD(G4TessellatedSolid* helix, std::vector<std::tuple<TVector3, TVector3, TVector3>> triang){
 	TVector3 a,b,c;
 	for(auto i : triang){
 		a = std::get<0>(i);
@@ -157,7 +157,7 @@ void MyADD(G4TessellatedSolid* helix, std::vector<std::tuple<TVector3, TVector3,
 }
 
 // Given a lopp create a second loop along the path. These two are going to be bridged with triangulation
-std::vector<TVector3> Transform(std::vector<TVector3>v, double turns, int steps, TVector3 center, double length){
+std::vector<TVector3> HelixMaker::Transform(std::vector<TVector3>v, double turns, int steps, TVector3 center, double length){
     std::vector<TVector3> u;
     double angle_step = turns/steps*2*M_PI;
     double length_step = length/steps;
@@ -169,7 +169,7 @@ std::vector<TVector3> Transform(std::vector<TVector3>v, double turns, int steps,
 }
 
 // Function to flip the closing cap (to fix normals)
-std::vector<std::tuple<TVector3, TVector3, TVector3>> AddExtrusion(std::vector<TVector3> base, double extrusion){
+std::vector<std::tuple<TVector3, TVector3, TVector3>> HelixMaker::AddExtrusion(std::vector<TVector3> base, double extrusion){
     std::vector<std::tuple<TVector3, TVector3, TVector3>> faces;
     std::vector<TVector3> extrusion_loop;
     TVector3 direction =((base[2]-base[0])).Cross(base[1]-base[0]);
@@ -186,4 +186,28 @@ std::vector<std::tuple<TVector3, TVector3, TVector3>> AddExtrusion(std::vector<T
     faces.insert(faces.end(), cap.begin(), cap.end());
 
     return faces;
+}
+
+////////////////////////////////////////////////////////////////////!
+/*
+    Three functions for debug: printvertex and printvector(of verteces) + loadingbar
+*/
+void HelixMaker::PrintVertex(TVector3 v){
+    G4cout<<"vertex : "<<v[0]<<" "<<v[1]<<" "<<v[2]<<G4endl;
+}
+
+void HelixMaker::PrintVector(std::vector<TVector3> v){
+    G4cout<<G4endl<<"Vector length = "<<v.size()<<G4endl;
+    for(int i = 0; i<v.size();i++){
+        PrintVertex(v[i]);
+    }
+    G4cout<<G4endl;
+}
+
+
+void HelixMaker::print_progress_bar(double percentage, std::string name){
+  	double progress = percentage*50;
+	std::string progress_string = "[" + std::string(floor(progress), '#') + std::string(50 - floor(progress), ' ') + "]";
+	std::cout<<""<<name<<" : "<<progress_string<<"\r\033[F";
+	if(percentage == 1) 	std::cout<<"\n\n"<<std::string(55+name.length(), '-')<<"\n\n";
 }
