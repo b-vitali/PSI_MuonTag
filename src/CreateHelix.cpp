@@ -1,6 +1,3 @@
-#include <iostream>
-#include <vector>
-#include "TVector3.h"
 #include "CreateHelix.hh"
 
 ////////////////////////////////////////////////////////////////////!

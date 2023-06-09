@@ -28,6 +28,7 @@ G4int 		N_in;
 
 DetectorConstruction::DetectorConstruction()
 {
+	/*
 	fVDOn = false;
 
 	// Scintillator out dimensions
@@ -54,6 +55,7 @@ DetectorConstruction::DetectorConstruction()
 	fDetectorMessenger = new DetectorMessenger(this);
 	DefineMaterials();
 	DefineOpticalProperties();
+	*/
 }
 
 DetectorConstruction :: ~DetectorConstruction()
@@ -1066,7 +1068,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_CyFi()
 	OpSCladSurface_in->SetType(dielectric_dielectric);
 	OpSCladSurface_in->SetFinish(ground);
 	OpSCladSurface_in->SetPolish(0.5);
-	new G4LogicalBorderSurface("SCladSurface", SecondCladdingPlacement_in, fPhysWorld, OpSCladSurface_in);
+	new G4LogicalBorderSurface("SCladSurface", SecondCladdingPlacement_in, CyFiPlacement, OpSCladSurface_in); //CyFiPlacement OR NOT?
 
 	//? Add readout
 	G4Transform3D Read_transform_in;
@@ -1169,7 +1171,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_CyFi()
 	OpSCladSurface_out->SetType(dielectric_dielectric);
 	OpSCladSurface_out->SetFinish(ground);
 	OpSCladSurface_out->SetPolish(0.5);
-	new G4LogicalBorderSurface("SCladSurface", SecondCladdingPlacement_out, fPhysWorld, OpSCladSurface_out);
+	new G4LogicalBorderSurface("SCladSurface", SecondCladdingPlacement_out, CyFiPlacement, OpSCladSurface_out); //CyFiPlacement OR NOT?
 
 	//? Add readout
 	G4Transform3D Read_transform_out;
