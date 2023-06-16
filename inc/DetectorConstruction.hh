@@ -39,6 +39,7 @@
 
 #include "G4SubtractionSolid.hh"
 
+#include "CreateCyFi.hh"
 
 class G4Box;
 class G4Material;

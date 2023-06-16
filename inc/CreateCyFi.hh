@@ -23,7 +23,6 @@ using namespace HelixMaker;
 #include "G4Tubs.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
-#include "G4TwistedBox.hh"
 #include "G4IntersectionSolid.hh"
 
 #include "G4OpticalSurface.hh"
@@ -37,116 +36,117 @@ using namespace HelixMaker;
 #include "ScintSD.hh"
 #include "SiPMSD.hh"
 
-#include "DetectorMessenger.hh"
-
 #include "G4GlobalMagFieldMessenger.hh"
 
 #include "G4Cache.hh"
 #include "G4SDManager.hh"
 
 #include "G4SubtractionSolid.hh"
-//!
-
-class G4Box;
-class G4Material;
-class G4Element;
 
 class CreateCyFi
 {
-    
     public:
-		// Constructor
+		//? Constructor
         CreateCyFi();
         virtual ~CreateCyFi();
 
-	private:
-		// Main function
-        void Create(G4LogicalVolume * fLogicWorld);
+		//? Main function
+        void Create(G4LogicalVolume * hLogicWorld);
 	
-		// Material and Optical properties separated for clarity
-		void Materials();	
-		void OpticalProperties();	
-
-		void Volumes(G4LogicalVolume * fLogicWorld);
-		
-		// This is needed for SensitiveDetectors and Fields
-		void SD(G4SDManager * sdManager);
+	private:
+		//? All sections are separated for clarity
+		void Materials(); 								// Required materials
+		void OpticalProperties();						// Optical properties of the materials
+		void Volumes(G4LogicalVolume * hLogicWorld);	// Geometry (needs the World Logic volume to place the CYFi)
+		void SD();										// SensitiveDetectors
 		
 		//? Geometry	
 		//-----------------------------------
+		// CyFI variables
+		G4double hCyFi_length;
+		G4double hCyFi_radius;
+		G4double hFiberThickness;
+
+		//-----------------------------------
 		// Read dimensions
-    	G4double fReadSizeX;
-    	G4double fReadSizeY;
-    	G4double fReadSizeZ;
+    	G4double hReadSizeX;
+    	G4double hReadSizeY;
+    	G4double hReadSizeZ;
 
 		// Read dimensions
-    	G4double fSiPMSizeX;
-    	G4double fSiPMSizeY;
-    	G4double fSiPMSizeZ;
+    	G4double hSiPMSizeX;
+    	G4double hSiPMSizeY;
+    	G4double hSiPMSizeZ;
 
+		//? Volume, Logical and Placement	
 		//-----------------------------------
 		// Readout(s)
-		G4Box* fSolidRead_in;
-		G4LogicalVolume* fLogicRead_in;
-		G4PVPlacement* fPhysRead_in;
+		G4Box* hSolidRead_in;
+		G4LogicalVolume* hLogicRead_in;
+		G4PVPlacement* hPhysRead_in;
 
-		G4Box* fSolidRead_out;
-		G4LogicalVolume* fLogicRead_out;
-		G4PVPlacement* fPhysRead_out;
+		G4Box* hSolidRead_out;
+		G4LogicalVolume* hLogicRead_out;
+		G4PVPlacement* hPhysRead_out;
 
 		// Grease
-		G4Box* fSolidGrease;
-		G4LogicalVolume* fLogicGrease;
-		G4PVPlacement* fPhysGrease;
+		G4Box* hSolidGrease;
+		G4LogicalVolume* hLogicGrease;
+		G4PVPlacement* hPhysGrease;
 		
 		// SiPM(s)
-		G4Box* fSolidSiPM_in;
-		G4LogicalVolume* fLogicSiPM_in;
-		G4PVPlacement* fPhysSiPM_in;		
+		G4Box* hSolidSiPM_in;
+		G4LogicalVolume* hLogicSiPM_in;
+		G4PVPlacement* hPhysSiPM_in;		
 
-		G4Box* fSolidSiPM_out;
-		G4LogicalVolume* fLogicSiPM_out;
-		G4PVPlacement* fPhysSiPM_out;
+		G4Box* hSolidSiPM_out;
+		G4LogicalVolume* hLogicSiPM_out;
+		G4PVPlacement* hPhysSiPM_out;
 
-		G4bool fCheckOverlaps;
+		G4bool hCheckOverlaps;
 
 		//? Materials & Elements
-		G4Material* fScintMaterial;
-		G4Material* fSiPMMaterial;
+		//-----------------------------------
+		// Materials
+		G4Material* hScintMaterial;
+		G4Material* hSiPMMaterial;
 
 		//-----------------------------------
-		G4Material* fAir;
-		G4Material* fVacuum;
-		G4Material* fVacuum_nogamma;
-		G4Material* fBC400;
-		G4Material* fBC400_noscint;
-		G4Material* fLYSO;
-		G4Material* fOG; // optical grease BC 631 index saint gobain
-		G4Material* fSi;
-		G4Material* fSiResin;
+		G4Material* hAir;
+		G4Material* hVacuum;
+		G4Material* hVacuum_nogamma;
+		G4Material* hBC400;
+		G4Material* hBC400_noscint;
+		G4Material* hLYSO;
+		G4Material* hOG; // optical grease BC 631 index saint gobain
+		G4Material* hSi;
+		G4Material* hSiResin;
 
-		G4Material* fBCF10;
-		G4Material* fBCF12;
-		G4Material* fBCF20;
-		G4Material* fFClad;
-		G4Material* fSClad;
-
-		G4Element* fH;
-		G4Element* fC;
-		G4Element* fN;
-		G4Element* fO;
-		G4Element* fSie;
-		G4Element* fY;
-		G4Element* fCe;
-		G4Element* fLu;
+		G4Material* hBCF10;
+		G4Material* hBCF12;
+		G4Material* hBCF20;
+		G4Material* hFClad;
+		G4Material* hSClad;
 
 		//-----------------------------------
-		G4MaterialPropertiesTable* fBC400_mt;
-		G4MaterialPropertiesTable* fLYSO_mt;
+		// Elements
+		G4Element* hH;
+		G4Element* hC;
+		G4Element* hN;
+		G4Element* hO;
+		G4Element* hSie;
+		G4Element* hY;
+		G4Element* hCe;
+		G4Element* hLu;
 
-		G4MaterialPropertiesTable* fBCF10_mt;
-		G4MaterialPropertiesTable* fBCF12_mt;
-		G4MaterialPropertiesTable* fBCF20_mt;
+		//-----------------------------------
+		// Materials' Properties
+		G4MaterialPropertiesTable* hBC400_mt;
+		G4MaterialPropertiesTable* hLYSO_mt;
+
+		G4MaterialPropertiesTable* hBCF10_mt;
+		G4MaterialPropertiesTable* hBCF12_mt;
+		G4MaterialPropertiesTable* hBCF20_mt;
 };
 
 #endif
