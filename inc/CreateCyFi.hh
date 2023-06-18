@@ -47,7 +47,7 @@ class CreateCyFi
 {
     public:
 		//? Constructor
-        CreateCyFi();
+		CreateCyFi(double length, double radius, double thickness, double angle_in, double angle_out);
         virtual ~CreateCyFi();
 
 		//? Main function
@@ -66,6 +66,8 @@ class CreateCyFi
 		G4double hCyFi_length;
 		G4double hCyFi_radius;
 		G4double hFiberThickness;
+		G4double hangle_in;
+		G4double hangle_out;
 
 		//-----------------------------------
 		// Read dimensions

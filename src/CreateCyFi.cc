@@ -3,15 +3,23 @@
 
 #include "CreateCyFi.hh"
 
-CreateCyFi::CreateCyFi()
-{}
+CreateCyFi::CreateCyFi(double length, double radius, double thickness, double angle_in, double angle_out)
+{	
+	// Define geometry at creation
+	hCyFi_length 	= length;
+	hCyFi_radius 	= radius;
+	hFiberThickness	= thickness;
+	hangle_in 		= angle_in;
+	hangle_out 		= angle_out;
+
+}
 
 CreateCyFi :: ~CreateCyFi()
 {}
 
 void CreateCyFi::Create(G4LogicalVolume * hLogicWorld)
 {
-    Materials();
+	Materials();
 	OpticalProperties();
 	Volumes(hLogicWorld);
 	SD();
@@ -20,8 +28,8 @@ void CreateCyFi::Create(G4LogicalVolume * hLogicWorld)
 void CreateCyFi::Materials()
 {
 	G4cout<<G4endl;
-	G4cout<<"-----------------------------------------"<<G4endl;
-	G4cout<<"-------- CreateCyFi::Materials() --------"<<G4endl;
+	G4cout<<"========================================="<<G4endl;
+	G4cout<<"======== CreateCyFi::Materials() ========"<<G4endl;
 
 	G4double a; // atomic mass
 	G4double z; // atomic number
@@ -121,19 +129,19 @@ void CreateCyFi::Materials()
 
 
 	G4cout<<"CreateCyFi::Materials() : Done !!"<<G4endl;
-	G4cout<<"-----------------------------------------"<<G4endl;
+	G4cout<<"========================================="<<G4endl;
 }
 
 void CreateCyFi::OpticalProperties()
 {
 	G4cout<<G4endl;
-	G4cout<<"-----------------------------------------"<<G4endl;
-	G4cout<<"---- CreateCyFi::OpticalProperties() ----"<<G4endl;
+	G4cout<<"========================================="<<G4endl;
+	G4cout<<"==== CreateCyFi::OpticalProperties() ===="<<G4endl;
 
 	//? Material properties tables
-	// ----------------------------------------------------------	
+	// ==========================================================	
 	//  BC400 optics
-	// ----------------------------------------------------------
+	// ==========================================================
 	std::vector<G4double> energy, scint;
 	G4double tempe, tempscint;
 	std::ifstream myfile;
@@ -193,9 +201,9 @@ void CreateCyFi::OpticalProperties()
 	//  Set Birks Constant
 	hBC400->GetIonisation()->SetBirksConstant(0.117645*mm/MeV);
 
-	// ----------------------------------------------------------
+	// ==========================================================
 	//  LYSO optics
-	// ----------------------------------------------------------
+	// ==========================================================
 
 	myfile.open("../tables/LYSO_light_out.txt");
 	while(true){
@@ -251,9 +259,9 @@ void CreateCyFi::OpticalProperties()
 	//  Set Birks Constant
 	//! fLYSO->GetIonisation()->SetBirksConstant(0.117645*mm/MeV);
 
-	// ----------------------------------------------------------	
+	// ==========================================================	
 	// Vacuum & Air
-	// ----------------------------------------------------------	
+	// ==========================================================	
 	G4double vacuum_Energy[] = {1.5*eV, 4.*eV};
 	const G4int vacnum = sizeof(vacuum_Energy) / sizeof(G4double);
 
@@ -266,9 +274,9 @@ void CreateCyFi::OpticalProperties()
 	hVacuum->SetMaterialPropertiesTable(cvacuum_mt);
 	hAir   ->SetMaterialPropertiesTable(cvacuum_mt);
 
-	// ----------------------------------------------------------	
+	// ==========================================================	
 	// Silicium
-	// ----------------------------------------------------------	
+	// ==========================================================	
 	G4double Si_Energy[] = {.5*eV, 9.*eV};
 	const G4int Sinum = sizeof(vacuum_Energy) / sizeof(G4double);
 
@@ -279,9 +287,9 @@ void CreateCyFi::OpticalProperties()
 	cSi_mt->AddProperty("RINDEX", Si_Energy, Si_RIND, Sinum);
 	hSi->SetMaterialPropertiesTable(cSi_mt);
 
-	// ----------------------------------------------------------	
+	// ==========================================================	
 	// Silicon resin
-	// ----------------------------------------------------------	
+	// ==========================================================	
 	G4double SiRes_RIND[] = {1.41, 1.41};
 	assert(sizeof(SiRes_RIND) == sizeof(Si_Energy));
 	
@@ -289,9 +297,9 @@ void CreateCyFi::OpticalProperties()
 	cSiRes_mt->AddProperty("RINDEX", Si_Energy, SiRes_RIND, Sinum);
 	hSiResin->SetMaterialPropertiesTable(cSiRes_mt);
 
-	// ----------------------------------------------------------	
+	// ==========================================================	
 	// Optical grease
-	// ----------------------------------------------------------	
+	// ==========================================================	
 	//? better if it was higher?
 	G4double OG_RIND[] = {1.465, 1.465};
 	assert(sizeof(OG_RIND) == sizeof(Si_Energy));
@@ -486,18 +494,14 @@ void CreateCyFi::OpticalProperties()
 	hSClad->SetMaterialPropertiesTable(hsClad_mt);
 
 	G4cout<<"CreateCyFi::OpticalProperties() : Done !!"<<G4endl;
-	G4cout<<"-----------------------------------------"<<G4endl;
+	G4cout<<"========================================="<<G4endl;
 }
 
 void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 {
 	G4cout<<G4endl;
-	G4cout<<"-----------------------------------------"<<G4endl;
-	G4cout<<"--------- CreateCyFi::Volumes() ---------"<<G4endl;
-
-	hCyFi_length 	= 15*cm;
-	hCyFi_radius 	= 3.5*cm;
-	hFiberThickness	= 5*mm;
+	G4cout<<"========================================="<<G4endl;
+	G4cout<<"========- CreateCyFi::Volumes() ========="<<G4endl;
 
 	bool bool_CyFiOpticalGrease = true; 
 	hCheckOverlaps = false;
@@ -573,30 +577,29 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 	G4cout<<"\nInner fibers"<<G4endl;
 	double r_in = hCyFi_radius;
 	TVector3 center_in = TVector3(r_in,0,0);
-	double angle_in = 60*deg;
-	double turns_in = AngleToTurns(angle_in, hCyFi_length, r_in);
+	double turns_in = AngleToTurns(hangle_in, hCyFi_length, r_in);
 	double lenght_in = sqrt( pow(turns_in * 2*M_PI*r_in, 2) + pow(hCyFi_length, 2) ); 
-	G4cout<<"Angle_in : "<<angle_in<<"; Turns_in : "<<turns_in<<"; Lenght_in : "<<lenght_in<<G4endl;
+	G4cout<<"Angle_in : "<<hangle_in<<"; Turns_in : "<<turns_in<<"; Lenght_in : "<<lenght_in<<G4endl;
 	double steps_in = 200;
 	// Fiber made of fVacuum
 	// G4TessellatedSolid* CreateHelix(G4String name, TVector3 center, double size, double runningangle, doule length, int steps, double extrusion)
-	G4TessellatedSolid* FiberSolid_in = CreateHelix("TriangularHelix_in", center_in, hFiberThickness, angle_in, hCyFi_length, steps_in, hReadSizeZ);	
+	G4TessellatedSolid* FiberSolid_in = CreateHelix("TriangularHelix_in", center_in, hFiberThickness, hangle_in, hCyFi_length, steps_in, hReadSizeZ);	
     G4LogicalVolume* FiberLogical_in = new G4LogicalVolume(FiberSolid_in, hVacuum, "HelixLogical_in");
     
 	// Core made of fBCF20 and long version for cut-out
-	G4TessellatedSolid* Core_long_in = CreateHelix("Core_in", center_in, 0.94*hFiberThickness, angle_in, hCyFi_length, steps_in, 5);
+	G4TessellatedSolid* Core_long_in = CreateHelix("Core_in", center_in, 0.94*hFiberThickness, hangle_in, hCyFi_length, steps_in, 5);
     G4LogicalVolume* CoreLogical_long_in = new G4LogicalVolume(Core_long_in, fMaterial, "HelixLogical_in");
-	G4TessellatedSolid* Core_in = CreateHelix("Core_in", center_in, 0.94*hFiberThickness, angle_in, hCyFi_length, steps_in, 0);
+	G4TessellatedSolid* Core_in = CreateHelix("Core_in", center_in, 0.94*hFiberThickness, hangle_in, hCyFi_length, steps_in, 0);
     G4LogicalVolume* CoreLogical_in = new G4LogicalVolume(Core_in, fMaterial, "HelixLogical_in");
 
 	// FirstCladding made of fFClad and long version for cut-out
-	G4TessellatedSolid* FirstCladding_long_in = CreateHelix("FirstCladding_long_in", center_in, 0.98*hFiberThickness, angle_in, hCyFi_length, steps_in, 5);
+	G4TessellatedSolid* FirstCladding_long_in = CreateHelix("FirstCladding_long_in", center_in, 0.98*hFiberThickness, hangle_in, hCyFi_length, steps_in, 5);
     G4LogicalVolume* FirstCladdingLogical_long_in = new G4LogicalVolume(FirstCladding_long_in, hFClad, "HelixLogical_in");
-	G4TessellatedSolid* tmpFirstCladding_in = CreateHelix("FirstCladding_in", center_in, 0.98*hFiberThickness, angle_in, hCyFi_length, steps_in, 0);
+	G4TessellatedSolid* tmpFirstCladding_in = CreateHelix("FirstCladding_in", center_in, 0.98*hFiberThickness, hangle_in, hCyFi_length, steps_in, 0);
     G4LogicalVolume* tmpFirstCladdingLogical_in = new G4LogicalVolume(tmpFirstCladding_in, hFClad, "HelixLogical_in");
 
 	// SecondCladding made of hSClad and long version for cut-out
-	G4TessellatedSolid* tmpSecondCladding_in = CreateHelix("SecondCladding_in", center_in, hFiberThickness, angle_in, hCyFi_length, steps_in, 0);	
+	G4TessellatedSolid* tmpSecondCladding_in = CreateHelix("SecondCladding_in", center_in, hFiberThickness, hangle_in, hCyFi_length, steps_in, 0);	
     G4LogicalVolume* tmpSecondCladdingLogical_in = new G4LogicalVolume(tmpSecondCladding_in, hSClad, "HelixLogical_in");
 
 	// First Cladding: bool subtraction of temp FirstCladding and Core (long version)
@@ -642,10 +645,10 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 	G4Transform3D Read_transform_in;
 	TVector3 path_in = Path(0, turns_in, center_in, hCyFi_length);
 	G4ThreeVector Read_translate_in = G4ThreeVector(path_in.x(), path_in.y(), path_in.z());
-	G4Rotate3D 	  Read_adapt_in =  G4Rotate3D(-angle_in, G4ThreeVector(1, 0, 0));
+	G4Rotate3D 	  Read_adapt_in =  G4Rotate3D(-hangle_in, G4ThreeVector(1, 0, 0));
 	// Additional vector to traslat the Read along the orthogonal to the fiber  
 	G4ThreeVector Read_adjust_in = G4ThreeVector(0, 0, 1);
-	Read_adjust_in.rotateX(-angle_in);
+	Read_adjust_in.rotateX(-hangle_in);
 	Read_adjust_in.setMag(-0.5*hReadSizeZ);
 	Read_transform_in =  ((G4Translate3D)Read_adjust_in)*(G4Translate3D)Read_translate_in*Read_adapt_in;
 	hPhysRead_in 	= new G4PVPlacement(Read_transform_in, hLogicRead_in, "Read", FiberLogical_in, true, 0, hCheckOverlaps);
@@ -658,7 +661,7 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 	hPhysRead_in 	= new G4PVPlacement(Read_transform_in, hLogicRead_in, "Read", FiberLogical_in, true, 1, hCheckOverlaps);
 
 
-	int n_in = r_in * 2*M_PI / (1.5*hFiberThickness/cos(angle_in));
+	int n_in = r_in * 2*M_PI / (1.5*hFiberThickness/cos(hangle_in));
 	n_in = n_in-1;
 	G4cout<<"Fiber's arc : "<<r_in * 2*M_PI / hFiberThickness<<"; N of fibers : "<<n_in<<G4endl;
 	double theta_in = 2*M_PI/n_in;
@@ -676,30 +679,29 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 	G4cout<<"\nOuter fibers"<<G4endl;
 	double r_out = hCyFi_radius + hFiberThickness + 1*mm;
 	TVector3 center_out = TVector3(r_out,0,0);
-	double angle_out = 15*deg;
-	double turns_out = AngleToTurns(angle_out, hCyFi_length, r_out);
+	double turns_out = AngleToTurns(hangle_out, hCyFi_length, r_out);
 	double lenght_out = sqrt( pow(turns_out * 2*M_PI*r_out, 2) + pow(hCyFi_length, 2) ); 
-	G4cout<<"Angle_out : "<<angle_out<<"; Turns_out : "<<turns_out<<"; Lenght_out : "<<lenght_out<<G4endl;
+	G4cout<<"Angle_out : "<<hangle_out<<"; Turns_out : "<<turns_out<<"; Lenght_out : "<<lenght_out<<G4endl;
 	double steps_out = 200;
 	// Fiber made of fVacuum
 	// G4TessellatedSolid* CreateHelix(G4String name, TVector3 center, double size, double runningangle, doule length, int steps, double extrusion)
-	G4TessellatedSolid* FiberSolid_out = CreateHelix("TriangularHelix_out", center_out, hFiberThickness, angle_out, hCyFi_length, steps_out, hReadSizeZ);	
+	G4TessellatedSolid* FiberSolid_out = CreateHelix("TriangularHelix_out", center_out, hFiberThickness, hangle_out, hCyFi_length, steps_out, hReadSizeZ);	
     G4LogicalVolume* FiberLogical_out = new G4LogicalVolume(FiberSolid_out, hVacuum, "HelixLogical_out");
     
 	// Core made of fBCF20 and long version for cut-out
-	G4TessellatedSolid* Core_long_out = CreateHelix("Core_out", center_out, 0.94*hFiberThickness, angle_out, hCyFi_length, steps_out, 5);
+	G4TessellatedSolid* Core_long_out = CreateHelix("Core_out", center_out, 0.94*hFiberThickness, hangle_out, hCyFi_length, steps_out, 5);
     G4LogicalVolume* CoreLogical_long_out = new G4LogicalVolume(Core_long_out, fMaterial, "HelixLogical_out");
-	G4TessellatedSolid* Core_out = CreateHelix("Core_out", center_out, 0.94*hFiberThickness, angle_out, hCyFi_length, steps_out, 0);
+	G4TessellatedSolid* Core_out = CreateHelix("Core_out", center_out, 0.94*hFiberThickness, hangle_out, hCyFi_length, steps_out, 0);
     G4LogicalVolume* CoreLogical_out = new G4LogicalVolume(Core_out, fMaterial, "HelixLogical_out");
 
 	// FirstCladding made of fFClad and long version for cut-out
-	G4TessellatedSolid* FirstCladding_long_out = CreateHelix("FirstCladding_long_out", center_out, 0.98*hFiberThickness, angle_out, hCyFi_length, steps_out, 5);
+	G4TessellatedSolid* FirstCladding_long_out = CreateHelix("FirstCladding_long_out", center_out, 0.98*hFiberThickness, hangle_out, hCyFi_length, steps_out, 5);
     G4LogicalVolume* FirstCladdingLogical_long_out = new G4LogicalVolume(FirstCladding_long_out, hFClad, "HelixLogical_out");
-	G4TessellatedSolid* tmpFirstCladding_out = CreateHelix("FirstCladding_out", center_out, 0.98*hFiberThickness, angle_out, hCyFi_length, steps_out, 0);
+	G4TessellatedSolid* tmpFirstCladding_out = CreateHelix("FirstCladding_out", center_out, 0.98*hFiberThickness, hangle_out, hCyFi_length, steps_out, 0);
     G4LogicalVolume* tmpFirstCladdingLogical_out = new G4LogicalVolume(tmpFirstCladding_out, hFClad, "HelixLogical_out");
 
 	// SecondCladding made of fSClad and long version for cut-out
-	G4TessellatedSolid* tmpSecondCladding_out = CreateHelix("SecondCladding_out", center_out, hFiberThickness, angle_out, hCyFi_length, steps_out, 0);	
+	G4TessellatedSolid* tmpSecondCladding_out = CreateHelix("SecondCladding_out", center_out, hFiberThickness, hangle_out, hCyFi_length, steps_out, 0);	
     G4LogicalVolume* tmpSecondCladdingLogical_out = new G4LogicalVolume(tmpSecondCladding_out, hSClad, "HelixLogical_out");
 
 	// First Cladding: bool subtraction of temp FirstCladding and Core (long version)
@@ -745,10 +747,10 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 	G4Transform3D Read_transform_out;
 	TVector3 path_out = Path(0, turns_out, center_out, hCyFi_length);
 	G4ThreeVector Read_translate_out = G4ThreeVector(path_out.x(), path_out.y(), path_out.z());
-	G4Rotate3D 	  Read_adapt_out =  G4Rotate3D(-angle_out, G4ThreeVector(1, 0, 0));
+	G4Rotate3D 	  Read_adapt_out =  G4Rotate3D(-hangle_out, G4ThreeVector(1, 0, 0));
 	// Additional vector to traslat the Read along the orthogonal to the fiber  
 	G4ThreeVector Read_adjust_out = G4ThreeVector(0, 0, 1);
-	Read_adjust_out.rotateX(-angle_out);
+	Read_adjust_out.rotateX(-hangle_out);
 	Read_adjust_out.setMag(-0.5*hReadSizeZ);
 	Read_transform_out =  ((G4Translate3D)Read_adjust_out)*(G4Translate3D)Read_translate_out*Read_adapt_out;
 	hPhysRead_out 	= new G4PVPlacement(Read_transform_out, hLogicRead_out, "Read", FiberLogical_out, true, 0, hCheckOverlaps);
@@ -760,7 +762,7 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 	Read_transform_out = ((G4Translate3D)Read_adjust_out)*(G4Translate3D)G4ThreeVector(0, 0, hCyFi_length)*Read_rotate_out*(G4Translate3D)Read_translate_out*Read_adapt_out*flip_sipm;
 	hPhysRead_out 	= new G4PVPlacement(Read_transform_out, hLogicRead_out, "Read", FiberLogical_out, true, 1, hCheckOverlaps);
 
-	int n_out = r_out * 2*M_PI / (1.5*hFiberThickness/cos(angle_out));
+	int n_out = r_out * 2*M_PI / (1.5*hFiberThickness/cos(hangle_out));
 	n_out = n_out-1;
 	G4cout<<"Fiber's arc : "<<r_out * 2*M_PI / hFiberThickness<<"; N of fibers : "<<n_out<<G4endl;
 	double theta_out = 2*M_PI/n_out;
@@ -786,14 +788,14 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 
 
 	G4cout<<"CreateCyFi::Volumes() : Done !!"<<G4endl;
-	G4cout<<"-----------------------------------------"<<G4endl;
+	G4cout<<"========================================="<<G4endl;
 }
 
 void CreateCyFi::SD()
 {
 	G4cout<<G4endl;
-	G4cout<<"-----------------------------------------"<<G4endl;
-	G4cout<<"------------ CreateCyFi::SD() -----------"<<G4endl;
+	G4cout<<"========================================="<<G4endl;
+	G4cout<<"============ CreateCyFi::SD() ==========="<<G4endl;
 
 	auto sdManager = G4SDManager::GetSDMpointer();
    	G4String SDname;
@@ -811,5 +813,5 @@ void CreateCyFi::SD()
 	}
 
 	G4cout<<"CreateCyFi::SD() : Done !!"<<G4endl;
-	G4cout<<"-----------------------------------------"<<G4endl;
+	G4cout<<"========================================="<<G4endl;
 }

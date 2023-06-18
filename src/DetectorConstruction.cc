@@ -919,8 +919,10 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes_CyFi()
 	// Set how the World is visualized
     fLogicWorld	->SetVisAttributes(G4Colour(1, 1, 1, 0.1));
 
-	CreateCyFi * CyFi = new CreateCyFi();
+	// CreateCyFi(double length, double radius, double thickness, double angle_in, double angle_out)	
+	CreateCyFi * CyFi = new CreateCyFi(15*cm, 3.5*cm, 5*mm, 55*deg, 0*deg);
 	CyFi->Create(fLogicWorld);
+
     return fPhysWorld;
 }
 
