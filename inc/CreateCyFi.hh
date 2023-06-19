@@ -57,9 +57,13 @@ class CreateCyFi
 		//? All sections are separated for clarity
 		void Materials(); 								// Required materials
 		void OpticalProperties();						// Optical properties of the materials
-		void Volumes(G4LogicalVolume * hLogicWorld);	// Geometry (needs the World Logic volume to place the CYFi)
+		void Volumes();									// Geometry 
 		void SD();										// SensitiveDetectors
 		
+
+		//? Pointer to the universe
+		G4LogicalVolume * hLogicWorld;
+
 		//? Geometry	
 		//-----------------------------------
 		// CyFI variables
@@ -112,6 +116,7 @@ class CreateCyFi
 		// Materials
 		G4Material* hScintMaterial;
 		G4Material* hSiPMMaterial;
+		G4Material* hMaterial;
 
 		//-----------------------------------
 		G4Material* hAir;

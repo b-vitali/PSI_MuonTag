@@ -17,11 +17,12 @@ CreateCyFi::CreateCyFi(double length, double radius, double thickness, double an
 CreateCyFi :: ~CreateCyFi()
 {}
 
-void CreateCyFi::Create(G4LogicalVolume * hLogicWorld)
+void CreateCyFi::Create(G4LogicalVolume * LogicWorld)
 {
+	hLogicWorld = LogicWorld;
 	Materials();
 	OpticalProperties();
-	Volumes(hLogicWorld);
+	Volumes();
 	SD();
 }
 
@@ -497,26 +498,14 @@ void CreateCyFi::OpticalProperties()
 	G4cout<<"========================================="<<G4endl;
 }
 
-void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
+void CreateCyFi::Volumes()
 {
 	G4cout<<G4endl;
 	G4cout<<"========================================="<<G4endl;
 	G4cout<<"========- CreateCyFi::Volumes() ========="<<G4endl;
 
 	bool bool_CyFiOpticalGrease = true; 
-	hCheckOverlaps = false;
-
-	//? CyFi
-	G4VSolid* CyFiSolid = new G4Tubs("CyFiSolid",
-                               hCyFi_radius-0.5*hFiberThickness - 1*mm,			// inner radius
-                               hCyFi_radius + 1.5*hFiberThickness + 1*mm + 1*mm,	// outer radius
-                               0.5*hCyFi_length+3*mm,							// height
-                               0.0 * deg,  360.0 * deg);  						// segment angles  
-    G4LogicalVolume* CyFiLogic;
-    if(bool_CyFiOpticalGrease) CyFiLogic = new G4LogicalVolume(CyFiSolid, hOG, "CyFi"); //fVacuum_nogamma
-    else CyFiLogic = new G4LogicalVolume(CyFiSolid, hVacuum, "CyFi"); //fVacuum_nogamma
-	G4PVPlacement* CyFiPlacement = new G4PVPlacement(0, G4ThreeVector(0,0,0), CyFiLogic, "CyFiLogic", hLogicWorld, false, 0, hCheckOverlaps);			
-	CyFiLogic->SetVisAttributes(G4Colour(1, 0.45, 0, 0.1));
+	hCheckOverlaps = true;
 
 	//? Read Solid and Phys.
 	hReadSizeX = hFiberThickness;
@@ -567,7 +556,7 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 
 	G4Rotate3D 	flip_sipm =  G4Rotate3D(180*deg, G4ThreeVector(0, 1, 0));
 
-	G4Material* fMaterial = hBCF20; 
+	hMaterial = hBCF20; 
 
 	//? Elements to contain in and out system
 
@@ -581,6 +570,20 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 	double lenght_in = sqrt( pow(turns_in * 2*M_PI*r_in, 2) + pow(hCyFi_length, 2) ); 
 	G4cout<<"Angle_in : "<<hangle_in<<"; Turns_in : "<<turns_in<<"; Lenght_in : "<<lenght_in<<G4endl;
 	double steps_in = 200;
+
+	//? CyFi_in
+	G4VSolid* CyFiSolid_in = new G4Tubs("CyFiSolid_in",
+                               r_in - 0.7*hFiberThickness,			// inner radius
+                               r_in + 0.7*hFiberThickness,		// outer radius
+                               0.5*hCyFi_length+3*mm,							// height
+                               0.0 * deg,  360.0 * deg);  						// segment angles  
+    G4LogicalVolume* CyFiLogic_in;
+    if(bool_CyFiOpticalGrease) CyFiLogic_in = new G4LogicalVolume(CyFiSolid_in, hOG, "CyFi"); //fVacuum_nogamma
+    else CyFiLogic_in = new G4LogicalVolume(CyFiSolid_in, hVacuum, "CyFi"); //fVacuum_nogamma
+	G4PVPlacement* CyFiPlacement_in = new G4PVPlacement(0, G4ThreeVector(0,0,0), CyFiLogic_in, "CyFiLogic", hLogicWorld, false, 0, hCheckOverlaps);			
+	CyFiLogic_in->SetVisAttributes(G4Colour(1, 0.45, 0, 0.1));
+	//CyFiLogic_in->SetVisAttributes(false);
+
 	// Fiber made of fVacuum
 	// G4TessellatedSolid* CreateHelix(G4String name, TVector3 center, double size, double runningangle, doule length, int steps, double extrusion)
 	G4TessellatedSolid* FiberSolid_in = CreateHelix("TriangularHelix_in", center_in, hFiberThickness, hangle_in, hCyFi_length, steps_in, hReadSizeZ);	
@@ -588,9 +591,9 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
     
 	// Core made of fBCF20 and long version for cut-out
 	G4TessellatedSolid* Core_long_in = CreateHelix("Core_in", center_in, 0.94*hFiberThickness, hangle_in, hCyFi_length, steps_in, 5);
-    G4LogicalVolume* CoreLogical_long_in = new G4LogicalVolume(Core_long_in, fMaterial, "HelixLogical_in");
+    G4LogicalVolume* CoreLogical_long_in = new G4LogicalVolume(Core_long_in, hMaterial, "HelixLogical_in");
 	G4TessellatedSolid* Core_in = CreateHelix("Core_in", center_in, 0.94*hFiberThickness, hangle_in, hCyFi_length, steps_in, 0);
-    G4LogicalVolume* CoreLogical_in = new G4LogicalVolume(Core_in, fMaterial, "HelixLogical_in");
+    G4LogicalVolume* CoreLogical_in = new G4LogicalVolume(Core_in, hMaterial, "HelixLogical_in");
 
 	// FirstCladding made of fFClad and long version for cut-out
 	G4TessellatedSolid* FirstCladding_long_in = CreateHelix("FirstCladding_long_in", center_in, 0.98*hFiberThickness, hangle_in, hCyFi_length, steps_in, 5);
@@ -639,7 +642,7 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 	OpSCladSurface_in->SetType(dielectric_dielectric);
 	OpSCladSurface_in->SetFinish(ground);
 	OpSCladSurface_in->SetPolish(0.5);
-	new G4LogicalBorderSurface("SCladSurface", SecondCladdingPlacement_in, CyFiPlacement, OpSCladSurface_in); //CyFiPlacement OR NOT?
+	new G4LogicalBorderSurface("SCladSurface", SecondCladdingPlacement_in, CyFiPlacement_in, OpSCladSurface_in); //CyFiPlacement OR NOT?
 
 	//? Add readout
 	G4Transform3D Read_transform_in;
@@ -669,7 +672,7 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 	for(int j=0; j<n_in; j += 1){
 		G4Rotate3D 	  rotation =  G4Rotate3D(j*theta_in, G4ThreeVector(0, 0, 1));
 		G4Transform3D transform = rotation;
-		fiberPlacement_in = new G4PVPlacement((G4Translate3D)G4ThreeVector(0,0,-0.5*hCyFi_length)*transform, FiberLogical_in, "HelixLogical_in", CyFiLogic, true, j, hCheckOverlaps);
+		fiberPlacement_in = new G4PVPlacement((G4Translate3D)G4ThreeVector(0,0,-0.5*hCyFi_length)*transform, FiberLogical_in, "HelixLogical_in", CyFiLogic_in, true, j, hCheckOverlaps);
 		if(hCheckOverlaps) print_progress_bar((double)j/(n_in-1), "HelixLogical_in");
 	}
 
@@ -677,12 +680,26 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 		OUT
 	*/
 	G4cout<<"\nOuter fibers"<<G4endl;
-	double r_out = hCyFi_radius + hFiberThickness + 1*mm;
+	double r_out = hCyFi_radius + 2*hFiberThickness;
 	TVector3 center_out = TVector3(r_out,0,0);
 	double turns_out = AngleToTurns(hangle_out, hCyFi_length, r_out);
 	double lenght_out = sqrt( pow(turns_out * 2*M_PI*r_out, 2) + pow(hCyFi_length, 2) ); 
 	G4cout<<"Angle_out : "<<hangle_out<<"; Turns_out : "<<turns_out<<"; Lenght_out : "<<lenght_out<<G4endl;
 	double steps_out = 200;
+	
+	//? CyFi_out
+	G4VSolid* CyFiSolid_out = new G4Tubs("CyFiSolid_out",
+                               r_out-0.7*hFiberThickness,			// inner radius
+                               r_out +0.7*hFiberThickness,	// outer radius
+                               0.5*hCyFi_length+3*mm,							// height
+                               0.0 * deg,  360.0 * deg);  						// segment angles  
+    G4LogicalVolume* CyFiLogic_out;
+    if(bool_CyFiOpticalGrease) CyFiLogic_out = new G4LogicalVolume(CyFiSolid_out, hOG, "CyFi"); //fVacuum_nogamma
+    else CyFiLogic_out = new G4LogicalVolume(CyFiSolid_out, hVacuum, "CyFi"); //fVacuum_nogamma
+	G4PVPlacement* CyFiPlacement_out = new G4PVPlacement(0, G4ThreeVector(0,0,0), CyFiLogic_out, "CyFiLogic", hLogicWorld, false, 0, hCheckOverlaps);			
+	CyFiLogic_out->SetVisAttributes(G4Colour(1, 0.45, 0, 0.1));
+	//CyFiLogic_out->SetVisAttributes(false);
+
 	// Fiber made of fVacuum
 	// G4TessellatedSolid* CreateHelix(G4String name, TVector3 center, double size, double runningangle, doule length, int steps, double extrusion)
 	G4TessellatedSolid* FiberSolid_out = CreateHelix("TriangularHelix_out", center_out, hFiberThickness, hangle_out, hCyFi_length, steps_out, hReadSizeZ);	
@@ -690,9 +707,9 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
     
 	// Core made of fBCF20 and long version for cut-out
 	G4TessellatedSolid* Core_long_out = CreateHelix("Core_out", center_out, 0.94*hFiberThickness, hangle_out, hCyFi_length, steps_out, 5);
-    G4LogicalVolume* CoreLogical_long_out = new G4LogicalVolume(Core_long_out, fMaterial, "HelixLogical_out");
+    G4LogicalVolume* CoreLogical_long_out = new G4LogicalVolume(Core_long_out, hMaterial, "HelixLogical_out");
 	G4TessellatedSolid* Core_out = CreateHelix("Core_out", center_out, 0.94*hFiberThickness, hangle_out, hCyFi_length, steps_out, 0);
-    G4LogicalVolume* CoreLogical_out = new G4LogicalVolume(Core_out, fMaterial, "HelixLogical_out");
+    G4LogicalVolume* CoreLogical_out = new G4LogicalVolume(Core_out, hMaterial, "HelixLogical_out");
 
 	// FirstCladding made of fFClad and long version for cut-out
 	G4TessellatedSolid* FirstCladding_long_out = CreateHelix("FirstCladding_long_out", center_out, 0.98*hFiberThickness, hangle_out, hCyFi_length, steps_out, 5);
@@ -741,7 +758,7 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 	OpSCladSurface_out->SetType(dielectric_dielectric);
 	OpSCladSurface_out->SetFinish(ground);
 	OpSCladSurface_out->SetPolish(0.5);
-	new G4LogicalBorderSurface("SCladSurface", SecondCladdingPlacement_out, CyFiPlacement, OpSCladSurface_out); //CyFiPlacement OR NOT?
+	new G4LogicalBorderSurface("SCladSurface", SecondCladdingPlacement_out, CyFiPlacement_out, OpSCladSurface_out); //CyFiPlacement OR NOT?
 
 	//? Add readout
 	G4Transform3D Read_transform_out;
@@ -770,9 +787,10 @@ void CreateCyFi::Volumes(G4LogicalVolume * hLogicWorld)
 	for(int j=0; j<n_out; j += 1){
 		G4Rotate3D 	  rotation =  G4Rotate3D(j*theta_out, G4ThreeVector(0, 0, 1));
 		G4Transform3D transform = rotation;
-		fiberPlacement_out = new G4PVPlacement((G4Translate3D)G4ThreeVector(0,0,-0.5*hCyFi_length)*transform, FiberLogical_out, "HelixLogical_out", CyFiLogic, true, j, hCheckOverlaps);			
+		fiberPlacement_out = new G4PVPlacement((G4Translate3D)G4ThreeVector(0,0,-0.5*hCyFi_length)*transform, FiberLogical_out, "HelixLogical_out", CyFiLogic_out, true, j, hCheckOverlaps);			
     	if(hCheckOverlaps) print_progress_bar((double)(j+1)/n_out, "HelixLogical_out");
 	}
+
 
 	//? Set VisualAttributes
 	// IN - Blue
