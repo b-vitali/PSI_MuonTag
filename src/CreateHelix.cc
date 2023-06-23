@@ -211,3 +211,40 @@ void HelixMaker::print_progress_bar(double percentage, std::string name){
 	std::cout<<""<<name<<" : "<<progress_string<<"\r\033[F";
 	if(percentage == 1) 	std::cout<<"\n\n"<<std::string(55+name.length(), '-')<<"\n\n";
 }
+
+int windows_size = 60;
+int buffer;
+bool odd;
+bool print = true; 
+
+void start_print(G4String s){
+    if(!print) return;
+
+    if( s.length() % 2 ) odd = true;
+    else odd = false;
+
+    if(odd) s = " "+s + "() ... Start! ";
+    else s = " "+s + "() ... Start!! ";
+
+    buffer = ( windows_size-s.length() )/2;
+    G4cout<<G4endl;
+	G4cout<<std::string(windows_size, '=')<<G4endl;
+	G4cout<<std::string(buffer, '=')<<s<<std::string(buffer, '=')<<G4endl;
+}
+
+void running_print(G4String s){
+
+}
+
+void finish_print(G4String s){
+    if(!print) return;
+
+    if( s.length() % 2 ) odd = true;
+    else odd = false;
+
+    if(odd) s = " "+s + "() ... Done!! ";
+    else s = " "+s + "() ... Done!!! ";
+    buffer = ( windows_size-s.length() )/2;
+	G4cout<<std::string(buffer, '=')<<s<<std::string(buffer, '=')<<G4endl;
+	G4cout<<std::string(windows_size, '=')<<G4endl;
+}

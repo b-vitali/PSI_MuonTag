@@ -34,14 +34,17 @@ G4VSensitiveDetector(name){ //fThetaOut((Double_t)(std::numeric_limits<double>::
 	double x = 20. + 2; 	x= x/2.;
 	double y = 20. + 2;		y= y/2.;
 	double z = 2.5 + 0.5;	z= z/2.;
-	PhotonTime_ID			= man->CreateH2(name+"_PhotonTime","PhotonTime", 200, 0., 200, 20, 0,20);
-	PhotonPosition_ID	= man->CreateH3(name+"_PhotonPos","PhotonPosition",100, -2., 2, 220, -11., 11, 20, 0,20);
+	PhotonTime_ID			= man->CreateH2(name+"_PhotonTime","PhotonTime", 1024, 0., 1024, 200, 0,200);
+	//PhotonPosition_ID	= man->CreateH3(name+"_PhotonPos","PhotonPosition",100, -2., 2, 220, -11., 11, 20, 0,20);
 
 }
 
 SiPMSD::SiPMSD(G4String name, G4int ntuple):
 G4VSensitiveDetector(name){
-	G4cout<<"Create a tmp SiPMSD to fill the Ntupla"<<G4endl;
+	G4cout<<"-----------------------------------------\n";
+	G4cout<<"Create a tmp SiPMSD:"<<G4endl;
+	G4cout<<"Createntupla "<<ntuple<<" for SiPM : "<<name;
+	G4cout<<"\n-----------------------------------------\n";
 
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 
@@ -75,8 +78,6 @@ G4VSensitiveDetector(name){
 	man->CreateNtupleDColumn("fMomInZ",fMomInZ);	
 	man->CreateNtupleDColumn("fTimeIn",fTimeIn);
 	
-	G4cout<<"Createntupla "<<ntuple<<" for SiPM "<<name<<G4endl;
-
 	man->FinishNtuple(ntuple);
 }
 
@@ -222,7 +223,7 @@ G4bool SiPMSD::ProcessHits(G4Step *aStep, G4TouchableHistory* ROhist){
     	G4AnalysisManager *man = G4AnalysisManager::Instance();
 
         man->FillH2(PhotonTime_ID, postStep->GetGlobalTime(), fSiPMNo.at(fSiPMNo.size()-1));
-        man->FillH3(PhotonPosition_ID, localpos.z(), localpos.y(), fSiPMNo.at(fSiPMNo.size()-1));
+        //man->FillH3(PhotonPosition_ID, localpos.z(), localpos.y(), fSiPMNo.at(fSiPMNo.size()-1));
 
 	// }
 	// else G4cout<<"Not a photon entering a SiPM : "<<pdgid<<G4endl;
@@ -295,12 +296,17 @@ void SiPMSD::FillHit(){
 }
 
 void SiPMSD::EndOfEvent(G4HCofThisEvent* hitsCE){
-	G4cout<<G4endl<<"End of event n: "<<G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()<<G4endl;
+	
+	G4cout<<"\n=========================================\n";
+	G4cout<<"========== SiPMSD::EndOfEvent ===========\n";
+	G4cout<<"End of event n: "<<G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID()<<G4endl;
 	if(fEvent.size()>0){
-		G4cout<<"Number of sub-hits in SiPM "<<fEvent.size()<<G4endl;
+		G4cout<<"Number of sub-hits in "<<SiPMName<<" : "<<fEvent.size();
 		FillHit();
 	}
-	
+	else G4cout<<SiPMName<<" is empty!";
+	G4cout<<"\n=========================================\n";
+
 	TrackOneIn = false;
 	EntryCreated = false;
 }
@@ -313,10 +319,10 @@ void SiPMSD::PrintAll(){}
 
 void SiPMSD::FillNtupla(G4AnalysisManager *man, SiPMHit* SiPMHit, G4int ntupla){
 	
+	G4cout<<"-----------------------------------------\n";
+	G4cout<<"Fill SiPM Ntupla: "<<ntupla;	
+	G4cout<<"\n-----------------------------------------\n";
 
-	G4cout<<"Fill SiPM Ntupla: "<<ntupla<<G4endl;	
-	G4cout<<"number of subhits "<<SiPMHit->GetEvent().size()<<G4endl;
-	
 	fEvent 	=  SiPMHit->GetEvent();
 	fSiPMNo 	=  SiPMHit->GetSiPMNo();
 	fParticleID 	=  SiPMHit->GetParticleID();
@@ -341,6 +347,5 @@ void SiPMSD::FillNtupla(G4AnalysisManager *man, SiPMHit* SiPMHit, G4int ntupla){
 	fMomInZ 	=  SiPMHit->GetMomInZ();
 	fTimeIn 	=  SiPMHit->GetTimeIn();
 
-	G4cout<<"example "<<fPosSiPMInY[0]<<G4endl;
 	man->AddNtupleRow(ntupla);
 }

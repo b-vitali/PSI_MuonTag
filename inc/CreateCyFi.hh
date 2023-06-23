@@ -4,8 +4,29 @@
 #ifndef CreateCyFi_h
 #define CreateCyFi_h 1
 
-#include "G4TessellatedSolid.hh"
-#include "G4TriangularFacet.hh"
+/*
+HOW TO INCLUDE IT
+You need 8 files (4 .hh & 4 .cc):
+	- SiPMSD.hh/cc
+	- SiPMHit.hh/cc
+	- CreateHelix.hh/cc
+	- CreateCyFi.hh/cc
+
+In EventAction.hh:
+	#include "CreateCyFi.hh"
+
+In EventAction::EndOfEventAction:
+	CreateCyFi * tmp_CyFi = new CreateCyFi();
+	tmp_CyFi->EndOfEvent(HCE, event);
+
+In DetectorConstruction_hh:
+	#include "CreateCyFi.hh"
+
+In DetectorConstruction::DefineVolumes:
+	CreateCyFi * CyFi = new CreateCyFi(15*cm, 3.5*cm, 1*mm, 55*deg, 0*deg);
+	CyFi->Create(fLogicWorld);
+*/
+
 // My additional file to create the G4TessellatedSolid
 #include "CreateHelix.hh"
 using namespace HelixMaker;
@@ -43,23 +64,30 @@ using namespace HelixMaker;
 
 #include "G4SubtractionSolid.hh"
 
+#include "G4HCofThisEvent.hh"
+#include "G4Event.hh"
+
 class CreateCyFi
 {
     public:
 		//? Constructor
 		CreateCyFi(double length, double radius, double thickness, double angle_in, double angle_out);
+		CreateCyFi();
         virtual ~CreateCyFi();
 
 		//? Main function
-        void Create(G4LogicalVolume * hLogicWorld);
+        void Create(G4LogicalVolume * hLogicWorld);					// This calls the private functions
 	
+		//? Function to write the data out
+		void CreateNTuples();										// Create NTuple (to be called in EventAction)
+		void FillNTuples(G4HCofThisEvent*HCE, const G4Event* event);	// Write to file (to be called in EndOfEventAction)
+
 	private:
 		//? All sections are separated for clarity
-		void Materials(); 								// Required materials
-		void OpticalProperties();						// Optical properties of the materials
-		void Volumes();									// Geometry 
-		void SD();										// SensitiveDetectors
-		
+		void Materials(); 										// Required materials
+		void OpticalProperties();								// Optical properties of the materials
+		void Volumes();											// Geometry 
+		void SD();												// SensitiveDetectors
 
 		//? Pointer to the universe
 		G4LogicalVolume * hLogicWorld;
@@ -154,6 +182,23 @@ class CreateCyFi
 		G4MaterialPropertiesTable* hBCF10_mt;
 		G4MaterialPropertiesTable* hBCF12_mt;
 		G4MaterialPropertiesTable* hBCF20_mt;
+
+		//? For the EndOfEvent
+		//-----------------------------------
+		// Hit collection number
+		G4int fCollIDSiPM_out;
+		G4int fCollIDSiPM_in;
+
+		//-----------------------------------
+		// temporary SD to create the ntuple
+		SiPMSD * tmp_sipm_out;
+		SiPMSD * tmp_sipm_in;
+
+		// To track if the ntuple were created
+ 		bool hNTUpleCreated;
+		
+		// to register each event just once
+		G4int fEvID; 
 };
 
 #endif

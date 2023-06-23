@@ -14,6 +14,11 @@ CreateCyFi::CreateCyFi(double length, double radius, double thickness, double an
 
 }
 
+CreateCyFi::CreateCyFi()
+{
+	hNTUpleCreated=false;
+}
+
 CreateCyFi :: ~CreateCyFi()
 {}
 
@@ -27,10 +32,8 @@ void CreateCyFi::Create(G4LogicalVolume * LogicWorld)
 }
 
 void CreateCyFi::Materials()
-{
-	G4cout<<G4endl;
-	G4cout<<"========================================="<<G4endl;
-	G4cout<<"======== CreateCyFi::Materials() ========"<<G4endl;
+{	
+	start_print("CreateCyFi::Materials");
 
 	G4double a; // atomic mass
 	G4double z; // atomic number
@@ -128,16 +131,12 @@ void CreateCyFi::Materials()
 	hSClad->AddElement(hH, 8);
 	hSClad->AddElement(hO, 2);
 
-
-	G4cout<<"CreateCyFi::Materials() : Done !!"<<G4endl;
-	G4cout<<"========================================="<<G4endl;
+	finish_print("CreateCyFi::Materials");
 }
 
 void CreateCyFi::OpticalProperties()
 {
-	G4cout<<G4endl;
-	G4cout<<"========================================="<<G4endl;
-	G4cout<<"==== CreateCyFi::OpticalProperties() ===="<<G4endl;
+	start_print("CreateCyFi::OpticalProperties");
 
 	//? Material properties tables
 	// ==========================================================	
@@ -494,15 +493,12 @@ void CreateCyFi::OpticalProperties()
 	hsClad_mt->AddProperty("RINDEX", vacuum_Energy, sClad_RIND, vacnum);
 	hSClad->SetMaterialPropertiesTable(hsClad_mt);
 
-	G4cout<<"CreateCyFi::OpticalProperties() : Done !!"<<G4endl;
-	G4cout<<"========================================="<<G4endl;
+	finish_print("CreateCyFi::OpticalProperties");
 }
 
 void CreateCyFi::Volumes()
 {
-	G4cout<<G4endl;
-	G4cout<<"========================================="<<G4endl;
-	G4cout<<"========- CreateCyFi::Volumes() ========="<<G4endl;
+	start_print("CreateCyFi::Volumes");
 
 	bool bool_CyFiOpticalGrease = true; 
 	hCheckOverlaps = true;
@@ -562,7 +558,7 @@ void CreateCyFi::Volumes()
 
 	/*
 		IN
-	*/
+	*/	
 	G4cout<<"\nInner fibers"<<G4endl;
 	double r_in = hCyFi_radius;
 	TVector3 center_in = TVector3(r_in,0,0);
@@ -678,8 +674,8 @@ void CreateCyFi::Volumes()
 
 	/*
 		OUT
-	*/
-	G4cout<<"\nOuter fibers"<<G4endl;
+	*/	
+	G4cout<<"Outer fibers"<<G4endl;
 	double r_out = hCyFi_radius + 2*hFiberThickness;
 	TVector3 center_out = TVector3(r_out,0,0);
 	double turns_out = AngleToTurns(hangle_out, hCyFi_length, r_out);
@@ -804,16 +800,12 @@ void CreateCyFi::Volumes()
 	FirstCladdingLogical_out->SetVisAttributes(G4Colour(0, 1, 0, 0.6));
 	SecondCladdingLogical_out->SetVisAttributes(G4Colour(1, 0, 1, 0.4));
 
-
-	G4cout<<"CreateCyFi::Volumes() : Done !!"<<G4endl;
-	G4cout<<"========================================="<<G4endl;
+	finish_print("CreateCyFi::Volumes");
 }
 
 void CreateCyFi::SD()
 {
-	G4cout<<G4endl;
-	G4cout<<"========================================="<<G4endl;
-	G4cout<<"============ CreateCyFi::SD() ==========="<<G4endl;
+	start_print("CreateCyFi::SD");
 
 	auto sdManager = G4SDManager::GetSDMpointer();
    	G4String SDname;
@@ -830,6 +822,65 @@ void CreateCyFi::SD()
 		hLogicSiPM_in->SetSensitiveDetector(SiPM_SD_in);
 	}
 
-	G4cout<<"CreateCyFi::SD() : Done !!"<<G4endl;
-	G4cout<<"========================================="<<G4endl;
+	finish_print("CreateCyFi::SD");
+}
+
+
+void CreateCyFi::CreateNTuples(){
+	start_print("CreateCyFi::CreateNTuple");
+
+	if(!hNTUpleCreated){
+		tmp_sipm_out 	= new SiPMSD("SiPM_out",2);
+		tmp_sipm_in 	= new SiPMSD("SiPM_in",3);
+		hNTUpleCreated = true;
+	}
+
+	finish_print("CreateCyFi::CreateNTuple");
+}
+
+void CreateCyFi::FillNTuples(G4HCofThisEvent*HCE, const G4Event* event){
+	start_print("CreateCyFi::FillNTuples");
+
+	// Get a hold on the hit clollections in the G4SDManager
+	G4SDManager* SDMan = G4SDManager::GetSDMpointer();
+	fCollIDSiPM_out = SDMan->GetCollectionID("SiPM_out/sipmCollection");
+	fCollIDSiPM_in = SDMan->GetCollectionID("SiPM_in/sipmCollection");
+
+	// Instance of the G4AnalysisManager to write out
+	G4AnalysisManager *man = G4AnalysisManager::Instance();
+
+	/*
+		OUT
+	*/
+	// Read the collection
+	SiPMHitsCollection* SiPMHitCollection_out = (SiPMHitsCollection*) (HCE->GetHC(fCollIDSiPM_out));
+
+	// For each hit fill the ntupla
+	SiPMHit* sipmHit;
+	G4int M_out = SiPMHitCollection_out->entries();
+	for(int i = 0; i < M_out; i++){
+		sipmHit = (*SiPMHitCollection_out)[i];
+		tmp_sipm_out->FillNtupla(man, sipmHit,2);
+		sipmHit->Clear();
+	}
+
+	/*
+		IN
+	*/
+	// Read the collection
+	SiPMHitsCollection* SiPMHitCollection_in = (SiPMHitsCollection*) (HCE->GetHC(fCollIDSiPM_in));
+
+	// For each hit fill the ntupla
+	G4int M_in = SiPMHitCollection_in->entries();
+	for(int i = 0; i < M_in; i++){
+		sipmHit = (*SiPMHitCollection_in)[i];
+		tmp_sipm_in->FillNtupla(man, sipmHit,3);
+		sipmHit->Clear();
+	}
+
+	//fEvID = event->GetEventID();
+	//if(fEvID % 100 == 0 || (fEvID & (fEvID - 1)) == 0 ) 
+	//std::cout << "Event n. " << fEvID << std::endl;
+
+	finish_print("CreateCyFi::FillNTuples");
 }
