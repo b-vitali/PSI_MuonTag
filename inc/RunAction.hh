@@ -9,6 +9,7 @@
 #include "G4AnalysisManager.hh"			// to access root stuff
 
 #include "RunActionMessenger.hh"
+#include "CreateCyFi.hh"
 
 /// Run action class
 ///
@@ -33,7 +34,10 @@ class RunAction : public G4UserRunAction
 		//inline TFile* GetFilePtr(){return fData;}
 		//inline TTree* GetTreePtr(){return fTree;}
 
+		CreateCyFi* GetTmpCyFi(){return tmp_CyFi;}
+
 	private:
+		CreateCyFi * tmp_CyFi;
 		G4String fFolder, fName;
 		RunActionMessenger* fMessenger;
 

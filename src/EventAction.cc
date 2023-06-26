@@ -17,7 +17,6 @@
 #include "G4THitsMap.hh"
 #include "G4SystemOfUnits.hh"
 
-CreateCyFi * tmp_CyFi;
 
 EventAction::EventAction(RunAction* runAction) : 
 	G4UserEventAction(), fRunAction(runAction), fCollIDScint_out(-1), fCollIDScint_in(-1), fCollIDSiPM_in(-1),fCollIDSiPM_out(-1)
@@ -26,9 +25,6 @@ EventAction::EventAction(RunAction* runAction) :
 		// tmp_scint_in 	= new ScintSD("Scint_in",2);
 		// tmp_sipm_out 	= new SiPMSD("SiPM_out",2);
 		// tmp_sipm_in 	= new SiPMSD("SiPM_in",3);
-		tmp_CyFi = new CreateCyFi();
-		tmp_CyFi->CreateNTuples();
-
 	}
 
 EventAction::~EventAction(){}
@@ -41,7 +37,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	G4HCofThisEvent*HCE = event->GetHCofThisEvent();
 	if(!HCE) return;
 	
-	tmp_CyFi->FillNTuples(HCE, event);
+	fRunAction->GetTmpCyFi()->FillNTuples(HCE, event);
 /*
 	// // Get hits collections IDs
 	// if(fCollIDScint_out < 0 && fCollIDScint_in < 0 && fCollIDSiPM_out < 0 && fCollIDSiPM_in < 0 ){

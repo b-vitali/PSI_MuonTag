@@ -34,7 +34,7 @@ G4VSensitiveDetector(name){ //fThetaOut((Double_t)(std::numeric_limits<double>::
 	double x = 20. + 2; 	x= x/2.;
 	double y = 20. + 2;		y= y/2.;
 	double z = 2.5 + 0.5;	z= z/2.;
-	PhotonTime_ID			= man->CreateH2(name+"_PhotonTime","PhotonTime", 1024, 0., 1024, 200, 0,200);
+	PhotonTime_ID = man->CreateH2(name+"_PhotonTime","PhotonTime", 1024, 0., 1024, 200, 0,200);
 	//PhotonPosition_ID	= man->CreateH3(name+"_PhotonPos","PhotonPosition",100, -2., 2, 220, -11., 11, 20, 0,20);
 
 }

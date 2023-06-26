@@ -31,7 +31,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
 {
-/*    
+   
     G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
     G4ParticleDefinition * particle = particleTable->FindParticle("e+");
 
@@ -66,7 +66,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
     man->FillNtupleDColumn(1, 4, mom.getY());
     man->FillNtupleDColumn(1, 5, mom.getZ());
     man->AddNtupleRow(1);
-*/
+
 
     fParticleGun->GeneratePrimaryVertex(anEvent);
 

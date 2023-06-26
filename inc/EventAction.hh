@@ -9,7 +9,6 @@
 
 #include "ScintSD.hh"
 #include "SiPMSD.hh"
-#include "CreateCyFi.hh"
 
 class RunAction;
 class TTree;

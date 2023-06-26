@@ -104,7 +104,6 @@ namespace HelixMaker{
     G4TessellatedSolid* CreateHelix(G4String name, TVector3 center, double size, double runningangle, double length, int steps, double extrusion); 
 }
 
-bool print = false
 void start_print(G4String s);
 void running_print(G4String s);
 void finish_print(G4String s);

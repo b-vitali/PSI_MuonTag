@@ -35,6 +35,9 @@ RunAction::RunAction():fName("output.root")
 	man->FinishNtuple(1);
 
 	fMessenger = new RunActionMessenger(this);
+
+	tmp_CyFi = new CreateCyFi();
+	tmp_CyFi->CreateNTuples();
 }
 
 RunAction::~RunAction()
