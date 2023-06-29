@@ -17,12 +17,14 @@
 
 #include "TNtuple.h"
 
+#include "MyPrint.cpp"
+
 //? Name of the file
-TString filename="test";
-int NEvents=10;
+TString filename="output";
+int NEvents=1;
 bool print = false;
 double PDE = 0.4;
-double thr = -3;
+double thr = -0;
 double tmax = 30;
 double tmin = -10;
 double DarkRate = 100e3;
@@ -165,6 +167,10 @@ TBrowser *OpenBrowser() { return new TBrowser; }
 int CreateWaveforms(TString Tree, TFile * _file1){
     //? Open the file and import the TTree
     TFile *_file0 = TFile::Open("../build/"+filename+".root");
+    if(!_file0) {
+        cout<< "file non existing?"<<endl;
+        return 0;
+    }
     TTree *T = _file0->Get<TTree>(Tree);
     cout<<Tree<<endl;
 
@@ -198,18 +204,15 @@ int CreateWaveforms(TString Tree, TFile * _file1){
     //? Loop on the entries (each contains vectors of time and sipmNo)
     if(NEvents > T->GetEntries()) NEvents = T->GetEntries();
     for(int i = 0; i < NEvents; i++){ //i< T->GetEntries()
-
-        cout<<"*****************************************"<<endl;
-        cout<<"*************** Event N : " <<i<<"**************"<<endl;
-        cout<<"*****************************************"<<endl;
+        start_print(TString::Format(Tree + " Event N : %d", i));
+        
         //? Get the i-entry of the TTree
         T->GetEntry(i);
 
-        cout<<Event[0][0]<<endl;
-        cout<<(*Event)[0]<<endl;
-        cout<<SiPMNo[0][0]<<endl;
-        cout<<SiPMNo[0].size()<<endl;
-        cout<<"*****************************************"<<endl<<endl;
+        running_print(TString::Format("%d", Event[0][0]));
+        running_print(TString::Format("%d", (*Event)[0]));
+        running_print(TString::Format("%d", SiPMNo[0][0]));
+        running_print(TString::Format("%zu", SiPMNo[0].size()));
 
         data_tmp = new Data();
         
@@ -231,6 +234,8 @@ int CreateWaveforms(TString Tree, TFile * _file1){
         for(int j = 0; j < waves->size(); j++){
             waves->at(j)->Write("");
         }
+
+        finish_print(TString::Format(Tree + " Event N : %d", i));
     }
     _file1->cd("");
     T_new->Write("");
@@ -239,22 +244,22 @@ int CreateWaveforms(TString Tree, TFile * _file1){
 
 int SiPM_Waveform(){
     cout<<endl;
-    cout<<"*****************************************"<<endl;
-    cout<<"*********** Waveform analysis ***********"<<endl;
-    cout<<"*****************************************"<<endl;
-    cout<<"* File name\t: "<<   filename<<"\t\t\t*"<<endl;
-    cout<<"* N Events\t: "<<   NEvents<<"\t\t\t*"<<endl;
-    cout<<"* Debug\t\t: "<<     print<<"\t\t\t*"<<endl;
-    cout<<"* PDE\t\t: "<<       PDE<<"\t\t\t*"<<endl;
-    cout<<"* Threshold\t: "<<   thr<<"\t\t\t*"<<endl;
-    cout<<"* Time window\t: ("<<tmin<<", "<<tmax<<")\t\t*"<<endl;
-    std::cout.precision(2);
-    cout<<"* Dark rate\t: "<<std::scientific<<   DarkRate<<"\t\t*"<<endl;
-    cout<<"*****************************************"<<endl;
+    start_print(TString::Format("Waveform analysis setup"));
+
+    running_print(                "File name   : " + filename);
+    running_print(TString::Format("N Events    : %d", NEvents));
+    running_print(TString::Format("Debug       : %d", print));
+    running_print(TString::Format("PDE         : %.2f", PDE));
+    running_print(TString::Format("Threshold   : %.2f", thr));
+    running_print(TString::Format("Time window : (%.0f, %.0f)", tmin, tmax));
+    running_print(TString::Format("Dark rate   : %.0e", DarkRate));
+    line_print();
     cout<<"Proceede (1/0)?  ";
     
     bool choice;
     cin>>choice;
+
+    finish_print(TString::Format("Waveform analysis setup"));
 
     //? Create the file in which we will store the waveforms
     TString  newfile = "wavetest_"+filename+".root";
