@@ -1,4 +1,3 @@
-
 #----------------------------------------------------------------------------
 # Setup project
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
@@ -18,7 +17,7 @@ endif()
 
 #----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
-# Setup inclue directory for this project#
+# Setup include directory for this project
 include(${Geant4_USE_FILE})
 
 #----------------------------------------------------------------------------
@@ -35,17 +34,30 @@ include(${ROOT_USE_FILE})
 
 #ROOT_GENERATE_DICTIONARY(G__Event Event.h LINKDEF EventLinkDef.h)
 
-include_directories(${PROJECT_SOURCE_DIR}/inc
-		    ${Geant4_INCLUDE_DIR}
-                    ${ROOT_INCLUDE_DIRS})
+include_directories(
+    ${PROJECT_SOURCE_DIR}/SiPM/inc
+    ${PROJECT_SOURCE_DIR}/SiPM/cc
+    ${PROJECT_SOURCE_DIR}/CyFi/inc
+    ${PROJECT_SOURCE_DIR}/CyFi/cc
+    ${PROJECT_SOURCE_DIR}/inc
+    ${Geant4_INCLUDE_DIRS}
+    ${ROOT_INCLUDE_DIRS}
+)
 
 link_directories(${ROOT_LIBRARY_DIR})
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
-# NB: headers are included so they will show up in include_directories#
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
+# NB: headers are included so they will show up in include_directories
+file(GLOB sources 
+    ${PROJECT_SOURCE_DIR}/SiPM/src/*.cc
+    ${PROJECT_SOURCE_DIR}/CyFi/src/*.cc
+    ${PROJECT_SOURCE_DIR}/src/*.cc)
+file(GLOB headers 
+    ${PROJECT_SOURCE_DIR}/SiPM/inc/*.hh
+    ${PROJECT_SOURCE_DIR}/CyFi/inc/*.hh
+    ${PROJECT_SOURCE_DIR}/inc/*.hh
+)
 
 #----------------------------------------------------------------------------
 # Add the executable and link it to the Geant4 libraries
@@ -56,7 +68,7 @@ target_link_libraries(muedm ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we 
 # build element. This is so that we can run the executable directly because it 
-# relies on these scripts being the current working sirectory.
+# relies on these scripts being the current working directory.
 #
 file(COPY mac DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
@@ -69,4 +81,3 @@ add_custom_target(MuEDM DEPENDS muedm)
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
 install(TARGETS muedm DESTINATION bin)
-
