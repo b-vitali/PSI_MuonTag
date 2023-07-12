@@ -54,15 +54,6 @@ G4VSensitiveDetector(name){
 	man->CreateNtupleIColumn("fEvent",fEvent);
 	man->CreateNtupleIColumn("fSiPMNo",fSiPMNo);
 	man->CreateNtupleIColumn("fParticleID",fParticleID);
-	man->CreateNtupleIColumn("fNgamma",fNgamma);
-	man->CreateNtupleIColumn("fNgammaSec",fNgammaSec);
-
-	man->CreateNtupleIColumn("fRight",fRight);
-	man->CreateNtupleIColumn("fLeft",fLeft);
-	man->CreateNtupleIColumn("fDown",fDown);
-	man->CreateNtupleIColumn("fUp",fUp);
-	man->CreateNtupleIColumn("fBack",fBack);
-	man->CreateNtupleIColumn("fFront",fFront);
 
 	man->CreateNtupleDColumn("fEin",fEin);
 	man->CreateNtupleDColumn("fThetaIn",fThetaIn);
@@ -96,8 +87,6 @@ void SiPMSD::Initialize(G4HCofThisEvent* hitsCE){
 	// aid variables just to check
 	Trk=-5;
 	TrkParent=-5;
-	TrackOneIn = false;
-	EntryCreated = false;
 
 	/*
 		Debug feature:
@@ -112,15 +101,6 @@ void SiPMSD::Initialize(G4HCofThisEvent* hitsCE){
 
 void SiPMSD::CreateEntry(G4Step *aStep){
 	//G4cout<<"CreateEntry SiPM trk : "<<aStep->GetTrack()->GetTrackID()<<" -> "<<Trk<<G4endl;
-	fNgamma.push_back(0);
-	fNgammaSec.push_back(0);
-
-	fRight.push_back(0);
-	fLeft.push_back(0);
-	fDown.push_back(0);
-	fUp.push_back(0);
-	fBack.push_back(0);
-	fFront.push_back(0);
 
 	G4Track * track = aStep->GetTrack();
 	G4StepPoint* preStep = aStep->GetPreStepPoint();
@@ -179,7 +159,6 @@ void SiPMSD::CreateEntry(G4Step *aStep){
 	if(G4StrUtil::contains(debug, "i+")) G4cout<<"norm: "<<norm.x()<<" "<<norm.y()<<" "<<norm.z()<<G4endl;
 	if(G4StrUtil::contains(debug, "i")) G4cout<<"cos(fThetaIn) = "<<norm.dot(fDirIn_trans)<<" and fThetaIn [deg] = "<<std::acos(norm.dot(fDirIn_trans)) * 180/CLHEP::pi<<G4endl;
 
-	EntryCreated = true;
 	EntryTrk = aStep->GetTrack()->GetTrackID();
 }
 
@@ -237,15 +216,6 @@ void SiPMSD::FillHit(){
 	
 	Hit->SetSiPMNo(fSiPMNo);
 	Hit->SetParticleID(fParticleID);
-	Hit->SetNgamma(fNgamma);
-	Hit->SetNgammaSec(fNgammaSec);
-
-	Hit->SetCurrentRight(fRight);
-	Hit->SetCurrentLeft(fLeft);
-	Hit->SetCurrentDown(fDown);
-	Hit->SetCurrentUp(fUp);
-	Hit->SetCurrentBack(fBack);
-	Hit->SetCurrentFront(fFront);
 
 	Hit->SetEin(fEin);
 	Hit->SetThetaIn(fThetaIn); //std::acos(fThetaIn) * 180/CLHEP::pi
@@ -266,15 +236,6 @@ void SiPMSD::FillHit(){
 	fEvent.clear();
 	fSiPMNo.clear();
 	fParticleID.clear();
-	fNgamma.clear();
-	fNgammaSec.clear();
-
-	fRight.clear();
-	fLeft.clear();
-	fDown.clear();
-	fUp.clear();
-	fBack.clear();
-	fFront.clear();
 
 	fEin.clear();
 	fThetaIn.clear();
@@ -306,9 +267,6 @@ void SiPMSD::EndOfEvent(G4HCofThisEvent* hitsCE){
 	}
 	else G4cout<<SiPMName<<" is empty!";
 	G4cout<<"\n=========================================\n";
-
-	TrackOneIn = false;
-	EntryCreated = false;
 }
 
 void SiPMSD::clear(){}
@@ -326,14 +284,6 @@ void SiPMSD::FillNtupla(G4AnalysisManager *man, SiPMHit* SiPMHit, G4int ntupla){
 	fEvent 	=  SiPMHit->GetEvent();
 	fSiPMNo 	=  SiPMHit->GetSiPMNo();
 	fParticleID 	=  SiPMHit->GetParticleID();
-	fNgamma 	=  SiPMHit->GetNgamma();
-	fNgammaSec 	=  SiPMHit->GetNgammaSec();
-	fRight 	=  SiPMHit->GetCurrentRight();
-	fLeft 	=  SiPMHit->GetCurrentLeft();
-	fDown 	=  SiPMHit->GetCurrentDown();
-	fUp 	=  SiPMHit->GetCurrentUp();
-	fBack 	=  SiPMHit->GetCurrentBack();
-	fFront 	=  SiPMHit->GetCurrentFront();
 	fEin 	=  SiPMHit->GetEin();
 	fThetaIn 	=  SiPMHit->GetThetaIn();
 	fPosInX 	=  SiPMHit->GetPosInX();

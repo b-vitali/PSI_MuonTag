@@ -20,6 +20,16 @@ void line_print(){
     cout<<std::string(windows_size, '*')<<endl;
 }
 
+int barlength;
+int reserved = 15;
+void print_progress_bar(double percentage, TString name) {
+    barlength = windows_size - (reserved+5); 
+    double progress = percentage * barlength;
+    std::string progress_string = "[" + std::string(floor(progress), '#') + std::string(barlength - floor(progress), ' ') + "]";
+    
+    std::cout << std::setw(reserved) << std::left << name.Data() << " : " << progress_string << "\r";
+}
+
 
 void running_print(TString s){
     if( s.Length() % 2 ) odd = true;

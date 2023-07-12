@@ -32,17 +32,6 @@ SiPMHit::SiPMHit(const SiPMHit &hit) : G4VHit(){
 	fMomInY = hit.fMomInY;
 	fMomInZ = hit.fMomInZ;
 	fTimeIn = hit.fTimeIn;
-
-	fNgamma = hit.fNgamma;
-	fNgammaSec = hit.fNgammaSec;
-
-	fRight = hit.fRight;
-	fLeft = hit.fLeft;
-	fDown = hit.fDown;
-	fUp = hit.fUp;
-	fBack = hit.fBack;
-	fFront = hit.fFront;
-	fPhysVol = hit.fPhysVol;
 }
 
 const SiPMHit& SiPMHit::operator=(const SiPMHit &hit){
@@ -63,16 +52,6 @@ const SiPMHit& SiPMHit::operator=(const SiPMHit &hit){
 	fMomInZ = hit.fMomInZ;
 	fTimeIn = hit.fTimeIn;
 
-	fNgamma = hit.fNgamma;
-	fNgammaSec = hit.fNgammaSec;
-	
-	fRight = hit.fRight;
-	fLeft = hit.fLeft;
-	fDown = hit.fDown;
-	fUp = hit.fUp;
-	fBack = hit.fBack;
-	fFront = hit.fFront;
-	fPhysVol = hit.fPhysVol;
 	return* this;
 }
 

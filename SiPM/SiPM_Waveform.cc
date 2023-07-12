@@ -19,15 +19,18 @@
 
 #include "MyPrint.cpp"
 
-//? Name of the file
-TString filename="output";
-int NEvents=1;
-bool print = false;
-double PDE = 0.4;
-double thr = -0;
-double tmax = 30;
-double tmin = -10;
-double DarkRate = 100e3;
+//? Setup
+TString filename = "output";
+int     NEvents  = 2;
+bool    save     = true;
+bool    print    = false;
+bool    verbose  = false;
+double  PDE      = 0.4;
+double  thr      = -1;
+double  tmax     = 30;
+double  tmin     = -10;
+double  DarkRate = 100e3;
+double  DarkProb = DarkRate*1e-6/tmax;
 
 /*
     This class is to store per each event all the gammas which arrived to SiPMs
@@ -73,19 +76,19 @@ struct SumTF1 {
     std::vector<TF1*> fFuncList; 
 };
 
+//? Function to add DarkNoise to the waveforms
 std::vector<TF1 *> AddDark(std::vector<TF1 *> v){
     TRandom3 r;
     r.SetSeed();
     double t;
-    double prob = DarkRate*1e-6/tmax;
-    if(print) cout<<prob<<endl;
+    //if(print) running_print(TString::Format("Add Dark with probability : %f", prob));
 
     float whole, fractional;
-    fractional = std::modf(prob, &whole);
+    fractional = std::modf(DarkProb, &whole);
 
-    if(print) cout<<whole<<" "<<fractional<<endl;
+    //if(print) cout<<whole<<" "<<fractional<<endl;
 
-    r.Uniform(tmin,prob);
+    r.Uniform(tmin,DarkProb);
     for(int i = 0; i < whole; i++){
         t = r.Uniform(tmin,tmax);
         v.push_back(new TF1("f",TString::Format("OneWave(x-%f)", t), tmin, tmax));
@@ -100,40 +103,52 @@ bool compareData(Data* d1, Data* d2)
     return (d1->sipm < d2->sipm);
 }
 
+//? Funcion to generate the waveforms
 void Waves(vector<TF1* > * waves, TNtuple* T_new, std::vector<Data *> data, double thr){
-    
+
     double Tx,Ty,Tz,Tt,Tcharge,Tamplitude;
     int Tev, Tsipm;
 
-    //? Sort the pair according to increasing SiPMNo
+    // Sort the pair according to increasing SiPMNo
     sort(data.begin(), data.end(), compareData);
 
-    //? Vector for the resulting functions
+    // Empty vector for the resulting functions
     vector<TF1 *> v_fsum;
     std::vector<TF1 *> v; 
 
     TF1* f_tmp;
 
-    //? to implement the PDE
+    // To implement the PDE
     TRandom3 r;
     r.SetSeed();
     double p;
 
+    // Variables needed for the loops
     int channel = -1;
     int index = -1;
-    for(int i = 0; i < data.size(); i++){
-        if(print) cout<<data[i]->sipm<< endl;
+    int ngamma = 0;
+    int SUMngamma = 0;
 
-        //? If it is a new channel conclude the previous, clear v and increase index
+    // Main Loop : Loop on the std::vector<Data *>
+    for(int i = 0; i < data.size(); i++){
+
+        // If it is a new channel conclude the previous, clear v and increase index
         if(channel != data[i]->sipm) {
-            if(print) cout<< "new channel" << endl;
+
+            // If you want print and verbose you get the number of gamma per SiPM
+            if(print && verbose && i>0) {
+                if(print) running_print(TString::Format("SiPMNo : %d; ngamma : %d", data[i-1]->sipm, ngamma));
+            }
+            SUMngamma += ngamma;
+            ngamma = 0;
+            
             channel = data[i]->sipm;
             if(index > -1) {
                 v = AddDark(v);
                 f_tmp = new TF1(TString::Format("f_ch%d", data[i]->sipm),SumTF1(v),tmin,tmax,0);
                 Tamplitude = f_tmp->GetMinimum();
                 if(Tamplitude < thr){
-                    v_fsum.push_back(f_tmp);
+                    if(save) v_fsum.push_back(f_tmp);
                     // new TCanvas;
                     // v_fsum[index]->Draw();
                     Tev = data[i]->ev;
@@ -150,23 +165,35 @@ void Waves(vector<TF1* > * waves, TNtuple* T_new, std::vector<Data *> data, doub
             index += 1;
         }
 
-        //? PDE SiPM
+        // PDE SiPM
         p = r.Rndm();
+        ngamma += 1;
         if(p < PDE){
-            if(print) cout<<setprecision(3)<<p<<"<"<<PDE<<" => New photoelectron"<<endl;
             v.push_back(new TF1("f",TString::Format("OneWave(x-%f)", data[i]->t), tmin, tmax));
         }
-        else{if(print) cout<<setprecision(3)<<p<<">"<<PDE<<" => No photoelectron"<<endl;}
+
+        if(!print) print_progress_bar((float)i/(data.size()-1), TString::Format("Ev %d SiPM %d", data[i]->ev, channel));
     }
-    
+
+    // Keep track of all the photons analized
+    SUMngamma += ngamma;
+
+    // Return the generated waveforms
     *waves = v_fsum;
+
+    // Some printout to keep stuff organized (if print==true)
+    if(print) line_print();
+    if(print) running_print(TString::Format("ngamma processed : %d;", SUMngamma));
+    if(print) running_print(TString::Format("Number of SiPMs : %d", index));
+    if(print) running_print(TString::Format("Number of waves registered: %zu", waves->size()));
+
 }
 
 TBrowser *OpenBrowser() { return new TBrowser; }
 
 int CreateWaveforms(TString Tree, TFile * _file1){
     //? Open the file and import the TTree
-    TFile *_file0 = TFile::Open("../build/"+filename+".root");
+    TFile *_file0 = TFile::Open("build/"+filename+".root");
     if(!_file0) {
         cout<< "file non existing?"<<endl;
         return 0;
@@ -197,48 +224,43 @@ int CreateWaveforms(TString Tree, TFile * _file1){
     T->SetBranchAddress("fTimeIn",&(Time));
 
     std::vector<Data *> data; 
-    Data* data_tmp; 
-
     int ev;
-
+        
     //? Loop on the entries (each contains vectors of time and sipmNo)
     if(NEvents > T->GetEntries()) NEvents = T->GetEntries();
     for(int i = 0; i < NEvents; i++){ //i< T->GetEntries()
-        start_print(TString::Format(Tree + " Event N : %d", i));
+        if(print) start_print(TString::Format(Tree + " Event N : %d", i));
         
         //? Get the i-entry of the TTree
         T->GetEntry(i);
 
-        running_print(TString::Format("%d", Event[0][0]));
-        running_print(TString::Format("%d", (*Event)[0]));
-        running_print(TString::Format("%d", SiPMNo[0][0]));
-        running_print(TString::Format("%zu", SiPMNo[0].size()));
-
-        data_tmp = new Data();
-        
+        if(print) running_print(TString::Format("Number of gamma registered: %zu", (*SiPMNo).size()));
         //? Put info (for the i event) in array of Data
-        data.reserve(SiPMNo[0].size());
-        for(int j=0; j<SiPMNo[0].size(); j++){
-            data.push_back( new Data(Event[0][j], SiPMNo[0][j], X[0][j], Y[0][j], Z[0][j], Time[0][j]));
+        data.reserve((*SiPMNo).size());
+        for(int j=0; j<(*SiPMNo).size(); j++){
+            data.push_back( new Data( (*Event)[j], (*SiPMNo)[j], (*X)[j], (*Y)[j], (*Z)[j], (*Time)[j]));
         }
+
 
         //? Call the Waves routine which gives you an array of TF1
         Waves(waves, T_new, data, thr);
-        if(print) cout<<"waves.size() ="<< waves->size()<<endl;
 
         //? Insert the TF1 in folders accordin to the Ev number
-        ev = Event[0][i];
-        TString dirname = TString::Format("Ev_%d_", ev)+Tree;
-        _file1->mkdir(dirname);
-        _file1->cd(dirname);
-        for(int j = 0; j < waves->size(); j++){
-            waves->at(j)->Write("");
+        if(save){
+            ev = (*Event)[i];                                     //! ?? NANI?!?!
+            TString dirname = TString::Format("Ev_%d_", i)+Tree;
+            _file1->mkdir(dirname);
+            _file1->cd(dirname);
+            for(int j = 0; j < waves->size(); j++){
+                waves->at(j)->Write("");
+            }
         }
-
-        finish_print(TString::Format(Tree + " Event N : %d", i));
+        data.clear();
+        if(print) finish_print(TString::Format(Tree + " Event N : %d", i));
     }
     _file1->cd("");
-    T_new->Write("");
+    cout<<"\n";
+    T_new->Write();
     return 1;
 }
 
@@ -248,13 +270,16 @@ int SiPM_Waveform(){
 
     running_print(                "File name   : " + filename);
     running_print(TString::Format("N Events    : %d", NEvents));
+    running_print(TString::Format("Save waves  : %d", save));
     running_print(TString::Format("Debug       : %d", print));
+    running_print(TString::Format("Verbose     : %d", verbose));
     running_print(TString::Format("PDE         : %.2f", PDE));
     running_print(TString::Format("Threshold   : %.2f", thr));
-    running_print(TString::Format("Time window : (%.0f, %.0f)", tmin, tmax));
+    running_print(TString::Format("Time window : [%.0f, %.0f] ns", tmin, tmax));
     running_print(TString::Format("Dark rate   : %.0e", DarkRate));
+    running_print(TString::Format("Dark prob   : %.0e", DarkProb));
     line_print();
-    cout<<"Proceede (1/0)?  ";
+    running_print("Proceede (1/0)?");
     
     bool choice;
     cin>>choice;
@@ -262,9 +287,10 @@ int SiPM_Waveform(){
     finish_print(TString::Format("Waveform analysis setup"));
 
     //? Create the file in which we will store the waveforms
-    TString  newfile = "wavetest_"+filename+".root";
+    TString  newfile = "build/"+filename+"_wfs"+".root";
 	TFile *_file1 = TFile::Open(newfile,"recreate");
     if(choice) CreateWaveforms("SiPM_out", _file1);
+    line_print();
     if(choice) CreateWaveforms("SiPM_in", _file1);
 
     OpenBrowser();

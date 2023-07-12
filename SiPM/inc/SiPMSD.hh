@@ -56,13 +56,11 @@ class SiPMSD : public G4VSensitiveDetector{
 		G4int TrkParent=0;
 		G4int EntryTrk=0;
 		G4int TrkDecay=0;
-		G4bool TrackOneIn = false;
 		G4bool EntryCreated = false;
 		G4String debug	= "";
 
 		//G4int fBounce; 
-		std::vector<G4int> fEvent, fSiPMNo, fParticleID, fNgamma, fNgammaSec;
- 		std::vector<G4int> fRight, fLeft, fDown, fUp, fBack, fFront;
+		std::vector<G4int> fEvent, fSiPMNo, fParticleID;
 		std::vector<G4double> fEin, fThetaIn;
 
 		std::vector<G4double> fPosInX, fPosInY, fPosInZ; 

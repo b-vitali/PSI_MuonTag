@@ -68,38 +68,11 @@ class SiPMHit : public G4VHit{
 		inline std::vector<G4double> GetMomInZ(){return fMomInZ;}
 		inline std::vector<G4double> GetTimeIn(){return fTimeIn;}
 
-
-		inline void SetNgamma(std::vector<G4int> ngamma){fNgamma = ngamma;}
-		inline std::vector<G4int> GetNgamma(){return fNgamma;}
-
-		inline void SetNgammaSec(std::vector<G4int> ngammasec){fNgammaSec = ngammasec;}
-		inline std::vector<G4int> GetNgammaSec(){return fNgammaSec;}
-
-		inline void SetCurrentRight(std::vector<G4int> right){fRight = right;}
-		inline std::vector<G4int> GetCurrentRight(){return fRight;}
-
-		inline void SetCurrentLeft(std::vector<G4int> left){fLeft = left;}
-		inline std::vector<G4int> GetCurrentLeft(){return fLeft;}
-		
-		inline void SetCurrentDown(std::vector<G4int>  down){fDown = down;}
-		inline std::vector<G4int> GetCurrentDown(){return fDown;}
-
-		inline void SetCurrentUp(std::vector<G4int> up){fUp = up;}
-		inline std::vector<G4int> GetCurrentUp(){return fUp;}
-
-		inline void SetCurrentBack(std::vector<G4int> back){fBack = back;}
-		inline std::vector<G4int> GetCurrentBack(){return fBack;}
-
-		inline void SetCurrentFront(std::vector<G4int> front){fFront = front;}
-		inline std::vector<G4int> GetCurrentFront(){return fFront;}
-
 		inline void Clear(){}
-		inline const G4VPhysicalVolume* GetPhysV(){return fPhysVol;}
 
 	private:
 		// G4int fBounce; 
-		std::vector<G4int> fEvent, fSiPMNo, fParticleID, fNgamma, fNgammaSec;
- 		std::vector<G4int> fRight, fLeft, fDown, fUp, fBack, fFront;
+		std::vector<G4int> fEvent, fSiPMNo, fParticleID;
 		std::vector<G4double> fEin, fThetaIn;
 
 		std::vector<G4double> fPosInX, fPosInY, fPosInZ; 
