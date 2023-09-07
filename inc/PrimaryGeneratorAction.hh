@@ -16,7 +16,7 @@
 
 #include "TDecompChol.h"
 #include "TMatrixD.h"
-#include "g4root.hh"			// to access root stuff
+#include "G4AnalysisManager.hh"			// to access root stuff
 
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {

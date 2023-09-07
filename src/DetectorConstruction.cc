@@ -146,6 +146,9 @@ void DetectorConstruction::DefineOpticalProperties()
 	}
 	myfile.close();
 
+	std::reverse(energy.begin(), energy.end());
+  	std::reverse(scint.begin(), scint.end());
+
 	assert(energy.size() == scint.size());
 	const G4int bc400 = int(energy.size());
 
@@ -175,15 +178,14 @@ void DetectorConstruction::DefineOpticalProperties()
 	fBC400_mt = new G4MaterialPropertiesTable();
 	fBC400_mt->AddProperty(       "RINDEX", BC400_Energy,  BC400_RIND, bc400);
 	fBC400_mt->AddProperty(    "ABSLENGTH", BC400_Energy,  BC400_ABSL, bc400);
-	fBC400_mt->AddProperty("FASTCOMPONENT", BC400_Energy, BC400_SCINT, bc400);
+	fBC400_mt->AddProperty("SCINTILLATIONCOMPONENT1", BC400_Energy, BC400_SCINT, bc400);
 	
 	fBC400_mt->AddConstProperty("SCINTILLATIONYIELD",        11050./MeV);
 	fBC400_mt->AddConstProperty(   "RESOLUTIONSCALE",                 1);
-	fBC400_mt->AddConstProperty(  "SLOWTIMECONSTANT",            2.4*ns);
-	fBC400_mt->AddConstProperty(  "SLOWSCINTILLATIONRISETIME",   0.9*ns);
-	fBC400_mt->AddConstProperty(  "FASTTIMECONSTANT",            2.4*ns);
-	fBC400_mt->AddConstProperty(  "FASTSCINTILLATIONRISETIME",   0.9*ns);
-	fBC400_mt->AddConstProperty(        "YIELDRATIO",                 0.);
+	fBC400_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT1",            2.4*ns);
+	fBC400_mt->AddConstProperty(  "SCINTILLATIONRISETIME1",   0.9*ns);
+	fBC400_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT2",            2.4*ns);
+	fBC400_mt->AddConstProperty(  "SCINTILLATIONRISETIME2",   0.9*ns);
 	
 	fBC400->SetMaterialPropertiesTable(fBC400_mt);
 
@@ -206,6 +208,9 @@ void DetectorConstruction::DefineOpticalProperties()
 
 	assert(energy.size() == scint.size());
 	const G4int lyso = int(energy.size());
+
+	std::reverse(energy.begin(), energy.end());
+  	std::reverse(scint.begin(), scint.end());
 
 	G4double* LYSO_Energy = new G4double[lyso];
 	G4double* LYSO_SCINT  = new G4double[lyso];
@@ -233,13 +238,12 @@ void DetectorConstruction::DefineOpticalProperties()
 	fLYSO_mt = new G4MaterialPropertiesTable();
 	fLYSO_mt->AddProperty(       "RINDEX", LYSO_Energy,  LYSO_RIND, lyso);
 	fLYSO_mt->AddProperty(    "ABSLENGTH", LYSO_Energy,  LYSO_ABSL, lyso);
-	fLYSO_mt->AddProperty("FASTCOMPONENT", LYSO_Energy, LYSO_SCINT, lyso);
+	fLYSO_mt->AddProperty("SCINTILLATIONCOMPONENT1", LYSO_Energy, LYSO_SCINT, lyso);
 	
 	fLYSO_mt->AddConstProperty("SCINTILLATIONYIELD",        33200./MeV);
 	fLYSO_mt->AddConstProperty(   "RESOLUTIONSCALE",                 1);
-	fLYSO_mt->AddConstProperty(  "SLOWTIMECONSTANT",            36*ns);
-	fLYSO_mt->AddConstProperty(  "FASTTIMECONSTANT",            36*ns);
-	fLYSO_mt->AddConstProperty(        "YIELDRATIO",                 0.);
+	fLYSO_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT1",            36*ns);
+	fLYSO_mt->AddConstProperty(  "SCINTILLATIONTIMECONSTANT2",            36*ns);
 	
 	fLYSO->SetMaterialPropertiesTable(fLYSO_mt);
 

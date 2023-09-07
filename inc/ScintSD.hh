@@ -12,7 +12,7 @@
 
 #include "TVector3.h"
 
-#include "g4root.hh"			// to access root stuff
+#include "G4AnalysisManager.hh"			// to access root stuff
 
 #include "TFile.h"
 #include "TTree.h"

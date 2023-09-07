@@ -12,7 +12,7 @@
 
 #include "G4RunManager.hh"
 
-#include "g4root.hh"
+#include "G4AnalysisManager.hh"
 
 class G4Step;
 

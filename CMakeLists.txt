@@ -35,17 +35,26 @@ include(${ROOT_USE_FILE})
 
 #ROOT_GENERATE_DICTIONARY(G__Event Event.h LINKDEF EventLinkDef.h)
 
-include_directories(${PROJECT_SOURCE_DIR}/inc
-		    ${Geant4_INCLUDE_DIR}
-                    ${ROOT_INCLUDE_DIRS})
+include_directories(
+    ${PROJECT_SOURCE_DIR}/SiPM/inc
+    ${PROJECT_SOURCE_DIR}/SiPM/cc
+    ${PROJECT_SOURCE_DIR}/inc
+    ${Geant4_INCLUDE_DIRS}
+    ${ROOT_INCLUDE_DIRS}
+)
 
 link_directories(${ROOT_LIBRARY_DIR})
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in include_directories#
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
+file(GLOB sources 
+    ${PROJECT_SOURCE_DIR}/SiPM/src/*.cc
+    ${PROJECT_SOURCE_DIR}/src/*.cc)
+file(GLOB headers 
+    ${PROJECT_SOURCE_DIR}/SiPM/inc/*.hh
+    ${PROJECT_SOURCE_DIR}/inc/*.hh
+)
 
 #----------------------------------------------------------------------------
 # Add the executable and link it to the Geant4 libraries

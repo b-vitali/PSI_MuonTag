@@ -6,7 +6,7 @@
 
 #include "G4UserRunAction.hh"
 #include "G4Run.hh"				// to have the run number in the file name
-#include "g4root.hh"			// to access root stuff
+#include "G4AnalysisManager.hh"			// to access root stuff
 
 #include "RunActionMessenger.hh"
 
