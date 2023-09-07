@@ -13,6 +13,7 @@ RunAction::RunAction():fName("data.root")
 	man->CreateNtuple("VD", "VD");
 	man->CreateNtupleIColumn("fEvent");
 	man->CreateNtupleIColumn("fVDNo");
+	man->CreateNtupleIColumn("fInOut");
 	man->CreateNtupleIColumn("fParticleID");
 	man->CreateNtupleDColumn("fVDTime");
 	man->CreateNtupleDColumn("fMom");
