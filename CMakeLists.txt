@@ -2,7 +2,7 @@
 #----------------------------------------------------------------------------
 # Setup project
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-project(Insertion)
+project(Entrance)
 
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
@@ -59,8 +59,8 @@ file(GLOB headers
 #----------------------------------------------------------------------------
 # Add the executable and link it to the Geant4 libraries
 #
-add_executable(insertion insertion.cc ${sources} ${headers})
-target_link_libraries(insertion ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+add_executable(entrance entrance.cc ${sources} ${headers})
+target_link_libraries(entrance ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we 
@@ -88,10 +88,10 @@ endforeach()
 #----------------------------------------------------------------------------
 # For internal Geant4 use - but has no effect if you build this standalone
 #
-add_custom_target(Insertion DEPENDS insertion)
+add_custom_target(Entrance DEPENDS entrance)
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS insertion DESTINATION bin)
+install(TARGETS entrance DESTINATION bin)
 

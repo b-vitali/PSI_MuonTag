@@ -19,7 +19,8 @@ G4bool VirtualDetectorSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ROHis
     G4Track * track = aStep->GetTrack();
     fParticleID = track->GetParticleDefinition()->GetPDGEncoding();
 
-    if(!aStep->IsFirstStepInVolume()) return true;
+    // Reject the OpticalPhotons and "not the first step" form the VD
+    if(!aStep->IsFirstStepInVolume() || fParticleID == -22) return true;
    	//if(aStep->GetTrack()->GetTrackID() == 1)
     //{ 
         //track->SetTrackStatus(fStopAndKill);
