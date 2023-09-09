@@ -2,7 +2,5 @@
 /run/verbose 1
 /random/setSeeds 299792458 662607015
 
-/gun/momentumAmp 100 MeV
-/run/beamOn 100
-/gun/momentumAmp 1 GeV
+/gun/momentumAmp 28 MeV
 /run/beamOn 100

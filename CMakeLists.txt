@@ -67,23 +67,7 @@ target_link_libraries(entrance ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 # build element. This is so that we can run the executable directly because it 
 # relies on these scripts being the current working sirectory.
 #
-set(ELEMENT_SCRIPTS
-    init_vis.mac
-    vis.mac
-    run.mac
-    run-mt.mac
-    run-mtloop.mac
-    run-loop.mac
-    thickness.loop
-    )
-
-foreach(_script ${ELEMENT_SCRIPTS})
-    configure_file(
-        ${PROJECT_SOURCE_DIR}/${_script}
-        ${PROJECT_BINARY_DIR}/${_script}
-        COPYONLY
-    )
-endforeach()
+file(COPY mac DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 #----------------------------------------------------------------------------
 # For internal Geant4 use - but has no effect if you build this standalone

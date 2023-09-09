@@ -697,12 +697,12 @@ void DetectorConstruction::ConstructSDandField()
 */
 
 void DetectorConstruction :: SetScintSize(G4double size){
-	fScintSizeX_gate = size;
-	fScintSizeY_gate = size;
+	//fScintSizeX_gate = size;
+	//fScintSizeY_gate = size;
 	fScintSizeZ_gate = size;
 
-	fSolidScint_gate->SetXHalfLength(size*0.5);
-	fSolidScint_gate->SetYHalfLength(size*0.5);
+	//fSolidScint_gate->SetXHalfLength(size*0.5);
+	//fSolidScint_gate->SetYHalfLength(size*0.5);
 	fSolidScint_gate->SetZHalfLength(size*0.5);
 
 	//fPhysScint->SetTranslation(G4ThreeVector(0, 0, 20*cm));
