@@ -65,6 +65,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 		void DefineOpticalProperties();	
 
 		G4VPhysicalVolume* Entrance();
+		G4VPhysicalVolume* TOF();
 		G4VPhysicalVolume* OneBar();
 		G4VPhysicalVolume* Telescope();
 
