@@ -52,8 +52,8 @@ DetectorConstruction :: ~DetectorConstruction()
 G4VPhysicalVolume* DetectorConstruction::Construct()
 {
 	// At construction the DefineVolumes describes the geometry
-	return Entrance();
-	// return TOF();
+	//return Entrance();
+	 return TOF();
 	// return Entrance();
 	// return Telescope();
 	// return OneBar();
@@ -480,7 +480,7 @@ G4VPhysicalVolume* DetectorConstruction::Entrance()
 G4VPhysicalVolume* DetectorConstruction::TOF()
 {
 	fCheckOverlaps = true;
-
+	fScintMaterial = fBC400_noscint;
 	G4double lenght = 20*cm;
 
 	// World dimentions
@@ -526,7 +526,7 @@ G4VPhysicalVolume* DetectorConstruction::TOF()
 		Gate Scintillator, Element and Read
 	*/
 
-	int howmanySiPM_gate = 3;
+	int howmanySiPM_gate = 4;
 
 	// Scint gate
 	fSolidScint_gate 	= new G4Box("fSolidScint_gate", 0.5*fScintSizeX_gate, 0.5*fScintSizeY_gate, 0.5*fScintSizeZ_gate);
@@ -556,7 +556,7 @@ G4VPhysicalVolume* DetectorConstruction::TOF()
 	fPhysSiPM_gate		= new G4PVPlacement(0, SiPM_pos, fLogicSiPM_gate, "SiPM_gate", fLogicRead_gate, false, fCheckOverlaps);
 
 	// Position the Element and the Scint and Read inside
-	fPhysElement_gate  = new G4PVPlacement(0, G4ThreeVector(0, 0, -lenght*0.5), fLogicElement_gate, "Element_gate", fLogicWorld, false, fCheckOverlaps);
+	fPhysElement_gate  = new G4PVPlacement(0, G4ThreeVector(0, 0, -lenght*0.5), fLogicElement_gate, "Element_gate", fLogicWorld, true, 0, fCheckOverlaps);
 	fPhysScint_gate	   = new G4PVPlacement(0, G4ThreeVector(0, 0, 0), fLogicScint_gate, "Scint_gate", fLogicElement_gate, false, fCheckOverlaps);
 	
 	G4Rotate3D 	  flip_sipm  = G4Rotate3D(90*deg, G4ThreeVector(1,0,0));
@@ -569,36 +569,32 @@ G4VPhysicalVolume* DetectorConstruction::TOF()
 	for(int i = 0; i<4; i++){
 	for(int j=0; j<howmanySiPM_gate; j += 1){
 		rotation  = G4Rotate3D(i*90*deg, G4ThreeVector(0, 0, 1));
-		translate = G4Translate3D(G4ThreeVector(0.5*fScintSizeX_gate+0.5*fReadSizeZ, (j-howmanySiPM_gate/2)*step, 0));
+		if(howmanySiPM_gate%2==1){
+			translate = G4Translate3D(G4ThreeVector(0.5*fScintSizeX_gate+0.5*fReadSizeZ, (j-howmanySiPM_gate/2)*step, 0));
+		}
+		else{
+			translate = G4Translate3D(G4ThreeVector(0.5*fScintSizeX_gate+0.5*fReadSizeZ, (j-howmanySiPM_gate/2+0.5)*step, 0));
+		}
 		transform = rotation*translate*flip_sipm;
 		fPhysRead_gate	   = new G4PVPlacement(transform, fLogicRead_gate, "Read_gate", fLogicElement_gate, true, i*10+j, fCheckOverlaps);
 	}
 	}
+
+	fPhysElement_gate  = new G4PVPlacement(0, G4ThreeVector(0, 0, +lenght*0.5), fLogicElement_gate, "Element_exit", fLogicWorld, true, 1, fCheckOverlaps);
+
 	if(fVDOn){
 		// VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
-		fVDSizeZ = lenght-fElementSizeZ_gate*0.5-0.5*mm; //Updated to fill 
+		double fVDSizeX = 30;
+    	double fVDSizeY = 30;
+		fVDSizeZ = 1; //Updated to fill 
 		fSolidVD	= new G4Box("VD", 0.5*fVDSizeX, 0.5*fVDSizeY, 0.5*fVDSizeZ);
     	fLogicVD 	= new G4LogicalVolume(fSolidVD, fVacuum_nogamma, "VD");
-    	fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., lenght*0.5-fVDSizeZ*0.5-0.5*mm), fLogicVD, "VD", fLogicWorld, true, 0, fCheckOverlaps);
+    	fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., -lenght*0.5-fElementSizeZ_gate*0.5-fVDSizeZ*0.5), fLogicVD, "VD", fLogicWorld, true, 0, fCheckOverlaps);
+    	fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., -lenght*0.5+fElementSizeZ_gate*0.5+fVDSizeZ*0.5), fLogicVD, "VD", fLogicWorld, true, 1, fCheckOverlaps);
+    	fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., +lenght*0.5-fElementSizeZ_gate*0.5-fVDSizeZ*0.5), fLogicVD, "VD", fLogicWorld, true, 2, fCheckOverlaps);
+    	fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., +lenght*0.5+fElementSizeZ_gate*0.5+fVDSizeZ*0.5), fLogicVD, "VD", fLogicWorld, true, 3, fCheckOverlaps);
     	
-		fPhysVD		= new G4PVPlacement(0, G4ThreeVector(0., 0., lenght*0.5+fVDSizeZ*0.5+fScintSizeZ_telescope+0.5*mm), fLogicVD, "VD", fLogicWorld, true, 2, fCheckOverlaps);
-
-
-    	double fVDSizeX_2 = 15;
-    	double fVDSizeY_2 = 15;
-    	double fVDSizeZ_2 = lenght;
-
-		// 2_VirtualDetector Solid (size) -> Logical (material) -> PVPLacement (posiz, rotaz, to interact)
-		fSolidVD_2	= new G4Box("VD_2", 0.5*fVDSizeX_2, 0.5*fVDSizeY_2, 0.5*fVDSizeZ_2);
-    	fLogicVD_2 	= new G4LogicalVolume(fSolidVD_2, fVacuum_nogamma, "VD_2");
-
-
-		translate = G4Translate3D(G4ThreeVector(0, 0, 0));
-		rotation  = G4Rotate3D(0*90*deg, G4ThreeVector(0, 0, 1));
-		transform = rotation*translate;
-    	fPhysVD_2	= new G4PVPlacement(transform, fLogicVD_2, "VD_2", fLogicWorld, false, 1, fCheckOverlaps);
     	fLogicVD	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.1));
-    	fLogicVD_2	->SetVisAttributes(G4Colour(0.8, 0.34, 0.68, 0.1));
 	}
 	
     return fPhysWorld;
@@ -984,7 +980,7 @@ void DetectorConstruction::ConstructSDandField()
 		fLogicVD->SetSensitiveDetector(VD_SD);
 
 		// VirtualDetectorSD * VD_SD_2 = new VirtualDetectorSD("VirtualDetector2");
-		fLogicVD_2->SetSensitiveDetector(VD_SD);
+		//fLogicVD_2->SetSensitiveDetector(VD_SD);
 	}
 }
 

@@ -53,7 +53,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	
 	G4int N;
 	G4bool gate = true;
-	G4bool telescope = true;
+	G4bool telescope = false;
 
 	//###################################
 	ScintHit* scintHit;
@@ -104,7 +104,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	}
 
 	//###################################
-	if(sipm){
+	if(sipm && gate){
 		if(fCollIDSiPM_gate < 0){
 			G4SDManager* SDMan = G4SDManager::GetSDMpointer();
 			fCollIDSiPM_gate = SDMan->GetCollectionID("SiPM_gate/sipmCollection");
@@ -126,7 +126,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
 	}
 
 	//###################################
-	if(sipm){
+	if(sipm && telescope){
 		if(fCollIDSiPM_telescope < 0){
 			G4SDManager* SDMan = G4SDManager::GetSDMpointer();
 			fCollIDSiPM_telescope = SDMan->GetCollectionID("SiPM_telescope/sipmCollection");
