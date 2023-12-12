@@ -107,11 +107,17 @@ int analyse_gun() {
 
     std::cout << "RMS Emittance X: " << emittanceX << " mm*mrad" << std::endl;
     std::cout << "RMS Emittance Y: " << emittanceY << " mm*mrad" << std::endl;
+
+    new TCanvas;
+    gunTree->Draw("fMom");
+
     return 0;
 }
 
 
 int analyse_VD(int req_VDNo) {
+    TCut cutCondition = Form("fVDNo == %d && fInOut == -1 && fParticleID == -13", req_VDNo);
+
     // Open the ROOT file
     TFile* file = TFile::Open("build/data_with.root");
     if (!file || file->IsZombie()) {
@@ -129,9 +135,10 @@ int analyse_VD(int req_VDNo) {
 
     // Variables to store tree data
     Double_t p, x, y, xp, yp, px, py, pz;
-    Int_t VDNo, InOut;
+    Int_t VDNo, InOut, ParticleID;
 
     // Set branch addresses
+    VDTree->SetBranchAddress("fParticleID", &ParticleID);
     VDTree->SetBranchAddress("fMom", &p);
     VDTree->SetBranchAddress("fPosX", &x);
     VDTree->SetBranchAddress("fPosY", &y);
@@ -151,7 +158,7 @@ int analyse_VD(int req_VDNo) {
     Long64_t numEvents = VDTree->GetEntries();
     for (Long64_t i = 0; i < numEvents; ++i) {
         VDTree->GetEntry(i);
-        if(VDNo == req_VDNo && InOut == 1){
+        if(VDNo == req_VDNo && InOut == -1 && ParticleID == -13){
             // Fill the vectors
             x_v.push_back(x);
             xp_v.push_back(px/p * 1000);
@@ -194,5 +201,12 @@ int analyse_VD(int req_VDNo) {
 
     std::cout << "RMS Emittance X: " << emittanceX << " mm*mrad" << std::endl;
     std::cout << "RMS Emittance Y: " << emittanceY << " mm*mrad" << std::endl;
+
+    new TCanvas;
+    VDTree->Draw("fMom",cutCondition,"");
+
+    new TCanvas;
+    VDTree->Draw("fVDTime",cutCondition,"");
+
     return 0;
 }
